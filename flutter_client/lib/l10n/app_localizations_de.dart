@@ -358,6 +358,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get playerStartFromBeginning => 'Von vorne abspielen';
 
   @override
+  String get playerWatchLiveEdge => 'Watch live edge';
+
+  @override
+  String get playerGoLive => 'Go live';
+
+  @override
+  String get dvrRecordingInProgress => 'Recording in progress';
+
+  @override
   String get playerPlay => 'Abspielen';
 
   @override
@@ -1732,6 +1741,34 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dvrSeriesKeepLast => 'Letzte behalten';
 
   @override
+  String get dvrSeriesDaysOfWeek => 'Days of Week';
+
+  @override
+  String get dvrSeriesDaysOfWeekHint =>
+      'Only record on these days. None selected = every day.';
+
+  @override
+  String get weekdaySunday => 'Sunday';
+
+  @override
+  String get weekdayMonday => 'Monday';
+
+  @override
+  String get weekdayTuesday => 'Tuesday';
+
+  @override
+  String get weekdayWednesday => 'Wednesday';
+
+  @override
+  String get weekdayThursday => 'Thursday';
+
+  @override
+  String get weekdayFriday => 'Friday';
+
+  @override
+  String get weekdaySaturday => 'Saturday';
+
+  @override
   String get dvrSeriesModeUniqueSe => 'Eindeutige S-E';
 
   @override
@@ -2107,6 +2144,21 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get settingsPrebufferLiveHint =>
       'Wartet einige Sekunden Video ab, bevor ein Sender losläuft, damit ungleichmäßig ankommende Streams nicht ständig zum Puffern anhalten. Senderwechsel dauern dadurch einige Sekunden länger.';
+
+  @override
+  String get settingsTimeshiftMode => 'Live-Timeshift';
+
+  @override
+  String get settingsTimeshiftModeHint =>
+      'Halt einen rollierenden Puffer der letzten Live-Sender, damit Sie pausieren, zurueckspulen und im Fenster suchen können. Aus schaltet das heutige Verhalten (kein Zurueckspulen).';
+
+  @override
+  String get settingsLivePrebuffer => 'Live-Prebuffer';
+
+  @override
+  String settingsLivePrebufferValue(int count) {
+    return '$count s';
+  }
 
   @override
   String get settingsNavigationSound => 'Navigationston';

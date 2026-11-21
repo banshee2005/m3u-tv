@@ -349,6 +349,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get playerStartFromBeginning => '从头开始';
 
   @override
+  String get playerWatchLiveEdge => 'Watch live edge';
+
+  @override
+  String get playerGoLive => 'Go live';
+
+  @override
+  String get dvrRecordingInProgress => 'Recording in progress';
+
+  @override
   String get playerPlay => '播放';
 
   @override
@@ -1663,6 +1672,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dvrSeriesKeepLast => '保留最后';
 
   @override
+  String get dvrSeriesDaysOfWeek => 'Days of Week';
+
+  @override
+  String get dvrSeriesDaysOfWeekHint =>
+      'Only record on these days. None selected = every day.';
+
+  @override
+  String get weekdaySunday => 'Sunday';
+
+  @override
+  String get weekdayMonday => 'Monday';
+
+  @override
+  String get weekdayTuesday => 'Tuesday';
+
+  @override
+  String get weekdayWednesday => 'Wednesday';
+
+  @override
+  String get weekdayThursday => 'Thursday';
+
+  @override
+  String get weekdayFriday => 'Friday';
+
+  @override
+  String get weekdaySaturday => 'Saturday';
+
+  @override
   String get dvrSeriesModeUniqueSe => '唯一S-E';
 
   @override
@@ -2025,6 +2062,21 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get settingsPrebufferLiveHint =>
       '频道开始播放前先缓冲几秒视频，让到达不稳定的直播流不再频繁暂停缓冲。切换频道会多花几秒。';
+
+  @override
+  String get settingsTimeshiftMode => '直播时移';
+
+  @override
+  String get settingsTimeshiftModeHint =>
+      '保留直播的滚动缓冲，可暂停、快退并在窗口内跳转。关闭则保持现有行为（不能快退）。';
+
+  @override
+  String get settingsLivePrebuffer => '直播预缓冲';
+
+  @override
+  String settingsLivePrebufferValue(int count) {
+    return '$count 秒';
+  }
 
   @override
   String get settingsNavigationSound => '导航音效';

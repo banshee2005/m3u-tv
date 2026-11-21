@@ -145,6 +145,7 @@ void main() {
           find.byType(DvrSeriesRuleOptionsScreen),
         );
         final l10n = AppLocalizations.of(screenContext);
+        await tester.ensureVisible(find.text(l10n.dvrSeriesSave));
         await tester.tap(find.text(l10n.dvrSeriesSave));
         await tester.pumpAndSettle();
 
@@ -277,6 +278,7 @@ void main() {
           find.byType(DvrSeriesRuleOptionsScreen),
         );
         final l10n = AppLocalizations.of(screenContext);
+        await tester.ensureVisible(find.text(l10n.dvrSeriesSave));
         await tester.tap(find.text(l10n.dvrSeriesSave));
         await tester.pumpAndSettle();
 
@@ -338,6 +340,7 @@ void main() {
         find.byType(DvrSeriesRuleOptionsScreen),
       );
       final l10n = AppLocalizations.of(screenContext);
+      await tester.ensureVisible(find.text(l10n.dvrSeriesSave));
       await tester.tap(find.text(l10n.dvrSeriesSave));
       await tester.pumpAndSettle();
 
@@ -402,6 +405,7 @@ void main() {
           find.byType(DvrSeriesRuleOptionsScreen),
         );
         final l10n = AppLocalizations.of(screenContext);
+        await tester.ensureVisible(find.text(l10n.dvrSeriesSave));
         await tester.ensureVisible(find.text(l10n.dvrSeriesSave));
         await tester.tap(find.text(l10n.dvrSeriesSave));
         await tester.pumpAndSettle();

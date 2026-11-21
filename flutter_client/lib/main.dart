@@ -136,6 +136,8 @@ Future<void> main() async {
     appState.viewSettingsService.deinterlace(),
     appState.viewSettingsService.hideOverlayOnStart(),
     appState.viewSettingsService.prebufferLive(),
+    appState.viewSettingsService.timeshiftMode(),
+    appState.viewSettingsService.livePrebufferSeconds(),
     appState.viewSettingsService.backgroundAudio(),
     appState.viewSettingsService.captionsDefault(),
     appState.viewSettingsService.captionPosition(),

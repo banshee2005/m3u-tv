@@ -2,6 +2,7 @@ import 'package:dpad/dpad.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:m3u_tv/features/dvr/dvr_series_rule_options_screen.dart';
+import 'package:m3u_tv/features/dvr/in_progress_playback_dialog.dart';
 import 'package:m3u_tv/features/shows/shows_screen.dart';
 import 'package:m3u_tv/l10n/app_localizations.dart';
 import 'package:m3u_tv/navigation/app_router.dart';
@@ -1205,9 +1206,13 @@ class _RecordingListState extends ConsumerState<_RecordingList> {
     setState(_selectedUuids.clear);
   }
 
-  void _openRecording(DvrRecording recording) {
+  Future<void> _openRecording(DvrRecording recording) async {
     if (!recording.isPlayable) return;
-    widget.onPlay(PlayerArgs.dvrRecording(recording));
+    await openDvrRecordingPlayback(
+      context,
+      recording: recording,
+      onPlay: widget.onPlay,
+    );
   }
 
   Future<void> _confirmStop(DvrRecording recording) async {

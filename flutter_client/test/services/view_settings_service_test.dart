@@ -196,6 +196,31 @@ void main() {
       },
     );
 
+    test(
+      'timeshift mode defaults off; live prebuffer defaults to 4s and clamps',
+      () async {
+        expect(service.timeshiftModeSync, isFalse);
+        expect(await service.timeshiftMode(), isFalse);
+        expect(service.livePrebufferSecondsSync, 4);
+        expect(await service.livePrebufferSeconds(), 4);
+
+        await service.setTimeshiftMode(true);
+        await service.setLivePrebufferSeconds(4);
+        expect(service.timeshiftModeSync, isTrue);
+        expect(service.livePrebufferSecondsSync, 4);
+
+        // Values below the 4s floor (and junk values) fall back to the default.
+        await service.setLivePrebufferSeconds(0);
+        expect(service.livePrebufferSecondsSync, 4);
+        await service.setLivePrebufferSeconds(99);
+        expect(service.livePrebufferSecondsSync, 4);
+
+        final recreated = ViewSettingsService(memory: memory);
+        expect(recreated.timeshiftModeSync, isTrue);
+        expect(recreated.livePrebufferSecondsSync, 4);
+      },
+    );
+
     test('values survive service recreation with same store', () async {
       await service.setLiveTvLayout(LiveTvLayout.grid);
       await service.setEpgStartView(EpgStartView.primeTime);

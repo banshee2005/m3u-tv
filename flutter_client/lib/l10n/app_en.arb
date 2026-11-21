@@ -241,6 +241,9 @@
     }
   },
   "playerStartFromBeginning": "Start from Beginning",
+  "playerWatchLiveEdge": "Watch live edge",
+  "playerGoLive": "Go live",
+  "dvrRecordingInProgress": "Recording in progress",
   "playerPlay": "Play",
   "playerResume": "Resume",
   "playerClearProgress": "Clear progress",
@@ -1006,6 +1009,15 @@
   "dvrSeriesModeNewFlag": "New only",
   "dvrDeleteSeriesRuleFailed": "Could not delete series rule",
   "dvrSeriesKeepLast": "Keep last",
+  "dvrSeriesDaysOfWeek": "Days of Week",
+  "dvrSeriesDaysOfWeekHint": "Only record on these days. None selected = every day.",
+  "weekdaySunday": "Sunday",
+  "weekdayMonday": "Monday",
+  "weekdayTuesday": "Tuesday",
+  "weekdayWednesday": "Wednesday",
+  "weekdayThursday": "Thursday",
+  "weekdayFriday": "Friday",
+  "weekdaySaturday": "Saturday",
   "dvrSeriesModeUniqueSe": "Unique S-E",
   "dvrSeriesAnyChannel": "Any channel",
   "dvrSeriesMatchMode": "Match mode",
@@ -1214,6 +1226,17 @@
   "settingsCaptionsBgTransparent": "Transparent",
   "settingsPrebufferLive": "Buffer live streams before playing",
   "settingsPrebufferLiveHint": "Wait for a few seconds of video before a channel starts moving, so streams that arrive unevenly stop pausing to buffer. Channel changes take a few seconds longer.",
+  "settingsTimeshiftMode": "Live TV timeshift",
+  "settingsTimeshiftModeHint": "Keep a rolling buffer of recent live TV so you can pause, rewind, and seek within the window. Off keeps today’s behaviour (no rewind).",
+  "settingsLivePrebuffer": "Live prebuffer",
+  "settingsLivePrebufferValue": "{count} s",
+  "@settingsLivePrebufferValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "settingsNavigationSound": "Navigation sound",
   "settingsNavigationSoundHint": "Play a click sound when moving focus with the remote or keyboard.",
   "settingsToggleOn": "On",

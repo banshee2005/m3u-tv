@@ -687,6 +687,37 @@ void main() {
       expect(tester.widget<SettingsSwitchRow>(row).value, isTrue);
     });
 
+    testWidgets('Playback page toggles live timeshift mode', (tester) async {
+      final viewSettings = ViewSettingsService();
+      await tester.pumpWidget(
+        _settingsApp(
+          AuthNotifier(
+            xtreamService: XtreamService(transport: _FakeTransport({}).call),
+            secureStorage: InMemorySecureStorage(),
+          ),
+          isConfiguredOverride: true,
+          viewSettingsService: viewSettings,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Playback'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Live TV'), findsOneWidget);
+      final row = find.widgetWithText(SettingsSwitchRow, 'Live TV timeshift');
+      expect(tester.widget<SettingsSwitchRow>(row).value, isFalse);
+
+      await tester.tap(row);
+      await tester.pumpAndSettle();
+
+      expect(viewSettings.timeshiftModeSync, isTrue);
+      expect(tester.widget<SettingsSwitchRow>(row).value, isTrue);
+      // Live prebuffer seconds picker is always shown (default 4s).
+      expect(find.text('Live prebuffer'), findsOneWidget);
+      expect(find.text('4 s'), findsOneWidget);
+    });
+
     testWidgets('shows viewer section when m3u-editor and viewer available', (
       tester,
     ) async {

@@ -716,6 +716,24 @@ abstract class AppLocalizations {
   /// **'Start from Beginning'**
   String get playerStartFromBeginning;
 
+  /// No description provided for @playerWatchLiveEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch live edge'**
+  String get playerWatchLiveEdge;
+
+  /// No description provided for @playerGoLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Go live'**
+  String get playerGoLive;
+
+  /// No description provided for @dvrRecordingInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording in progress'**
+  String get dvrRecordingInProgress;
+
   /// No description provided for @playerPlay.
   ///
   /// In en, this message translates to:
@@ -3032,6 +3050,60 @@ abstract class AppLocalizations {
   /// **'Keep last'**
   String get dvrSeriesKeepLast;
 
+  /// No description provided for @dvrSeriesDaysOfWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Days of Week'**
+  String get dvrSeriesDaysOfWeek;
+
+  /// No description provided for @dvrSeriesDaysOfWeekHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only record on these days. None selected = every day.'**
+  String get dvrSeriesDaysOfWeekHint;
+
+  /// No description provided for @weekdaySunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get weekdaySunday;
+
+  /// No description provided for @weekdayMonday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get weekdayMonday;
+
+  /// No description provided for @weekdayTuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get weekdayTuesday;
+
+  /// No description provided for @weekdayWednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get weekdayWednesday;
+
+  /// No description provided for @weekdayThursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get weekdayThursday;
+
+  /// No description provided for @weekdayFriday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get weekdayFriday;
+
+  /// No description provided for @weekdaySaturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get weekdaySaturday;
+
   /// No description provided for @dvrSeriesModeUniqueSe.
   ///
   /// In en, this message translates to:
@@ -3655,6 +3727,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wait for a few seconds of video before a channel starts moving, so streams that arrive unevenly stop pausing to buffer. Channel changes take a few seconds longer.'**
   String get settingsPrebufferLiveHint;
+
+  /// No description provided for @settingsTimeshiftMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Live TV timeshift'**
+  String get settingsTimeshiftMode;
+
+  /// No description provided for @settingsTimeshiftModeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep a rolling buffer of recent live TV so you can pause, rewind, and seek within the window. Off keeps today’s behaviour (no rewind).'**
+  String get settingsTimeshiftModeHint;
+
+  /// No description provided for @settingsLivePrebuffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Live prebuffer'**
+  String get settingsLivePrebuffer;
+
+  /// No description provided for @settingsLivePrebufferValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} s'**
+  String settingsLivePrebufferValue(int count);
 
   /// No description provided for @settingsNavigationSound.
   ///

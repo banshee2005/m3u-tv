@@ -50,6 +50,7 @@ void main() {
                     matchMode,
                     seriesMode,
                     keepLast,
+                    daysOfWeek,
                     priority,
                     startEarlySeconds,
                     endLateSeconds,

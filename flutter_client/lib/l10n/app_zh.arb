@@ -169,6 +169,11 @@
     }
   },
   "playerStartFromBeginning": "从头开始",
+  "settingsTimeshiftMode": "直播时移",
+  "settingsTimeshiftModeHint": "保留直播的滚动缓冲，可暂停、快退并在窗口内跳转。关闭则保持现有行为（不能快退）。",
+  "settingsLivePrebuffer": "直播预缓冲",
+  "settingsLivePrebufferValue": "{count} 秒",
+  "@settingsLivePrebufferValue": {"placeholders": {"count": {"type": "int"}}},
   "playerPlay": "播放",
   "playerResume": "恢复播放",
   "playerClearProgress": "清除进度",

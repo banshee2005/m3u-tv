@@ -358,6 +358,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get playerStartFromBeginning => 'Recommencer depuis le début';
 
   @override
+  String get playerWatchLiveEdge => 'Watch live edge';
+
+  @override
+  String get playerGoLive => 'Go live';
+
+  @override
+  String get dvrRecordingInProgress => 'Recording in progress';
+
+  @override
   String get playerPlay => 'Lire';
 
   @override
@@ -1740,6 +1749,34 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dvrSeriesKeepLast => 'Garder dernière';
 
   @override
+  String get dvrSeriesDaysOfWeek => 'Days of Week';
+
+  @override
+  String get dvrSeriesDaysOfWeekHint =>
+      'Only record on these days. None selected = every day.';
+
+  @override
+  String get weekdaySunday => 'Sunday';
+
+  @override
+  String get weekdayMonday => 'Monday';
+
+  @override
+  String get weekdayTuesday => 'Tuesday';
+
+  @override
+  String get weekdayWednesday => 'Wednesday';
+
+  @override
+  String get weekdayThursday => 'Thursday';
+
+  @override
+  String get weekdayFriday => 'Friday';
+
+  @override
+  String get weekdaySaturday => 'Saturday';
+
+  @override
   String get dvrSeriesModeUniqueSe => 'S-E unique';
 
   @override
@@ -2116,6 +2153,21 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get settingsPrebufferLiveHint =>
       'Attend quelques secondes de vidéo avant qu\'une chaîne ne démarre, pour que les flux irréguliers cessent de s\'interrompre pour charger. Les changements de chaîne prennent quelques secondes de plus.';
+
+  @override
+  String get settingsTimeshiftMode => 'Timeshift TV en direct';
+
+  @override
+  String get settingsTimeshiftModeHint =>
+      'Conserve un tampon glissant de la TV en direct pour mettre en pause, rembobiner et rechercher dans la fenêtre. Desactive garde le comportement actuel (sans rembobinage).';
+
+  @override
+  String get settingsLivePrebuffer => 'Prébuffer en direct';
+
+  @override
+  String settingsLivePrebufferValue(int count) {
+    return '$count s';
+  }
 
   @override
   String get settingsNavigationSound => 'Son de navigation';

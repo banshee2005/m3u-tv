@@ -190,6 +190,9 @@ class _DvrSeriesRuleOptionsScreenState
   late DvrSeriesMode? _selectedSeriesMode;
   late DvrMatchMode _selectedMatchMode;
 
+  /// Weekday numbers 0=Sunday..6=Saturday. Empty set = every day.
+  late Set<int> _selectedDays;
+
   // Controllers for numeric TextFields (0 is a valid value; empty = omit).
   late TextEditingController _keepLastController;
   late TextEditingController _priorityController;
@@ -207,10 +210,12 @@ class _DvrSeriesRuleOptionsScreenState
       _selectedChannelId = nextAiringChannelId(widget.show);
       _selectedSeriesMode = null; // Use default = omit
       _selectedMatchMode = DvrMatchMode.contains;
+      _selectedDays = {};
     } else {
       _selectedChannelId = rule.channelId;
       _selectedSeriesMode = rule.seriesMode;
       _selectedMatchMode = rule.matchMode;
+      _selectedDays = rule.daysOfWeek?.toSet() ?? {};
     }
 
     _keepLastController = TextEditingController(
@@ -243,11 +248,13 @@ class _DvrSeriesRuleOptionsScreenState
   }
 
   DvrSeriesRuleOptions _buildOptions() {
+    final days = _selectedDays.toList()..sort();
     return DvrSeriesRuleOptions(
       channelId: _selectedChannelId,
       matchMode: _selectedMatchMode,
       seriesMode: _selectedSeriesMode,
       keepLast: _parseInt(_keepLastController),
+      daysOfWeek: days.isEmpty ? null : days,
       priority: _parseInt(_priorityController),
       startEarlySeconds: _parseInt(_startEarlyController),
       endLateSeconds: _parseInt(_endLateController),
@@ -384,6 +391,46 @@ class _DvrSeriesRuleOptionsScreenState
                       () => _selectedMatchMode = DvrMatchMode.startsWith,
                     ),
                   ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Days of week - empty selection = every day (server null).
+            _SectionLabel(label: l10n.dvrSeriesDaysOfWeek),
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                l10n.dvrSeriesDaysOfWeekHint,
+                style: theme.textTheme.bodySmall,
+              ),
+            ),
+            DpadRegion(
+              memoryKey: 'dvr-series-rule-options/days-of-week',
+              horizontalEdge: DpadEdgeBehavior.stop,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final (value, label) in <(int, String Function())>[
+                    (0, () => l10n.weekdaySunday),
+                    (1, () => l10n.weekdayMonday),
+                    (2, () => l10n.weekdayTuesday),
+                    (3, () => l10n.weekdayWednesday),
+                    (4, () => l10n.weekdayThursday),
+                    (5, () => l10n.weekdayFriday),
+                    (6, () => l10n.weekdaySaturday),
+                  ])
+                    CategoryFilterChip(
+                      label: label(),
+                      isSelected: _selectedDays.contains(value),
+                      onTap: () => setState(() {
+                        if (!_selectedDays.remove(value)) {
+                          _selectedDays.add(value);
+                        }
+                      }),
+                    ),
                 ],
               ),
             ),

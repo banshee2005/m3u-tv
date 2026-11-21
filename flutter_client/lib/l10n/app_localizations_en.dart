@@ -356,6 +356,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playerStartFromBeginning => 'Start from Beginning';
 
   @override
+  String get playerWatchLiveEdge => 'Watch live edge';
+
+  @override
+  String get playerGoLive => 'Go live';
+
+  @override
+  String get dvrRecordingInProgress => 'Recording in progress';
+
+  @override
   String get playerPlay => 'Play';
 
   @override
@@ -1720,6 +1729,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dvrSeriesKeepLast => 'Keep last';
 
   @override
+  String get dvrSeriesDaysOfWeek => 'Days of Week';
+
+  @override
+  String get dvrSeriesDaysOfWeekHint =>
+      'Only record on these days. None selected = every day.';
+
+  @override
+  String get weekdaySunday => 'Sunday';
+
+  @override
+  String get weekdayMonday => 'Monday';
+
+  @override
+  String get weekdayTuesday => 'Tuesday';
+
+  @override
+  String get weekdayWednesday => 'Wednesday';
+
+  @override
+  String get weekdayThursday => 'Thursday';
+
+  @override
+  String get weekdayFriday => 'Friday';
+
+  @override
+  String get weekdaySaturday => 'Saturday';
+
+  @override
   String get dvrSeriesModeUniqueSe => 'Unique S-E';
 
   @override
@@ -2091,6 +2128,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsPrebufferLiveHint =>
       'Wait for a few seconds of video before a channel starts moving, so streams that arrive unevenly stop pausing to buffer. Channel changes take a few seconds longer.';
+
+  @override
+  String get settingsTimeshiftMode => 'Live TV timeshift';
+
+  @override
+  String get settingsTimeshiftModeHint =>
+      'Keep a rolling buffer of recent live TV so you can pause, rewind, and seek within the window. Off keeps today’s behaviour (no rewind).';
+
+  @override
+  String get settingsLivePrebuffer => 'Live prebuffer';
+
+  @override
+  String settingsLivePrebufferValue(int count) {
+    return '$count s';
+  }
 
   @override
   String get settingsNavigationSound => 'Navigation sound';

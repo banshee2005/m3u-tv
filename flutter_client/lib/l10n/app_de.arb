@@ -169,6 +169,11 @@
     }
   },
   "playerStartFromBeginning": "Von vorne abspielen",
+  "settingsTimeshiftMode": "Live-Timeshift",
+  "settingsTimeshiftModeHint": "Halt einen rollierenden Puffer der letzten Live-Sender, damit Sie pausieren, zurueckspulen und im Fenster suchen können. Aus schaltet das heutige Verhalten (kein Zurueckspulen).",
+  "settingsLivePrebuffer": "Live-Prebuffer",
+  "settingsLivePrebufferValue": "{count} s",
+  "@settingsLivePrebufferValue": {"placeholders": {"count": {"type": "int"}}},
   "playerPlay": "Abspielen",
   "playerResume": "Fortsetzen",
   "playerClearProgress": "Fortschritt löschen",

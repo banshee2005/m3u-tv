@@ -169,6 +169,11 @@
     }
   },
   "playerStartFromBeginning": "Recommencer depuis le début",
+  "settingsTimeshiftMode": "Timeshift TV en direct",
+  "settingsTimeshiftModeHint": "Conserve un tampon glissant de la TV en direct pour mettre en pause, rembobiner et rechercher dans la fenêtre. Desactive garde le comportement actuel (sans rembobinage).",
+  "settingsLivePrebuffer": "Prébuffer en direct",
+  "settingsLivePrebufferValue": "{count} s",
+  "@settingsLivePrebufferValue": {"placeholders": {"count": {"type": "int"}}},
   "playerPlay": "Lire",
   "playerResume": "Reprendre",
   "playerClearProgress": "Effacer la progression",

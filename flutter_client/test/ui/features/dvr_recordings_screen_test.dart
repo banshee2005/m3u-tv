@@ -101,7 +101,7 @@ void main() {
       },
     );
 
-    testWidgets('in-progress recording opens player with live_url', (
+    testWidgets('in-progress recording offers start-from-beginning choice', (
       tester,
     ) async {
       PlayerArgs? opened;
@@ -116,6 +116,13 @@ void main() {
       await tester.tap(find.text('Live News'));
       await tester.pumpAndSettle();
 
+      expect(find.text('Recording in progress'), findsOneWidget);
+      expect(find.text('Start from Beginning'), findsWidgets);
+      expect(find.text('Watch live edge'), findsOneWidget);
+
+      await tester.tap(find.text('Watch live edge'));
+      await tester.pumpAndSettle();
+
       expect(opened, isNotNull);
       expect(
         opened!.streamUrl,
@@ -123,7 +130,55 @@ void main() {
       );
       expect(opened!.title, 'Live News');
       expect(opened!.type, 'live');
+      expect(opened!.seekableLive, isTrue);
+      expect(opened!.startFromBeginning, isFalse);
       expect(opened!.metadata['dvr_uuid'], 'rec-2');
+    });
+
+    testWidgets('in-progress start from beginning sets seek-to-zero flag', (
+      tester,
+    ) async {
+      PlayerArgs? opened;
+      await tester.pumpWidget(
+        _TestApp(
+          recordings: [_recordingNow()],
+          onPlay: (args) => opened = args,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Live News'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Start from Beginning').last);
+      await tester.pumpAndSettle();
+
+      expect(opened, isNotNull);
+      expect(opened!.seekableLive, isTrue);
+      expect(opened!.startFromBeginning, isTrue);
+      expect(opened!.type, 'live');
+      expect(opened!.toPlaybackSource().startFromBeginning, isTrue);
+    });
+
+    testWidgets('completed recording opens immediately without dialog', (
+      tester,
+    ) async {
+      PlayerArgs? opened;
+      await tester.pumpWidget(
+        _TestApp(
+          recordings: [_completedRecording()],
+          onPlay: (args) => opened = args,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Evening Movie'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Recording in progress'), findsNothing);
+      expect(opened, isNotNull);
+      expect(opened!.type, 'vod');
+      expect(opened!.seekableLive, isFalse);
     });
 
     testWidgets(

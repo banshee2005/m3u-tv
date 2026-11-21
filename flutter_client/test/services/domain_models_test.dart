@@ -133,6 +133,65 @@ void main() {
     });
   });
 
+  group('DvrRecording live-window playback', () {
+    DvrRecording recording({
+      required DvrRecordingStatus status,
+      String? liveUrl,
+      String? streamUrl,
+      int? elapsedSeconds,
+    }) => DvrRecording(
+      uuid: 'rec-x',
+      title: 'Show',
+      status: status,
+      liveUrl: liveUrl,
+      streamUrl: streamUrl,
+      elapsedSeconds: elapsedSeconds,
+    );
+
+    test('in-progress with live_url plays the growing window', () {
+      final r = recording(
+        status: DvrRecordingStatus.recording,
+        liveUrl: 'https://x/live.m3u8',
+        elapsedSeconds: 120,
+      );
+      expect(r.playsLiveWindow, isTrue);
+      expect(r.playbackUrl, 'https://x/live.m3u8');
+      expect(r.isInProgress, isTrue);
+      expect(r.elapsedSeconds, 120);
+    });
+
+    test('post_processing with live_url still plays the growing window', () {
+      final r = recording(
+        status: DvrRecordingStatus.postProcessing,
+        liveUrl: 'https://x/live.m3u8',
+      );
+      expect(r.playsLiveWindow, isTrue);
+      expect(r.playbackUrl, 'https://x/live.m3u8');
+      expect(r.isInProgress, isFalse);
+    });
+
+    test('completed prefers stream_url and is not a live window', () {
+      final r = recording(
+        status: DvrRecordingStatus.completed,
+        streamUrl: 'https://x/f.mp4',
+      );
+      expect(r.playsLiveWindow, isFalse);
+      expect(r.playbackUrl, 'https://x/f.mp4');
+    });
+
+    test('fromXtream parses elapsed_seconds', () {
+      final r = DvrRecording.fromXtream({
+        'uuid': 'rec-e',
+        'title': 'T',
+        'status': 'recording',
+        'live_url': 'https://x/live.m3u8',
+        'elapsed_seconds': 45,
+      });
+      expect(r.elapsedSeconds, 45);
+      expect(r.playsLiveWindow, isTrue);
+    });
+  });
+
   group('VodInfo.edlUrl from get_vod_info', () {
     test('reads edl_url nested under info (DVR-backed movie)', () {
       final info = VodInfo.fromXtream(<String, Object?>{

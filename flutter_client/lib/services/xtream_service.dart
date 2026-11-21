@@ -1640,6 +1640,7 @@ class XtreamService {
     DvrMatchMode? matchMode,
     DvrSeriesMode? seriesMode,
     int? keepLast,
+    List<int>? daysOfWeek,
     int? priority,
     int? startEarlySeconds,
     int? endLateSeconds,
@@ -1650,6 +1651,8 @@ class XtreamService {
       if (matchMode != null) 'match_mode': matchMode.wireValue,
       if (seriesMode != null) 'series_mode': seriesMode.wireValue,
       if (keepLast != null) 'keep_last': '$keepLast',
+      // Omitted when null = every day (server column default).
+      if (daysOfWeek != null) 'days_of_week': jsonEncode(daysOfWeek),
       if (priority != null) 'priority': '$priority',
       if (startEarlySeconds != null)
         'start_early_seconds': '$startEarlySeconds',
@@ -1720,6 +1723,7 @@ class XtreamService {
     DvrMatchMode? matchMode,
     DvrSeriesMode? seriesMode,
     int? keepLast,
+    List<int>? daysOfWeek,
     int? priority,
     int? startEarlySeconds,
     int? endLateSeconds,
@@ -1730,6 +1734,10 @@ class XtreamService {
       if (matchMode != null) 'match_mode': matchMode.wireValue,
       if (seriesMode != null) 'series_mode': seriesMode.wireValue,
       if (keepLast != null) 'keep_last': '$keepLast',
+      // Always sent (unlike the other omit-to-inherit fields): "" explicitly
+      // clears back to every day, "[4]" sets the selection. The options sheet
+      // always returns the on-screen state, so overwriting is correct.
+      'days_of_week': daysOfWeek == null ? '' : jsonEncode(daysOfWeek),
       if (priority != null) 'priority': '$priority',
       if (startEarlySeconds != null)
         'start_early_seconds': '$startEarlySeconds',
