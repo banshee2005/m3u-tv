@@ -143,18 +143,18 @@ class _ResumeModal extends StatelessWidget {
             DialogActionTile(
               icon: Icons.remove_done,
               label: l.playerClearProgress,
-              onTap: () => Navigator.of(context).pop(
-                const ResumeModalResult(ResumeAction.clearProgress),
-              ),
+              onTap: () =>
+                  Navigator.of(context)
+                      .pop(const ResumeModalResult(ResumeAction.clearProgress)),
             ),
           ],
           const SizedBox(height: 8),
           DialogActionTile(
             icon: Icons.done_all,
             label: l.seriesMarkWatched,
-            onTap: () => Navigator.of(context).pop(
-              const ResumeModalResult(ResumeAction.markWatched),
-            ),
+            onTap: () =>
+                Navigator.of(context)
+                    .pop(const ResumeModalResult(ResumeAction.markWatched)),
           ),
         ],
         const SizedBox(height: 20),

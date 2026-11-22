@@ -94,22 +94,14 @@ void main() {
     tearDown(() => testDb.close());
 
     testWidgets('renders search field', (tester) async {
-      await tester.pumpWidget(
-        _TestApp(
-          catalogRepository: testRepo,
-        ),
-      );
+      await tester.pumpWidget(_TestApp(catalogRepository: testRepo));
       await tester.pumpAndSettle();
 
       expect(find.byType(TextField), findsOneWidget);
     });
 
     testWidgets('renders All/Live TV/Movies/Series tabs', (tester) async {
-      await tester.pumpWidget(
-        _TestApp(
-          catalogRepository: testRepo,
-        ),
-      );
+      await tester.pumpWidget(_TestApp(catalogRepository: testRepo));
       await tester.pumpAndSettle();
 
       // Tab bar should have all four tabs
@@ -123,11 +115,7 @@ void main() {
     testWidgets('shows prompt instead of immediate results before query', (
       tester,
     ) async {
-      await tester.pumpWidget(
-        _TestApp(
-          catalogRepository: testRepo,
-        ),
-      );
+      await tester.pumpWidget(_TestApp(catalogRepository: testRepo));
       await tester.pumpAndSettle();
 
       expect(find.text('Type to search'), findsOneWidget);
@@ -137,11 +125,7 @@ void main() {
     });
 
     testWidgets('searching filters results case-insensitively', (tester) async {
-      await tester.pumpWidget(
-        _TestApp(
-          catalogRepository: testRepo,
-        ),
-      );
+      await tester.pumpWidget(_TestApp(catalogRepository: testRepo));
       await tester.pumpAndSettle();
 
       // Type search query
@@ -182,9 +166,9 @@ void main() {
         ],
       );
       // Every load decodes a new list; that new identity is the signal.
-      ProviderScope.containerOf(
-        tester.element(find.byType(SearchScreen)),
-      ).read(categoriesState.notifier).state = <Category>[
+      ProviderScope.containerOf(tester.element(find.byType(SearchScreen)))
+          .read(categoriesState.notifier)
+          .state = <Category>[
         const Category(id: '10', name: 'News'),
       ];
       await tester.pumpAndSettle();
@@ -220,9 +204,10 @@ void main() {
         ],
       );
       // Both playlists have no live categories: the same empty list.
-      ProviderScope.containerOf(
-        tester.element(find.byType(SearchScreen)),
-      ).read(playlistKeyState.notifier).state = 'second';
+      ProviderScope.containerOf(tester.element(find.byType(SearchScreen)))
+              .read(playlistKeyState.notifier)
+              .state =
+          'second';
       await tester.pumpAndSettle();
 
       expect(find.text('Matrix Resurrections'), findsOneWidget);
@@ -230,11 +215,7 @@ void main() {
     });
 
     testWidgets('Live TV tab shows only channels', (tester) async {
-      await tester.pumpWidget(
-        _TestApp(
-          catalogRepository: testRepo,
-        ),
-      );
+      await tester.pumpWidget(_TestApp(catalogRepository: testRepo));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), 'news');
@@ -252,14 +233,8 @@ void main() {
       expect(find.text('The Matrix'), findsNothing);
     });
 
-    testWidgets('channel matches come from the catalog', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _TestApp(
-          catalogRepository: testRepo,
-        ),
-      );
+    testWidgets('channel matches come from the catalog', (tester) async {
+      await tester.pumpWidget(_TestApp(catalogRepository: testRepo));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), 'news');
@@ -277,11 +252,7 @@ void main() {
     });
 
     testWidgets('Movies tab shows only VOD items', (tester) async {
-      await tester.pumpWidget(
-        _TestApp(
-          catalogRepository: testRepo,
-        ),
-      );
+      await tester.pumpWidget(_TestApp(catalogRepository: testRepo));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), 'matrix');
@@ -301,11 +272,7 @@ void main() {
     });
 
     testWidgets('Series tab shows only series', (tester) async {
-      await tester.pumpWidget(
-        _TestApp(
-          catalogRepository: testRepo,
-        ),
-      );
+      await tester.pumpWidget(_TestApp(catalogRepository: testRepo));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), 'bad');
@@ -327,11 +294,7 @@ void main() {
     testWidgets('search result images use resilient media widgets', (
       tester,
     ) async {
-      await tester.pumpWidget(
-        _TestApp(
-          catalogRepository: testRepo,
-        ),
-      );
+      await tester.pumpWidget(_TestApp(catalogRepository: testRepo));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), 'matrix');
@@ -405,11 +368,7 @@ void main() {
     );
 
     testWidgets('shows empty state when no results match', (tester) async {
-      await tester.pumpWidget(
-        _TestApp(
-          catalogRepository: testRepo,
-        ),
-      );
+      await tester.pumpWidget(_TestApp(catalogRepository: testRepo));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), 'xyznonexistent');
@@ -422,10 +381,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _TestApp(
-          catalogRepository: testRepo,
-          isConfigured: false,
-        ),
+        _TestApp(catalogRepository: testRepo, isConfigured: false),
       );
       await tester.pumpAndSettle();
 
@@ -763,34 +719,31 @@ void main() {
         },
       );
 
-      testWidgets(
-        'All tab renders EPG sections when query matches no '
-        'channel/VOD/series name but matches a show (regression guard '
-        'for empty-state-guard bug)',
-        (tester) async {
-          // Query "bear" matches only the EPG show "Bear"; no channel
-          // name, VOD name, or series name contains "bear". Without the
-          // empty-state-guard fix, the EPG sections would be hidden by
-          // the "all empty -> show empty state" early-return.
-          await tester.pumpWidget(
-            _TestApp(
-              catalogRepository: testRepo,
-              onSearchShows: (query) async {
-                return query == 'bear' ? showResults : const [];
-              },
-            ),
-          );
-          await tester.pumpAndSettle();
+      testWidgets('All tab renders EPG sections when query matches no '
+          'channel/VOD/series name but matches a show (regression guard '
+          'for empty-state-guard bug)', (tester) async {
+        // Query "bear" matches only the EPG show "Bear"; no channel
+        // name, VOD name, or series name contains "bear". Without the
+        // empty-state-guard fix, the EPG sections would be hidden by
+        // the "all empty -> show empty state" early-return.
+        await tester.pumpWidget(
+          _TestApp(
+            catalogRepository: testRepo,
+            onSearchShows: (query) async {
+              return query == 'bear' ? showResults : const [];
+            },
+          ),
+        );
+        await tester.pumpAndSettle();
 
-          await tester.enterText(find.byType(TextField), 'bear');
-          await tester.pump(const Duration(milliseconds: 400));
-          await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), 'bear');
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
 
-          expect(find.text('Bear'), findsOneWidget);
-          // Empty-state must NOT be shown.
-          expect(find.text('No results found'), findsNothing);
-        },
-      );
+        expect(find.text('Bear'), findsOneWidget);
+        // Empty-state must NOT be shown.
+        expect(find.text('No results found'), findsNothing);
+      });
 
       testWidgets(
         'tapping a channel airing a matching show calls '
@@ -848,32 +801,29 @@ void main() {
         },
       );
 
-      testWidgets(
-        'null onSearchShows keeps the channel-name results; no EPG '
-        'sections/sub-tabs anywhere',
-        (tester) async {
-          await tester.pumpWidget(
-            _TestApp(
-              catalogRepository: testRepo,
-              // No onSearchShows callback - the screen should behave
-              // exactly like pre-#227.
-            ),
-          );
-          await tester.pumpAndSettle();
+      testWidgets('null onSearchShows keeps the channel-name results; no EPG '
+          'sections/sub-tabs anywhere', (tester) async {
+        await tester.pumpWidget(
+          _TestApp(
+            catalogRepository: testRepo,
+            // No onSearchShows callback - the screen should behave
+            // exactly like pre-#227.
+          ),
+        );
+        await tester.pumpAndSettle();
 
-          await tester.enterText(find.byType(TextField), 'bbc');
-          await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), 'bbc');
+        await tester.pumpAndSettle();
 
-          // Only one DpadTabBar (the screen's outer one) - no nested
-          // sub-tabs from ShowSearchResultsView.
-          expect(find.byType(DpadTabBar), findsOneWidget);
-          // No EPG section headers rendered.
-          expect(find.text('On Now'), findsNothing);
-          expect(find.text('Upcoming'), findsNothing);
-          // Channel-name filter still works.
-          expect(find.text('BBC News'), findsOneWidget);
-        },
-      );
+        // Only one DpadTabBar (the screen's outer one) - no nested
+        // sub-tabs from ShowSearchResultsView.
+        expect(find.byType(DpadTabBar), findsOneWidget);
+        // No EPG section headers rendered.
+        expect(find.text('On Now'), findsNothing);
+        expect(find.text('Upcoming'), findsNothing);
+        // Channel-name filter still works.
+        expect(find.text('BBC News'), findsOneWidget);
+      });
 
       testWidgets(
         'Movies and Series tabs are unaffected by EPG show search wiring',

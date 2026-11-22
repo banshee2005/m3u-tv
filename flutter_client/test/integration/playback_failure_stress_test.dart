@@ -24,277 +24,253 @@ void main() {
       await server.close();
     });
 
-    test(
-      'network_loss_integration: buffering timeout with real server retries once then emits typed error and cleans up',
-      () async {
+    test('network_loss_integration: buffering timeout with real server retries once then emits typed error and cleans up', () async {
+      final direct = _StressPlayerAdapter(
+        capabilities: PlaybackCapabilities.androidExoPlayer,
+        loadStatus: PlaybackStatus.buffering,
+      );
+      final serverPlayer = _StressPlayerAdapter(
+        capabilities: PlaybackCapabilities.serverTranscode,
+      );
+      final gateway = _StressTranscodeGateway(server: server);
+      final orchestrator = PlaybackOrchestrator(
+        platform: PlaybackPlatform.android,
+        adapters: <PlaybackBackend, PlayerAdapter>{
+          PlaybackBackend.androidExoPlayer: direct,
+          PlaybackBackend.serverTranscode: serverPlayer,
+        },
+        transcodeGateway: gateway,
+        bufferingTimeout: const Duration(milliseconds: 20),
+        retryDelay: Duration.zero,
+      );
+      final errors = <PlaybackError>[];
+      final subscription = orchestrator.onError.listen(errors.add);
+
+      final sourceUri = '${server.uri}/fixture/hls-live/master.m3u8';
+      await orchestrator.open(
+        PlaybackSource(
+          uri: sourceUri,
+          title: 'Network Loss Fixture',
+          isLive: true,
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+
+      expect(
+        direct.commands.where((c) => c == 'load:$sourceUri'),
+        hasLength(2),
+      );
+      expect(errors, hasLength(1));
+      expect(errors.single.code, 'network_unavailable');
+      expect(errors.single.recoverable, isTrue);
+      expect(orchestrator.activeBackend, isNull);
+      expect(direct.commands, contains('stop'));
+      expect(gateway.startedServerRequests, isEmpty);
+      expect(gateway.stoppedServerTranscodes, isEmpty);
+      expect(gateway.stoppedBroadcasts, isEmpty);
+
+      await subscription.cancel();
+      await orchestrator.dispose();
+    });
+
+    test('token_expiry_mid_playback_integration: reloads once then errors deterministically with real gateway', () async {
+      final direct = _StressPlayerAdapter(
+        capabilities: PlaybackCapabilities.androidExoPlayer,
+      );
+      final gateway = _StressTranscodeGateway(server: server);
+      final orchestrator = PlaybackOrchestrator(
+        platform: PlaybackPlatform.android,
+        adapters: <PlaybackBackend, PlayerAdapter>{
+          PlaybackBackend.androidExoPlayer: direct,
+        },
+        transcodeGateway: gateway,
+        retryDelay: Duration.zero,
+      );
+      final errors = <PlaybackError>[];
+      final subscription = orchestrator.onError.listen(errors.add);
+
+      final sourceUri = '${server.uri}/fixture/hls-live/master.m3u8';
+      await orchestrator.open(
+        PlaybackSource(
+          uri: sourceUri,
+          title: 'Token Expiry Fixture',
+          isLive: true,
+        ),
+      );
+      direct.emitError(
+        const PlaybackError(
+          backend: PlaybackBackend.androidExoPlayer,
+          message: 'Provider token expired during playback',
+          code: 'expired_token',
+          recoverable: true,
+        ),
+      );
+      await pumpEventQueue();
+      direct.emitError(
+        const PlaybackError(
+          backend: PlaybackBackend.androidExoPlayer,
+          message: 'Provider token expired during playback',
+          code: 'expired_token',
+          recoverable: true,
+        ),
+      );
+      await pumpEventQueue();
+
+      expect(
+        direct.commands.where((c) => c == 'load:$sourceUri'),
+        hasLength(2),
+      );
+      expect(errors, hasLength(1));
+      expect(errors.single.code, 'expired_token');
+      expect(errors.single.recoverable, isTrue);
+      expect(
+        orchestrator.diagnostics,
+        contains('active-retry:expired_token:androidExoPlayer:1'),
+      );
+      expect(gateway.startedServerRequests, isEmpty);
+
+      await subscription.cancel();
+      await orchestrator.dispose();
+    });
+
+    test('rapid_channel_switch_integration: 20 switches with real server leaves no active broadcasts and all sessions stopped', () async {
+      final direct = _StressPlayerAdapter(
+        capabilities: PlaybackCapabilities.desktopLibmpv,
+        loadFailure: BackendUnavailableException('libmpv unavailable'),
+      );
+      final serverPlayer = _StressPlayerAdapter(
+        capabilities: PlaybackCapabilities.serverTranscode,
+      );
+      final gateway = _StressTranscodeGateway(server: server);
+      final orchestrator = PlaybackOrchestrator(
+        platform: PlaybackPlatform.desktop,
+        adapters: <PlaybackBackend, PlayerAdapter>{
+          PlaybackBackend.desktopLibmpv: direct,
+          PlaybackBackend.serverTranscode: serverPlayer,
+        },
+        transcodeGateway: gateway,
+      );
+
+      for (var index = 0; index < 20; index += 1) {
+        await orchestrator.open(
+          PlaybackSource(
+            uri: '${server.uri}/fixture/hls-live/master.m3u8',
+            title: 'Channel $index',
+            isLive: true,
+            metadata: <String, Object?>{
+              'broadcast_network_id': 'network-$index',
+            },
+          ),
+        );
+      }
+      await orchestrator.dispose();
+      await pumpEventQueue();
+
+      expect(orchestrator.activeBackend, isNull);
+      expect(gateway.startedServerRequests, hasLength(20));
+      expect(
+        gateway.stoppedBroadcasts,
+        hasLength(20),
+        reason: 'all broadcast stop requests must be issued',
+      );
+      expect(
+        gateway.stoppedServerTranscodes,
+        hasLength(20),
+        reason: 'all server transcode stop requests must be issued',
+      );
+      expect(serverPlayer.commands.where((c) => c == 'stop'), hasLength(20));
+      expect(serverPlayer.commands.where((c) => c == 'dispose'), hasLength(1));
+      expect(
+        server.activeBroadcasts,
+        isEmpty,
+        reason: 'fake server must report zero active broadcasts after cleanup',
+      );
+    });
+
+    test('memory_leak_probe: create and dispose many orchestrators leaves no active adapters or sessions', () async {
+      final gateway = _StressTranscodeGateway(server: server);
+      var totalDisposeCount = 0;
+
+      for (var index = 0; index < 50; index += 1) {
         final direct = _StressPlayerAdapter(
           capabilities: PlaybackCapabilities.androidExoPlayer,
           loadStatus: PlaybackStatus.buffering,
         );
-        final serverPlayer = _StressPlayerAdapter(
-          capabilities: PlaybackCapabilities.serverTranscode,
-        );
-        final gateway = _StressTranscodeGateway(server: server);
         final orchestrator = PlaybackOrchestrator(
           platform: PlaybackPlatform.android,
           adapters: <PlaybackBackend, PlayerAdapter>{
             PlaybackBackend.androidExoPlayer: direct,
-            PlaybackBackend.serverTranscode: serverPlayer,
           },
           transcodeGateway: gateway,
-          bufferingTimeout: const Duration(milliseconds: 20),
+          bufferingTimeout: const Duration(milliseconds: 5),
           retryDelay: Duration.zero,
         );
-        final errors = <PlaybackError>[];
-        final subscription = orchestrator.onError.listen(errors.add);
-
-        final sourceUri = '${server.uri}/fixture/hls-live/master.m3u8';
         await orchestrator.open(
           PlaybackSource(
-            uri: sourceUri,
-            title: 'Network Loss Fixture',
+            uri: '${server.uri}/fixture/hls-live/master.m3u8',
+            title: 'Leak Probe $index',
             isLive: true,
           ),
         );
-        await Future<void>.delayed(const Duration(milliseconds: 80));
-
-        expect(
-          direct.commands.where((c) => c == 'load:$sourceUri'),
-          hasLength(2),
-        );
-        expect(errors, hasLength(1));
-        expect(errors.single.code, 'network_unavailable');
-        expect(errors.single.recoverable, isTrue);
-        expect(orchestrator.activeBackend, isNull);
-        expect(direct.commands, contains('stop'));
-        expect(gateway.startedServerRequests, isEmpty);
-        expect(gateway.stoppedServerTranscodes, isEmpty);
-        expect(gateway.stoppedBroadcasts, isEmpty);
-
-        await subscription.cancel();
+        await Future<void>.delayed(const Duration(milliseconds: 20));
         await orchestrator.dispose();
-      },
-    );
+        totalDisposeCount += direct.disposeCount;
+      }
 
-    test(
-      'token_expiry_mid_playback_integration: reloads once then errors deterministically with real gateway',
-      () async {
-        final direct = _StressPlayerAdapter(
-          capabilities: PlaybackCapabilities.androidExoPlayer,
-        );
-        final gateway = _StressTranscodeGateway(server: server);
-        final orchestrator = PlaybackOrchestrator(
-          platform: PlaybackPlatform.android,
-          adapters: <PlaybackBackend, PlayerAdapter>{
-            PlaybackBackend.androidExoPlayer: direct,
-          },
-          transcodeGateway: gateway,
-          retryDelay: Duration.zero,
-        );
-        final errors = <PlaybackError>[];
-        final subscription = orchestrator.onError.listen(errors.add);
+      expect(totalDisposeCount, 50);
+      expect(gateway.startedServerRequests, isEmpty);
+      expect(gateway.stoppedServerTranscodes, isEmpty);
+      expect(gateway.stoppedBroadcasts, isEmpty);
+      expect(server.activeBroadcasts, isEmpty);
+    });
 
-        final sourceUri = '${server.uri}/fixture/hls-live/master.m3u8';
-        await orchestrator.open(
-          PlaybackSource(
-            uri: sourceUri,
-            title: 'Token Expiry Fixture',
-            isLive: true,
-          ),
-        );
-        direct.emitError(
-          const PlaybackError(
-            backend: PlaybackBackend.androidExoPlayer,
-            message: 'Provider token expired during playback',
-            code: 'expired_token',
-            recoverable: true,
-          ),
-        );
-        await pumpEventQueue();
-        direct.emitError(
-          const PlaybackError(
-            backend: PlaybackBackend.androidExoPlayer,
-            message: 'Provider token expired during playback',
-            code: 'expired_token',
-            recoverable: true,
-          ),
-        );
-        await pumpEventQueue();
+    test('stalled_transcode_integration: real server stalled response produces typed recoverable error and cleans up session', () async {
+      final direct = _StressPlayerAdapter(
+        capabilities: PlaybackCapabilities.androidExoPlayer,
+        loadFailure: const PlaybackException.unsupported(
+          'Unsupported codec vp9/opus',
+          backend: PlaybackBackend.androidExoPlayer,
+        ),
+      );
+      final serverPlayer = _StressPlayerAdapter(
+        capabilities: PlaybackCapabilities.serverTranscode,
+      );
+      final gateway = _StressTranscodeGateway(server: server);
+      final orchestrator = PlaybackOrchestrator(
+        platform: PlaybackPlatform.android,
+        adapters: <PlaybackBackend, PlayerAdapter>{
+          PlaybackBackend.androidExoPlayer: direct,
+          PlaybackBackend.serverTranscode: serverPlayer,
+        },
+        transcodeGateway: gateway,
+      );
+      final errors = <PlaybackError>[];
+      final subscription = orchestrator.onError.listen(errors.add);
 
-        expect(
-          direct.commands.where((c) => c == 'load:$sourceUri'),
-          hasLength(2),
-        );
-        expect(errors, hasLength(1));
-        expect(errors.single.code, 'expired_token');
-        expect(errors.single.recoverable, isTrue);
-        expect(
-          orchestrator.diagnostics,
-          contains('active-retry:expired_token:androidExoPlayer:1'),
-        );
-        expect(gateway.startedServerRequests, isEmpty);
+      await orchestrator.open(
+        PlaybackSource(
+          uri: '${server.uri}/fixture/stalled-transcode/source.ts',
+          title: 'Stalled Transcode Fixture',
+          videoCodec: 'vp9',
+          audioCodec: 'opus',
+          metadata: <String, Object?>{'scenario': 'stalled'},
+        ),
+      );
+      await pumpEventQueue();
 
-        await subscription.cancel();
-        await orchestrator.dispose();
-      },
-    );
+      expect(errors, hasLength(1));
+      expect(errors.single.code, 'transcode_stalled');
+      expect(errors.single.recoverable, isTrue);
+      expect(
+        orchestrator.diagnostics,
+        anyElement(contains('cleanup:server-transcode:stopped')),
+      );
+      expect(gateway.stoppedServerTranscodes, hasLength(1));
+      expect(serverPlayer.loadedSources, isEmpty);
 
-    test(
-      'rapid_channel_switch_integration: 20 switches with real server leaves no active broadcasts and all sessions stopped',
-      () async {
-        final direct = _StressPlayerAdapter(
-          capabilities: PlaybackCapabilities.desktopLibmpv,
-          loadFailure: BackendUnavailableException('libmpv unavailable'),
-        );
-        final serverPlayer = _StressPlayerAdapter(
-          capabilities: PlaybackCapabilities.serverTranscode,
-        );
-        final gateway = _StressTranscodeGateway(server: server);
-        final orchestrator = PlaybackOrchestrator(
-          platform: PlaybackPlatform.desktop,
-          adapters: <PlaybackBackend, PlayerAdapter>{
-            PlaybackBackend.desktopLibmpv: direct,
-            PlaybackBackend.serverTranscode: serverPlayer,
-          },
-          transcodeGateway: gateway,
-        );
-
-        for (var index = 0; index < 20; index += 1) {
-          await orchestrator.open(
-            PlaybackSource(
-              uri: '${server.uri}/fixture/hls-live/master.m3u8',
-              title: 'Channel $index',
-              isLive: true,
-              metadata: <String, Object?>{
-                'broadcast_network_id': 'network-$index',
-              },
-            ),
-          );
-        }
-        await orchestrator.dispose();
-        await pumpEventQueue();
-
-        expect(orchestrator.activeBackend, isNull);
-        expect(gateway.startedServerRequests, hasLength(20));
-        expect(
-          gateway.stoppedBroadcasts,
-          hasLength(20),
-          reason: 'all broadcast stop requests must be issued',
-        );
-        expect(
-          gateway.stoppedServerTranscodes,
-          hasLength(20),
-          reason: 'all server transcode stop requests must be issued',
-        );
-        expect(
-          serverPlayer.commands.where((c) => c == 'stop'),
-          hasLength(20),
-        );
-        expect(
-          serverPlayer.commands.where((c) => c == 'dispose'),
-          hasLength(1),
-        );
-        expect(
-          server.activeBroadcasts,
-          isEmpty,
-          reason:
-              'fake server must report zero active broadcasts after cleanup',
-        );
-      },
-    );
-
-    test(
-      'memory_leak_probe: create and dispose many orchestrators leaves no active adapters or sessions',
-      () async {
-        final gateway = _StressTranscodeGateway(server: server);
-        var totalDisposeCount = 0;
-
-        for (var index = 0; index < 50; index += 1) {
-          final direct = _StressPlayerAdapter(
-            capabilities: PlaybackCapabilities.androidExoPlayer,
-            loadStatus: PlaybackStatus.buffering,
-          );
-          final orchestrator = PlaybackOrchestrator(
-            platform: PlaybackPlatform.android,
-            adapters: <PlaybackBackend, PlayerAdapter>{
-              PlaybackBackend.androidExoPlayer: direct,
-            },
-            transcodeGateway: gateway,
-            bufferingTimeout: const Duration(milliseconds: 5),
-            retryDelay: Duration.zero,
-          );
-          await orchestrator.open(
-            PlaybackSource(
-              uri: '${server.uri}/fixture/hls-live/master.m3u8',
-              title: 'Leak Probe $index',
-              isLive: true,
-            ),
-          );
-          await Future<void>.delayed(const Duration(milliseconds: 20));
-          await orchestrator.dispose();
-          totalDisposeCount += direct.disposeCount;
-        }
-
-        expect(totalDisposeCount, 50);
-        expect(gateway.startedServerRequests, isEmpty);
-        expect(gateway.stoppedServerTranscodes, isEmpty);
-        expect(gateway.stoppedBroadcasts, isEmpty);
-        expect(server.activeBroadcasts, isEmpty);
-      },
-    );
-
-    test(
-      'stalled_transcode_integration: real server stalled response produces typed recoverable error and cleans up session',
-      () async {
-        final direct = _StressPlayerAdapter(
-          capabilities: PlaybackCapabilities.androidExoPlayer,
-          loadFailure: const PlaybackException.unsupported(
-            'Unsupported codec vp9/opus',
-            backend: PlaybackBackend.androidExoPlayer,
-          ),
-        );
-        final serverPlayer = _StressPlayerAdapter(
-          capabilities: PlaybackCapabilities.serverTranscode,
-        );
-        final gateway = _StressTranscodeGateway(server: server);
-        final orchestrator = PlaybackOrchestrator(
-          platform: PlaybackPlatform.android,
-          adapters: <PlaybackBackend, PlayerAdapter>{
-            PlaybackBackend.androidExoPlayer: direct,
-            PlaybackBackend.serverTranscode: serverPlayer,
-          },
-          transcodeGateway: gateway,
-        );
-        final errors = <PlaybackError>[];
-        final subscription = orchestrator.onError.listen(errors.add);
-
-        await orchestrator.open(
-          PlaybackSource(
-            uri: '${server.uri}/fixture/stalled-transcode/source.ts',
-            title: 'Stalled Transcode Fixture',
-            videoCodec: 'vp9',
-            audioCodec: 'opus',
-            metadata: <String, Object?>{
-              'scenario': 'stalled',
-            },
-          ),
-        );
-        await pumpEventQueue();
-
-        expect(errors, hasLength(1));
-        expect(errors.single.code, 'transcode_stalled');
-        expect(errors.single.recoverable, isTrue);
-        expect(
-          orchestrator.diagnostics,
-          anyElement(contains('cleanup:server-transcode:stopped')),
-        );
-        expect(gateway.stoppedServerTranscodes, hasLength(1));
-        expect(serverPlayer.loadedSources, isEmpty);
-
-        await subscription.cancel();
-        await orchestrator.dispose();
-      },
-    );
+      await subscription.cancel();
+      await orchestrator.dispose();
+    });
   });
 }
 

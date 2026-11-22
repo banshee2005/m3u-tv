@@ -88,12 +88,7 @@ Map<String, Object?> _details({String state = 'finished', String home = '2'}) =>
           'home_score': '0',
           'away_score': '1',
         },
-        {
-          'kind': 'red_card',
-          'time': "90'",
-          'side': 'home',
-          'text': 'Sent off',
-        },
+        {'kind': 'red_card', 'time': "90'", 'side': 'home', 'text': 'Sent off'},
       ],
       'stats': [
         {'label': 'Shots', 'home': '29', 'away': '36'},

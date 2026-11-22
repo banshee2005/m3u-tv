@@ -35,11 +35,7 @@ Future<MediaSortOption?> showMediaSortDialog(
       l.mediaSortReleaseDateNewest,
       MediaSortOption.releaseDateDesc,
     ),
-    (
-      Icons.north,
-      l.mediaSortReleaseDateOldest,
-      MediaSortOption.releaseDateAsc,
-    ),
+    (Icons.north, l.mediaSortReleaseDateOldest, MediaSortOption.releaseDateAsc),
     (
       Icons.new_releases_outlined,
       mediaSortButtonLabel(l, recentOption),

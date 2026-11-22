@@ -37,12 +37,7 @@ void main() {
 
   test('no keystore or signing files are committed in the repository', () {
     final repoDir = Directory('..');
-    final suspiciousExtensions = <String>[
-      '.jks',
-      '.keystore',
-      '.p12',
-      '.pfx',
-    ];
+    final suspiciousExtensions = <String>['.jks', '.keystore', '.p12', '.pfx'];
     final suspiciousFileNames = <String>[
       'signing.properties',
       'release.keystore',
@@ -174,10 +169,7 @@ void main() {
       final windowsRc = readFile('windows/runner/Runner.rc');
       final macosConfig = readFile('macos/Runner/Configs/AppInfo.xcconfig');
 
-      expect(
-        linuxCmake,
-        contains('set(APPLICATION_ID "dev.sparkison.tv")'),
-      );
+      expect(linuxCmake, contains('set(APPLICATION_ID "dev.sparkison.tv")'));
       expect(linuxCmake, isNot(contains('com.example')));
       expect(
         linuxRunner,
@@ -225,8 +217,7 @@ void main() {
     expect(
       flutterWindow,
       isNot(contains('SetNextFrameCallback')),
-      reason:
-          'Window must not defer Show() to SetNextFrameCallback — app must appear immediately on startup',
+      reason: 'Window must not defer Show() to SetNextFrameCallback — app must appear immediately on startup',
     );
   });
 }

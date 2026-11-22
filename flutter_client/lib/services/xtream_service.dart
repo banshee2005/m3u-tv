@@ -364,9 +364,9 @@ class RequestsCapability {
 
   factory RequestsCapability.fromJson(Map<String, dynamic> json) =>
       RequestsCapability(
-        contentTypes: _asList(
-          json['content_types'],
-        ).map((type) => '$type').toList(growable: false),
+        contentTypes: _asList(json['content_types'])
+            .map((type) => '$type')
+            .toList(growable: false),
         autoApproval: '${json['approval_behavior'] ?? ''}' == 'auto_approval',
       );
 
@@ -655,12 +655,7 @@ class XtreamService {
     );
     if (response is XtreamRawResponse) {
       final c = _requireCredentials();
-      return _parseLiveStreams(
-        response,
-        c.server,
-        c.username,
-        c.password,
-      );
+      return _parseLiveStreams(response, c.server, c.username, c.password);
     }
     return _asList(response)
         .map((item) {
@@ -737,9 +732,9 @@ class XtreamService {
     if (response is XtreamRawResponse) {
       return _parseSeries(response);
     }
-    return _asList(
-      response,
-    ).map((item) => Series.fromXtream(_asMap(item))).toList(growable: false);
+    return _asList(response)
+        .map((item) => Series.fromXtream(_asMap(item)))
+        .toList(growable: false);
   }
 
   /// Largest page m3u-editor's `get_dvr_recordings` returns (it caps
@@ -879,9 +874,7 @@ class XtreamService {
     return DvrStorageInfo.fromXtream(_asMap(response));
   }
 
-  Future<DvrStorageInfo> getDvrStorageFor(
-    UserCredentials credentials,
-  ) async {
+  Future<DvrStorageInfo> getDvrStorageFor(UserCredentials credentials) async {
     final response = await _requestWithCredentials(
       credentials,
       'get_dvr_storage',
@@ -1116,10 +1109,7 @@ class XtreamService {
   /// live download progress once approved.
   Future<MediaRequestSummary> getMediaRequestStatus(int requestId) async {
     final response = await _requestAction(
-      () => _request(
-        'request_status',
-        params: {'request_id': '$requestId'},
-      ),
+      () => _request('request_status', params: {'request_id': '$requestId'}),
     );
     final data = _asMap(_unwrapRequestEnvelope(response)['data']);
     return MediaRequestSummary.fromJson(_asMap(data['request']));
@@ -1175,9 +1165,9 @@ class XtreamService {
     );
     final json = _asMap(response);
     final series = Series.fromXtream(_asMap(json['info']));
-    final seasons = _asList(
-      json['seasons'],
-    ).map((item) => Season.fromXtream(_asMap(item))).toList();
+    final seasons = _asList(json['seasons'])
+        .map((item) => Season.fromXtream(_asMap(item)))
+        .toList();
     final episodeMap = <int, List<Episode>>{};
     final rawEpisodes = _asMap(json['episodes']);
     for (final entry in rawEpisodes.entries) {
@@ -1231,9 +1221,10 @@ class XtreamService {
     );
   }
 
-  Future<List<Viewer>> getViewers() async => _asList(
-    await _request('get_viewers'),
-  ).map((item) => Viewer.fromJson(_asMap(item))).toList(growable: false);
+  Future<List<Viewer>> getViewers() async =>
+      _asList(await _request('get_viewers'))
+          .map((item) => Viewer.fromJson(_asMap(item)))
+          .toList(growable: false);
 
   Future<Viewer> createViewer(String name) =>
       createViewerFor(_requireCredentials(), name);
@@ -1659,10 +1650,7 @@ class XtreamService {
       if (endLateSeconds != null) 'end_late_seconds': '$endLateSeconds',
     };
     try {
-      final response = await _request(
-        'create_dvr_series_rule',
-        params: params,
-      );
+      final response = await _request('create_dvr_series_rule', params: params);
       final map = _asMap(response);
       final id = map['rule_id'];
       if (id is num) return id.toInt();
@@ -1704,10 +1692,7 @@ class XtreamService {
   /// Deletes a series recording rule by integer id via m3u-editor's
   /// `delete_dvr_series_rule` action.
   Future<void> deleteDvrSeriesRule(int id) async {
-    await _request(
-      'delete_dvr_series_rule',
-      params: {'rule_id': '$id'},
-    );
+    await _request('delete_dvr_series_rule', params: {'rule_id': '$id'});
   }
 
   /// Updates an existing series recording rule via m3u-editor's
@@ -1743,10 +1728,7 @@ class XtreamService {
         'start_early_seconds': '$startEarlySeconds',
       if (endLateSeconds != null) 'end_late_seconds': '$endLateSeconds',
     };
-    await _request(
-      'update_dvr_series_rule',
-      params: params,
-    );
+    await _request('update_dvr_series_rule', params: params);
   }
 
   /// Searches EPG shows across the playlist's mapped channels via
@@ -1757,13 +1739,10 @@ class XtreamService {
   Future<List<EpgShow>> searchEpgShows(String query) async {
     final trimmed = query.trim();
     if (trimmed.length < 2) return const <EpgShow>[];
-    final response = await _request(
-      'search_epg_shows',
-      params: {'q': trimmed},
-    );
-    return _asList(
-      response,
-    ).map((item) => EpgShow.fromXtream(_asMap(item))).toList(growable: false);
+    final response = await _request('search_epg_shows', params: {'q': trimmed});
+    return _asList(response)
+        .map((item) => EpgShow.fromXtream(_asMap(item)))
+        .toList(growable: false);
   }
 
   /// Games of [leagueIds] starting in [from, to) from m3u-editor's Sports
@@ -1886,9 +1865,9 @@ class XtreamService {
   Future<List<Category>> _categories(String action) async {
     final sessionGeneration = _sessionGeneration.current;
     final response = await _request(action);
-    final categories = _asList(
-      response,
-    ).map((item) => Category.fromXtream(_asMap(item))).toList(growable: false);
+    final categories = _asList(response)
+        .map((item) => Category.fromXtream(_asMap(item)))
+        .toList(growable: false);
     if (_liveCategoryCacheSuppressions == 0 &&
         action == 'get_live_categories' &&
         !_sessionGeneration.isStale(sessionGeneration)) {
@@ -2216,9 +2195,8 @@ DateTime? _parseEpgTime(Object? value) {
   if (numeric != null) return _fromEpoch(numeric);
   final parsed = DateTime.tryParse(text);
   if (parsed != null) return parsed.isUtc ? parsed : parsed.toUtc();
-  final xtream = RegExp(
-    r'^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$',
-  ).firstMatch(text);
+  final xtream = RegExp(r'^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$')
+      .firstMatch(text);
   if (xtream == null) return null;
   return DateTime.utc(
     int.parse(xtream.group(1)!),

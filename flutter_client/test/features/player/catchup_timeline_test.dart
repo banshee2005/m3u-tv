@@ -215,11 +215,7 @@ void main() {
         isNull,
       );
       expect(
-        timeline().planSeek(
-          min(60),
-          from: min(59, 30),
-          streamSeekable: false,
-        ),
+        timeline().planSeek(min(60), from: min(59, 30), streamSeekable: false),
         isNull,
       );
     });

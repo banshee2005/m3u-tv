@@ -376,9 +376,7 @@ class WebVideoBackend implements PlayerAdapter, HtmlViewProvider {
     _emit(
       _state.copyWith(
         status: status,
-        position: Duration(
-          milliseconds: (_video.currentTime * 1000).round(),
-        ),
+        position: Duration(milliseconds: (_video.currentTime * 1000).round()),
         duration: durationSeconds.isFinite
             ? Duration(milliseconds: (durationSeconds * 1000).round())
             : null,

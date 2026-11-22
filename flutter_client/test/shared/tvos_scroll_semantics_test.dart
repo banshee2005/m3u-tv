@@ -67,19 +67,16 @@ void main() {
       },
     );
 
-    testWidgets(
-      'control: the stock behaviour exposes implicit scrolling and '
-      'scrollToOffset (what the tvOS focus engine drives)',
-      (tester) async {
-        final semantics = tester.ensureSemantics();
-        await tester.pumpWidget(_strip());
+    testWidgets('control: the stock behaviour exposes implicit scrolling and '
+        'scrollToOffset (what the tvOS focus engine drives)', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(_strip());
 
-        final data = _scrollNode(tester);
-        expect(data.flagsCollection.hasImplicitScrolling, isTrue);
-        expect(data.hasAction(SemanticsAction.scrollToOffset), isTrue);
-        semantics.dispose();
-      },
-    );
+      final data = _scrollNode(tester);
+      expect(data.flagsCollection.hasImplicitScrolling, isTrue);
+      expect(data.hasAction(SemanticsAction.scrollToOffset), isTrue);
+      semantics.dispose();
+    });
   });
 
   group('ignoreNativeScrollToOffset', () {

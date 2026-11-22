@@ -143,9 +143,8 @@ class FlutterSecureStorageAdapter implements SecureStorage {
   }
 
   @override
-  Future<void> write(String key, String value) => _queueFor(key).run(
-    () => _storage.write(key: key, value: value),
-  );
+  Future<void> write(String key, String value) =>
+      _queueFor(key).run(() => _storage.write(key: key, value: value));
 
   Future<bool> writeIf(
     String key,
@@ -162,9 +161,8 @@ class FlutterSecureStorageAdapter implements SecureStorage {
   );
 
   @override
-  Future<void> delete(String key) => _queueFor(key).run(
-    () => _storage.delete(key: key),
-  );
+  Future<void> delete(String key) =>
+      _queueFor(key).run(() => _storage.delete(key: key));
 }
 
 class FileSecureStorage implements SecureStorage {

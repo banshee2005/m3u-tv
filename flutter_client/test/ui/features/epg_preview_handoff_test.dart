@@ -325,9 +325,7 @@ void main() {
   ) async {
     final built = _buildPlayer();
     addTearDown(built.orchestrator.dispose);
-    await tester.runAsync(
-      () => built.orchestrator.open(_sourceFor(_channel)),
-    );
+    await tester.runAsync(() => built.orchestrator.open(_sourceFor(_channel)));
     built.adapter.emitState(
       const PlaybackState(
         backend: PlaybackBackend.desktopLibmpv,
@@ -359,9 +357,7 @@ void main() {
     expect(built.adapter.stopCallCount, 0);
   });
 
-  testWidgets('a channel change keeps the native view mounted', (
-    tester,
-  ) async {
+  testWidgets('a channel change keeps the native view mounted', (tester) async {
     // Remounting it makes the mpv cores re-create themselves, tearing down
     // the core the new channel's load was already sent to.
     final viewCalls = <String>[];

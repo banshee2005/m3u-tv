@@ -35,40 +35,36 @@ void main() {
       return events;
     }
 
-    test(
-      'maps missing libmpv response only to the load Future',
-      () async {
-        final events = setupMockEvents();
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(methodChannel, (call) async {
-              expect(call.method, 'load');
-              return <String, Object?>{
-                'ok': false,
-                'code': BackendUnavailableException.unavailableCode,
-                'error':
-                    'mpv_create returned null; library=libmpv.so.2; LC_NUMERIC=C; ensure LC_NUMERIC is C or C.UTF-8 before creating libmpv',
-              };
-            });
-        final backend = DesktopLibmpvBackend();
-        final errors = <PlaybackError>[];
-        final subscription = backend.onError.listen(errors.add);
+    test('maps missing libmpv response only to the load Future', () async {
+      final events = setupMockEvents();
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(methodChannel, (call) async {
+            expect(call.method, 'load');
+            return <String, Object?>{
+              'ok': false,
+              'code': BackendUnavailableException.unavailableCode,
+              'error': 'mpv_create returned null; library=libmpv.so.2; LC_NUMERIC=C; ensure LC_NUMERIC is C or C.UTF-8 before creating libmpv',
+            };
+          });
+      final backend = DesktopLibmpvBackend();
+      final errors = <PlaybackError>[];
+      final subscription = backend.onError.listen(errors.add);
 
-        await expectLater(
-          backend.load(
-            const PlaybackSource(uri: 'https://example.test/live.m3u8'),
-          ),
-          throwsA(isA<BackendUnavailableException>()),
-        );
+      await expectLater(
+        backend.load(
+          const PlaybackSource(uri: 'https://example.test/live.m3u8'),
+        ),
+        throwsA(isA<BackendUnavailableException>()),
+      );
 
-        await pumpEventQueue();
-        expect(errors, isEmpty);
-        expect(backend.textureId, isNull);
+      await pumpEventQueue();
+      expect(errors, isEmpty);
+      expect(backend.textureId, isNull);
 
-        await subscription.cancel();
-        await backend.dispose();
-        await events.close();
-      },
-    );
+      await subscription.cancel();
+      await backend.dispose();
+      await events.close();
+    });
 
     test('probe reports missing libmpv with fallback decision', () async {
       final events = setupMockEvents();
@@ -85,8 +81,7 @@ void main() {
               'canPlayFixture': false,
               'fallbackDecision':
                   'server-transcode until libmpv runtime is bundled',
-              'details':
-                  'libmpv shared library not found; tried libmpv.so.2 libmpv.so.1 libmpv.so; Flutter texture registrar unavailable; windowSystem=headless; hardwareDisplayHandle=unavailable; texture=Flutter pixel buffer',
+              'details': 'libmpv shared library not found; tried libmpv.so.2 libmpv.so.1 libmpv.so; Flutter texture registrar unavailable; windowSystem=headless; hardwareDisplayHandle=unavailable; texture=Flutter pixel buffer',
             };
           });
 
@@ -122,8 +117,7 @@ void main() {
                   'renderApiAvailable': true,
                   'canPlayFixture': true,
                   'fallbackDecision': 'none',
-                  'details':
-                      'libmpv client/render symbols resolved; texture=Flutter pixel buffer',
+                  'details': 'libmpv client/render symbols resolved; texture=Flutter pixel buffer',
                 };
               case 'load':
                 scheduleMicrotask(() {
@@ -190,15 +184,13 @@ void main() {
             return <String, Object?>{
               'platform': 'windows',
               'windowSystem': 'win32-hwnd',
-              'videoApi':
-                  'Flutter pixel buffer texture using libmpv software render API',
+              'videoApi': 'Flutter pixel buffer texture using libmpv software render API',
               'ownedSurface': true,
               'libmpvAvailable': false,
               'renderApiAvailable': false,
               'canPlayFixture': false,
               'fallbackDecision': 'server-transcode until mpv-2.dll is bundled',
-              'details':
-                  'mpv-2.dll not found; tried runner directory and Windows DLL search path',
+              'details': 'mpv-2.dll not found; tried runner directory and Windows DLL search path',
             };
           });
 
@@ -228,8 +220,7 @@ void main() {
               return <String, Object?>{
                 'ok': false,
                 'code': BackendUnavailableException.unavailableCode,
-                'error':
-                    'mpv-2.dll not found beside runner; server transcode required',
+                'error': 'mpv-2.dll not found beside runner; server transcode required',
               };
             });
 
@@ -273,46 +264,43 @@ void main() {
       },
     );
 
-    test(
-      'load forwards the HDR, refresh-rate, deinterlace and live pre-buffer '
-      'view settings',
-      () async {
-        final events = setupMockEvents();
-        MethodCall? loadCall;
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(methodChannel, (call) async {
-              loadCall = call;
-              return <String, Object?>{
-                'ok': false,
-                'code': BackendUnavailableException.unavailableCode,
-                'error': 'no libmpv',
-              };
-            });
+    test('load forwards the HDR, refresh-rate, deinterlace and live pre-buffer '
+        'view settings', () async {
+      final events = setupMockEvents();
+      MethodCall? loadCall;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(methodChannel, (call) async {
+            loadCall = call;
+            return <String, Object?>{
+              'ok': false,
+              'code': BackendUnavailableException.unavailableCode,
+              'error': 'no libmpv',
+            };
+          });
 
-        final backend = DesktopLibmpvBackend();
-        await expectLater(
-          backend.load(
-            const PlaybackSource(
-              uri: 'https://example.test/movie.mp4',
-              hdrEnabled: false,
-              matchDisplayRefreshRate: true,
-              deinterlace: true,
-              prebufferLive: true,
-            ),
+      final backend = DesktopLibmpvBackend();
+      await expectLater(
+        backend.load(
+          const PlaybackSource(
+            uri: 'https://example.test/movie.mp4',
+            hdrEnabled: false,
+            matchDisplayRefreshRate: true,
+            deinterlace: true,
+            prebufferLive: true,
           ),
-          throwsA(isA<BackendUnavailableException>()),
-        );
+        ),
+        throwsA(isA<BackendUnavailableException>()),
+      );
 
-        final args = loadCall!.arguments as Map<Object?, Object?>;
-        expect(args['hdrEnabled'], isFalse);
-        expect(args['matchRefreshRate'], isTrue);
-        expect(args['deinterlace'], isTrue);
-        expect(args['prebufferLive'], isTrue);
+      final args = loadCall!.arguments as Map<Object?, Object?>;
+      expect(args['hdrEnabled'], isFalse);
+      expect(args['matchRefreshRate'], isTrue);
+      expect(args['deinterlace'], isTrue);
+      expect(args['prebufferLive'], isTrue);
 
-        await backend.dispose();
-        await events.close();
-      },
-    );
+      await backend.dispose();
+      await events.close();
+    });
 
     test('load tells the native core when the source is catchup', () async {
       final events = setupMockEvents();
@@ -420,53 +408,50 @@ void main() {
       await events.close();
     });
 
-    test(
-      'dispose during a pending load releases the returned handle without publishing after close',
-      () async {
-        final events = setupMockEvents();
-        final loadResponse = Completer<Map<String, Object?>>();
-        final calls = <MethodCall>[];
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(methodChannel, (call) async {
-              calls.add(call);
-              if (call.method == 'load') return loadResponse.future;
-              return null;
-            });
+    test('dispose during a pending load releases the returned handle without publishing after close', () async {
+      final events = setupMockEvents();
+      final loadResponse = Completer<Map<String, Object?>>();
+      final calls = <MethodCall>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(methodChannel, (call) async {
+            calls.add(call);
+            if (call.method == 'load') return loadResponse.future;
+            return null;
+          });
 
-        final backend = DesktopLibmpvBackend();
-        final states = <PlaybackState>[];
-        final errors = <PlaybackError>[];
-        final stateSub = backend.onState.listen(states.add);
-        final errorSub = backend.onError.listen(errors.add);
-        final load = backend.load(
-          const PlaybackSource(uri: 'https://example.test/pending.m3u8'),
-        );
+      final backend = DesktopLibmpvBackend();
+      final states = <PlaybackState>[];
+      final errors = <PlaybackError>[];
+      final stateSub = backend.onState.listen(states.add);
+      final errorSub = backend.onError.listen(errors.add);
+      final load = backend.load(
+        const PlaybackSource(uri: 'https://example.test/pending.m3u8'),
+      );
 
-        await pumpEventQueue();
-        await backend.dispose();
-        loadResponse.complete(<String, Object?>{
-          'ok': true,
-          'handle': 77,
-          'textureId': 7700,
-        });
+      await pumpEventQueue();
+      await backend.dispose();
+      loadResponse.complete(<String, Object?>{
+        'ok': true,
+        'handle': 77,
+        'textureId': 7700,
+      });
 
-        await expectLater(load, completes);
-        await pumpEventQueue();
+      await expectLater(load, completes);
+      await pumpEventQueue();
 
-        final disposeCalls = calls
-            .where((call) => call.method == 'dispose')
-            .toList();
-        expect(disposeCalls, hasLength(1));
-        expect(disposeCalls.single.arguments, <String, Object?>{'handle': 77});
-        expect(backend.textureId, isNull);
-        expect(states, isEmpty);
-        expect(errors, isEmpty);
+      final disposeCalls = calls
+          .where((call) => call.method == 'dispose')
+          .toList();
+      expect(disposeCalls, hasLength(1));
+      expect(disposeCalls.single.arguments, <String, Object?>{'handle': 77});
+      expect(backend.textureId, isNull);
+      expect(states, isEmpty);
+      expect(errors, isEmpty);
 
-        await stateSub.cancel();
-        await errorSub.cancel();
-        await events.close();
-      },
-    );
+      await stateSub.cancel();
+      await errorSub.cancel();
+      await events.close();
+    });
 
     test(
       'stop during a pending load settles it and disposes the late handle once',
@@ -494,10 +479,7 @@ void main() {
           'textureId': 7800,
         });
 
-        await expectLater(
-          load.timeout(const Duration(seconds: 1)),
-          completes,
-        );
+        await expectLater(load.timeout(const Duration(seconds: 1)), completes);
         await pumpEventQueue();
 
         final disposeCalls = calls

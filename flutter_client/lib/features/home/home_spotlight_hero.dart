@@ -795,9 +795,7 @@ class _SpotlightShowcase extends StatelessWidget {
     final center = (urls.length - 1) / 2;
     // Outermost cards first, so the middle one ends up in front.
     final order = List<int>.generate(urls.length, (i) => i)
-      ..sort(
-        (a, b) => (b - center).abs().compareTo((a - center).abs()),
-      );
+      ..sort((a, b) => (b - center).abs().compareTo((a - center).abs()));
     return SizedBox(
       width: cardWidth + step * (urls.length - 1) + cardWidth * 0.2,
       height: cardHeight * 1.15,
@@ -1316,16 +1314,12 @@ class _SpotlightClock extends StatelessWidget {
               ),
               if (endsAt != null)
                 Text(
-                  AppLocalizations.of(
-                    context,
-                  ).playerEndsAt(formatClockTime(context, endsAt)),
+                  AppLocalizations.of(context)
+                      .playerEndsAt(formatClockTime(context, endsAt)),
                   key: const Key('home-spotlight-ends-at'),
                   maxLines: 1,
                   softWrap: false,
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.white54, fontSize: 12),
                 ),
             ],
           );

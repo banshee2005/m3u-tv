@@ -49,8 +49,9 @@ class PairedPlaylist {
   final String? name;
 }
 
-typedef DevicePairingTransport =
-    Future<DevicePairingResponse> Function(DevicePairingRequest request);
+typedef DevicePairingTransport = Future<DevicePairingResponse> Function(
+  DevicePairingRequest request,
+);
 
 /// Manages a Trakt-style device pairing handshake against the user's own
 /// m3u-editor server: request a short-lived code, show it (+ a QR code to the

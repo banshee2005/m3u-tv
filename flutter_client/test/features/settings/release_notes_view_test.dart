@@ -87,9 +87,7 @@ void main() {
             child: Builder(
               builder: (context) => MediaQuery(
                 data: MediaQuery.of(context).copyWith(
-                  textScaler: TextScaler.linear(
-                    FontSizeScope.scaleOf(context),
-                  ),
+                  textScaler: TextScaler.linear(FontSizeScope.scaleOf(context)),
                 ),
                 child: Center(
                   child: SizedBox.fromSize(
@@ -297,9 +295,7 @@ void main() {
     expect(find.textContaining('plain paragraph text'), findsOneWidget);
   });
 
-  testWidgets('TV shows remote hints and a QR code for GitHub', (
-    tester,
-  ) async {
+  testWidgets('TV shows remote hints and a QR code for GitHub', (tester) async {
     await pump(
       tester,
       currentVersion: '1.3.0',

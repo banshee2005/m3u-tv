@@ -181,9 +181,7 @@ class BroadcastSession {
 
 Map<String, Object?> _withoutNulls(Map<String, Object?> value) {
   return Map<String, Object?>.fromEntries(
-    value.entries.where(
-      (entry) => entry.value != null,
-    ),
+    value.entries.where((entry) => entry.value != null),
   );
 }
 

@@ -168,9 +168,8 @@ class _RequestDetailScreenState extends ConsumerState<RequestDetailScreen> {
       final message = request.status == MediaRequestStatus.pendingApproval
           ? l.requestsSubmittedPendingApproval(result.title)
           : l.requestsSubmitted(result.title);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
     } on Object catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -256,9 +255,7 @@ class _RequestDetailScreenState extends ConsumerState<RequestDetailScreen> {
                       onSelect: _selectProvider,
                     ),
                   if (providers.length > 1 && showSeasonPicker)
-                    const SizedBox(
-                      height: MediaBrowsingMetrics.contentPadding,
-                    ),
+                    const SizedBox(height: MediaBrowsingMetrics.contentPadding),
                   if (showSeasonPicker)
                     _SeasonsSection(
                       // Keyed so switching integration rebuilds the toggles

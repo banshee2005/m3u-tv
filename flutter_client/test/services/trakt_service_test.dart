@@ -188,9 +188,7 @@ void main() {
     test('slow down response increases the polling interval', () async {
       final transport = _FakeTraktTransport([
         _deviceCodeResponse(interval: 10),
-        const TraktResponse(400, <String, Object?>{
-          'error': 'slow_down',
-        }),
+        const TraktResponse(400, <String, Object?>{'error': 'slow_down'}),
       ]);
       final service = _service(transport);
       addTearDown(service.dispose);
@@ -242,9 +240,7 @@ void main() {
     test('denied device token response cancels pending auth', () async {
       final transport = _FakeTraktTransport([
         _deviceCodeResponse(interval: 3600),
-        const TraktResponse(400, <String, Object?>{
-          'error': 'access_denied',
-        }),
+        const TraktResponse(400, <String, Object?>{'error': 'access_denied'}),
       ]);
       final service = _service(transport);
       addTearDown(service.dispose);
@@ -284,10 +280,7 @@ void main() {
   group('TraktService session lifecycle', () {
     test('init stops cleanly when disposed during storage read', () async {
       final storage = _BlockingAccessReadSecureStorage();
-      final service = TraktService(
-        storage: storage,
-        clientId: clientId,
-      );
+      final service = TraktService(storage: storage, clientId: clientId);
 
       final initializing = service.init();
       await storage.accessReadStarted.future;
@@ -463,14 +456,11 @@ void main() {
     });
 
     test('failed token save restores the previous credential set', () async {
-      final storage = _FailOnceSecureStorage(
-        {
-          accessKey: 'stored-access-token',
-          refreshKey: 'stored-refresh-token',
-          expiryKey: '${_futureEpoch()}',
-        },
-        failKey: refreshKey,
-      );
+      final storage = _FailOnceSecureStorage({
+        accessKey: 'stored-access-token',
+        refreshKey: 'stored-refresh-token',
+        expiryKey: '${_futureEpoch()}',
+      }, failKey: refreshKey);
       final transport = _FakeTraktTransport([
         _deviceCodeResponse(interval: 3600),
         _tokenResponse(

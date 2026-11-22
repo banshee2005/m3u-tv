@@ -23,9 +23,8 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   final double leadingInset;
 
   @override
-  Size get preferredSize => Size.fromHeight(
-    onBack == null ? kToolbarHeight : kToolbarHeight * scale,
-  );
+  Size get preferredSize =>
+      Size.fromHeight(onBack == null ? kToolbarHeight : kToolbarHeight * scale);
 
   @override
   Widget build(BuildContext context) {

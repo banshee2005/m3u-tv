@@ -138,10 +138,7 @@ class _RowActionMenuState extends State<RowActionMenu>
   /// once.
   double _actionProgress(int index) {
     final start = (index * _staggerStep).clamp(0.0, 1.0 - _itemSpan);
-    final raw = ((_expandController.value - start) / _itemSpan).clamp(
-      0.0,
-      1.0,
-    );
+    final raw = ((_expandController.value - start) / _itemSpan).clamp(0.0, 1.0);
     return Curves.easeOutCubic.transform(raw);
   }
 

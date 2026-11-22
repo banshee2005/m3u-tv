@@ -93,40 +93,37 @@ void main() {
       },
     );
 
-    test(
-      'favorites are kept per playlist and follow the shown one',
-      () async {
-        final fixture = _Fixture()
-          ..transport.favoritesByViewer['viewer-sports'] = [
-            <String, Object?>{'content_type': 'live', 'stream_id': 101},
-          ]
-          ..transport.favoritesByViewer['viewer-movies'] = [
-            <String, Object?>{'content_type': 'live', 'stream_id': 202},
-          ];
-        addTearDown(fixture.dispose);
-        final controller = fixture.controller;
+    test('favorites are kept per playlist and follow the shown one', () async {
+      final fixture = _Fixture()
+        ..transport.favoritesByViewer['viewer-sports'] = [
+          <String, Object?>{'content_type': 'live', 'stream_id': 101},
+        ]
+        ..transport.favoritesByViewer['viewer-movies'] = [
+          <String, Object?>{'content_type': 'live', 'stream_id': 202},
+        ];
+      addTearDown(fixture.dispose);
+      final controller = fixture.controller;
 
-        expect(await controller.connectXtream(_sports), isTrue);
-        await pumpEventQueue();
-        expect(await controller.favoritesService.all(), <int>{101});
+      expect(await controller.connectXtream(_sports), isTrue);
+      await pumpEventQueue();
+      expect(await controller.favoritesService.all(), <int>{101});
 
-        expect(await controller.switchToPlaylist(_movies), isNull);
-        await pumpEventQueue();
-        expect(await controller.favoritesService.all(), <int>{202});
-        final sports = controller.savedPlaylists.find(_sports)!;
-        final movies = controller.savedPlaylists.find(_movies)!;
-        expect(fixture.memory['m3ue_favorites_playlist_${sports.id}'], <int>[
-          101,
-        ]);
-        expect(fixture.memory['m3ue_favorites_playlist_${movies.id}'], <int>[
-          202,
-        ]);
+      expect(await controller.switchToPlaylist(_movies), isNull);
+      await pumpEventQueue();
+      expect(await controller.favoritesService.all(), <int>{202});
+      final sports = controller.savedPlaylists.find(_sports)!;
+      final movies = controller.savedPlaylists.find(_movies)!;
+      expect(fixture.memory['m3ue_favorites_playlist_${sports.id}'], <int>[
+        101,
+      ]);
+      expect(fixture.memory['m3ue_favorites_playlist_${movies.id}'], <int>[
+        202,
+      ]);
 
-        expect(await controller.switchToPlaylist(_sports), isNull);
-        await pumpEventQueue();
-        expect(await controller.favoritesService.all(), <int>{101});
-      },
-    );
+      expect(await controller.switchToPlaylist(_sports), isNull);
+      await pumpEventQueue();
+      expect(await controller.favoritesService.all(), <int>{101});
+    });
 
     test(
       'a failed switch keeps the current playlist without an error',
@@ -237,10 +234,7 @@ void main() {
 
       expect(controller.isConfigured, isFalse);
       expect(controller.savedPlaylists.playlists, isEmpty);
-      expect(
-        await fixture.storage.read('m3ue_tv_saved_playlists'),
-        isNull,
-      );
+      expect(await fixture.storage.read('m3ue_tv_saved_playlists'), isNull);
     });
 
     test(
@@ -454,13 +448,9 @@ void main() {
         expect(controller.isConfigured, isTrue);
         expect(await shownChannelIds(controller), <int>[101]);
         expect(controller.activeViewer?.ulid, 'viewer-sports');
-        final saved =
-            jsonDecode(
-                  (await fixture.storage.read(
-                    'm3ue_tv_credentials',
-                  ))!,
-                )
-                as Map<String, Object?>;
+        final saved = jsonDecode(
+          (await fixture.storage.read('m3ue_tv_credentials'))!,
+        ) as Map<String, Object?>;
         expect(saved['username'], 'sports');
 
         signIn.complete();

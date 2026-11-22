@@ -56,18 +56,17 @@ void main() {
             supportedLocales: AppLocalizations.supportedLocales,
             home: ShowDetailScreen(
               show: testShow,
-              onRecordSeries:
-                  ({
-                    channelId,
-                    required title,
-                    matchMode,
-                    seriesMode,
-                    keepLast,
-                    daysOfWeek,
-                    priority,
-                    startEarlySeconds,
-                    endLateSeconds,
-                  }) async => CreateDvrSeriesRuleOutcome.created,
+              onRecordSeries: ({
+                channelId,
+                required title,
+                matchMode,
+                seriesMode,
+                keepLast,
+                daysOfWeek,
+                priority,
+                startEarlySeconds,
+                endLateSeconds,
+              }) async => CreateDvrSeriesRuleOutcome.created,
               onDeleteSeriesRule: (_) async {},
             ),
           ),
@@ -77,28 +76,16 @@ void main() {
       await tester.pumpAndSettle();
 
       // "Series rule active" label — exactly one.
-      expect(
-        find.text('Series rule active'),
-        findsOneWidget,
-      );
+      expect(find.text('Series rule active'), findsOneWidget);
 
       // Delete affordance icon — exactly one.
-      expect(
-        find.byIcon(Icons.delete_outline),
-        findsOneWidget,
-      );
+      expect(find.byIcon(Icons.delete_outline), findsOneWidget);
 
       // Record Series button — not present.
-      expect(
-        find.text('Record Series'),
-        findsNothing,
-      );
+      expect(find.text('Record Series'), findsNothing);
 
       // FilledButton is not present (the one-tap button is replaced).
-      expect(
-        find.byType(FilledButton),
-        findsNothing,
-      );
+      expect(find.byType(FilledButton), findsNothing);
     },
   );
 
@@ -109,9 +96,7 @@ void main() {
         normalizedTitle: 'another show',
         displayTitle: 'Another Show',
         channelCount: 1,
-        channels: [
-          EpgShowChannel(channelId: 5, channelName: 'Channel Five'),
-        ],
+        channels: [EpgShowChannel(channelId: 5, channelName: 'Channel Five')],
         episodeCount: 4,
         recentEpisodes: [],
       );
@@ -127,18 +112,17 @@ void main() {
             supportedLocales: AppLocalizations.supportedLocales,
             home: ShowDetailScreen(
               show: testShow,
-              onRecordSeries:
-                  ({
-                    channelId,
-                    required title,
-                    matchMode,
-                    seriesMode,
-                    keepLast,
-                    daysOfWeek,
-                    priority,
-                    startEarlySeconds,
-                    endLateSeconds,
-                  }) async => CreateDvrSeriesRuleOutcome.created,
+              onRecordSeries: ({
+                channelId,
+                required title,
+                matchMode,
+                seriesMode,
+                keepLast,
+                daysOfWeek,
+                priority,
+                startEarlySeconds,
+                endLateSeconds,
+              }) async => CreateDvrSeriesRuleOutcome.created,
               onDeleteSeriesRule: (_) async {},
             ),
           ),

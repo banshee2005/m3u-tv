@@ -36,9 +36,8 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(
-              context,
-            ).copyWith(textScaler: TextScaler.linear(textScale)),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
             child: child!,
           ),
           home: Builder(
@@ -279,10 +278,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(service.navLayoutSync.order.first, isNot(RouteNames.liveTv));
-    expect(
-      rowTop(tester, 'Sports'),
-      lessThan(rowTop(tester, 'Live TV')),
-    );
+    expect(rowTop(tester, 'Sports'), lessThan(rowTop(tester, 'Live TV')));
   });
 
   testWidgets('Reset restores the defaults after confirming', (tester) async {

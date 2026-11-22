@@ -61,9 +61,8 @@ List<String> orderOnlineSubtitleLanguages(
   return languages..sort((a, b) {
     final byRank = rank(a).compareTo(rank(b));
     if (byRank != 0) return byRank;
-    return onlineSubtitleLanguageName(
-      a,
-    ).compareTo(onlineSubtitleLanguageName(b));
+    return onlineSubtitleLanguageName(a)
+        .compareTo(onlineSubtitleLanguageName(b));
   });
 }
 
@@ -263,9 +262,6 @@ class _Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Text(message),
-    );
+    return Padding(padding: const EdgeInsets.all(24), child: Text(message));
   }
 }

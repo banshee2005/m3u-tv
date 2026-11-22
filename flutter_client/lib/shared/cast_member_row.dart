@@ -128,10 +128,7 @@ class CastMemberRow extends StatelessWidget {
             // an ancestor horizontal scroller) fits everything.
             final maxWidth = constraints.maxWidth;
             final fit = maxWidth.isFinite
-                ? math.max(
-                    1,
-                    (maxWidth + _cardGap) ~/ (_cardWidth + _cardGap),
-                  )
+                ? math.max(1, (maxWidth + _cardGap) ~/ (_cardWidth + _cardGap))
                 : capped.length;
             // With onShowAll wired, members beyond what fits collapse
             // into a trailing "+N / show all" tile instead of scrolling

@@ -283,12 +283,8 @@ class _RequestScreenState extends ConsumerState<RequestScreen>
           padding: const EdgeInsets.all(MediaBrowsingMetrics.pagePadding),
           child: Text(
             _searchError!,
-            style:
-                Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+            style: Theme.of(context).textTheme.bodyLarge
+                ?.copyWith(color: Theme.of(context).colorScheme.error),
             textAlign: TextAlign.center,
           ),
         ),

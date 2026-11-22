@@ -53,9 +53,7 @@ void main() {
 
     testWidgets(
       'large desktop Home rows keep preview cards comfortably sized',
-      (
-        tester,
-      ) async {
+      (tester) async {
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
@@ -455,53 +453,39 @@ void main() {
       );
     });
 
-    testWidgets(
-      'Player route pushes as modal via inner navigator',
-      (tester) async {
-        // Player is now a Stack overlay managed by AppShell, not a named route.
-        // Covered by: "selecting live channel from app shell opens player route"
-      },
-      skip: true,
-    );
+    testWidgets('Player route pushes as modal via inner navigator', (
+      tester,
+    ) async {
+      // Player is now a Stack overlay managed by AppShell, not a named route.
+      // Covered by: "selecting live channel from app shell opens player route"
+    }, skip: true);
 
-    testWidgets(
-      'Player route receives supplied EPG service',
-      (tester) async {
-        // This test used the old imperative RouteFactory (buildAppRouter).
-        // Player is now an overlay managed by AppShell; EPG service is wired
-        // through AppStateController. Test retained as a placeholder.
-      },
-      skip: true,
-    );
+    testWidgets('Player route receives supplied EPG service', (tester) async {
+      // This test used the old imperative RouteFactory (buildAppRouter).
+      // Player is now an overlay managed by AppShell; EPG service is wired
+      // through AppStateController. Test retained as a placeholder.
+    }, skip: true);
 
-    testWidgets(
-      'Details route pushes via inner navigator',
-      (tester) async {
-        // VOD details now navigate via go_router (/vod/details/:id), not a
-        // named imperative route. Covered by:
-        // "selecting movie from app shell opens details then player route"
-      },
-      skip: true,
-    );
+    testWidgets('Details route pushes via inner navigator', (tester) async {
+      // VOD details now navigate via go_router (/vod/details/:id), not a
+      // named imperative route. Covered by:
+      // "selecting movie from app shell opens details then player route"
+    }, skip: true);
 
-    testWidgets(
-      'SeriesDetails route pushes via inner navigator',
-      (tester) async {
-        // Series details now navigate via go_router (/series/details/:id), not
-        // a named imperative route. Covered by:
-        // "selecting series from app shell opens series details route"
-      },
-      skip: true,
-    );
+    testWidgets('SeriesDetails route pushes via inner navigator', (
+      tester,
+    ) async {
+      // Series details now navigate via go_router (/series/details/:id), not
+      // a named imperative route. Covered by:
+      // "selecting series from app shell opens series details route"
+    }, skip: true);
 
-    testWidgets(
-      'ViewerSelection route pushes via inner navigator',
-      (tester) async {
-        // Viewer selection is now a Stack overlay in AppShell, not a named
-        // imperative route. Triggered via AppShell state, not Navigator.pushNamed.
-      },
-      skip: true,
-    );
+    testWidgets('ViewerSelection route pushes via inner navigator', (
+      tester,
+    ) async {
+      // Viewer selection is now a Stack overlay in AppShell, not a named
+      // imperative route. Triggered via AppShell state, not Navigator.pushNamed.
+    }, skip: true);
   });
 
   testWidgets('selecting live channel from app shell opens player route', (
@@ -598,81 +582,77 @@ void main() {
     },
   );
 
-  testWidgets(
-    'native-plane playback failure restores browsing composition',
-    (tester) async {
-      final adapter = _NavigationPlayerAdapter();
-      final appState = _testAppState(xtreamService: _NavigationXtreamService());
-      addTearDown(appState.dispose);
-      await appState.connectXtream(
-        const UserCredentials(
-          server: 'http://example.com',
-          username: 'user',
-          password: 'pass',
-        ),
-      );
+  testWidgets('native-plane playback failure restores browsing composition', (
+    tester,
+  ) async {
+    final adapter = _NavigationPlayerAdapter();
+    final appState = _testAppState(xtreamService: _NavigationXtreamService());
+    addTearDown(appState.dispose);
+    await appState.connectXtream(
+      const UserCredentials(
+        server: 'http://example.com',
+        username: 'user',
+        password: 'pass',
+      ),
+    );
 
-      await tester.pumpWidget(
-        _TestApp(
-          deviceType: DeviceType.tv,
-          appState: appState,
-          useProductionPlayer: true,
-          playbackOrchestratorBuilder: () => _testPlaybackOrchestrator(adapter),
-        ),
-      );
-      await _pumpAppFrame(tester);
-      await tester.tap(find.text('Route News').last);
-      await _pumpAppFrame(tester);
+    await tester.pumpWidget(
+      _TestApp(
+        deviceType: DeviceType.tv,
+        appState: appState,
+        useProductionPlayer: true,
+        playbackOrchestratorBuilder: () => _testPlaybackOrchestrator(adapter),
+      ),
+    );
+    await _pumpAppFrame(tester);
+    await tester.tap(find.text('Route News').last);
+    await _pumpAppFrame(tester);
 
-      final sidebar = find.byType(NavigationSidebar);
-      Iterable<T> browsingAncestors<T extends Widget>() => tester.widgetList<T>(
-        find.ancestor(of: sidebar, matching: find.byType(T)),
-      );
+    final sidebar = find.byType(NavigationSidebar);
+    Iterable<T> browsingAncestors<T extends Widget>() => tester.widgetList<T>(
+      find.ancestor(of: sidebar, matching: find.byType(T)),
+    );
 
-      adapter.setUsesNativePlane(value: true);
-      await tester.pump();
+    adapter.setUsesNativePlane(value: true);
+    await tester.pump();
 
-      expect(browsingAncestors<Opacity>().any((w) => w.opacity == 0), isTrue);
-      expect(browsingAncestors<IgnorePointer>().any((w) => w.ignoring), isTrue);
-      expect(
-        browsingAncestors<ExcludeSemantics>().any((w) => w.excluding),
-        isTrue,
-      );
+    expect(browsingAncestors<Opacity>().any((w) => w.opacity == 0), isTrue);
+    expect(browsingAncestors<IgnorePointer>().any((w) => w.ignoring), isTrue);
+    expect(
+      browsingAncestors<ExcludeSemantics>().any((w) => w.excluding),
+      isTrue,
+    );
 
-      adapter.emitError(
-        const PlaybackError(
-          backend: PlaybackBackend.desktopLibmpv,
-          message: 'Playback failed',
-          code: 'playback_failed',
-        ),
-      );
-      await tester.pump();
+    adapter.emitError(
+      const PlaybackError(
+        backend: PlaybackBackend.desktopLibmpv,
+        message: 'Playback failed',
+        code: 'playback_failed',
+      ),
+    );
+    await tester.pump();
 
-      expect(find.text('Playback error'), findsOneWidget);
-      expect(browsingAncestors<Opacity>().any((w) => w.opacity == 0), isFalse);
-      expect(
-        browsingAncestors<IgnorePointer>().any((w) => w.ignoring),
-        isFalse,
-      );
-      expect(
-        browsingAncestors<ExcludeSemantics>().any((w) => w.excluding),
-        isFalse,
-      );
-      expect(
-        tester
-            .widget<Scaffold>(
-              find.ancestor(
-                of: find.text('Playback error'),
-                matching: find.byType(Scaffold),
-              ),
-            )
-            .backgroundColor,
-        Colors.black,
-      );
+    expect(find.text('Playback error'), findsOneWidget);
+    expect(browsingAncestors<Opacity>().any((w) => w.opacity == 0), isFalse);
+    expect(browsingAncestors<IgnorePointer>().any((w) => w.ignoring), isFalse);
+    expect(
+      browsingAncestors<ExcludeSemantics>().any((w) => w.excluding),
+      isFalse,
+    );
+    expect(
+      tester
+          .widget<Scaffold>(
+            find.ancestor(
+              of: find.text('Playback error'),
+              matching: find.byType(Scaffold),
+            ),
+          )
+          .backgroundColor,
+      Colors.black,
+    );
 
-      await tester.pumpWidget(const SizedBox.shrink());
-    },
-  );
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets('player open and Android back apply route system UI policies', (
     tester,
@@ -1101,10 +1081,7 @@ void main() {
 
     expect(find.text('Player route: Resume Route Movie'), findsOneWidget);
     expect(capturedArgs?.startPosition, isNull);
-    expect(
-      capturedArgs?.toPlaybackSource().startPosition,
-      Duration.zero,
-    );
+    expect(capturedArgs?.toPlaybackSource().startPosition, Duration.zero);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
@@ -1210,9 +1187,7 @@ void main() {
     },
   );
 
-  testWidgets('Router back dispatch closes active live player', (
-    tester,
-  ) async {
+  testWidgets('Router back dispatch closes active live player', (tester) async {
     final appState = _testAppState(xtreamService: _NavigationXtreamService());
     addTearDown(appState.dispose);
     await appState.connectXtream(
@@ -1450,48 +1425,46 @@ void main() {
     variant: TargetPlatformVariant.only(TargetPlatform.android),
   );
 
-  testWidgets(
-    'predictive Android back commit closes active player',
-    (tester) async {
-      final appState = _testAppState(xtreamService: _NavigationXtreamService());
-      addTearDown(appState.dispose);
-      await appState.connectXtream(
-        const UserCredentials(
-          server: 'http://example.com',
-          username: 'user',
-          password: 'pass',
-        ),
-      );
+  testWidgets('predictive Android back commit closes active player', (
+    tester,
+  ) async {
+    final appState = _testAppState(xtreamService: _NavigationXtreamService());
+    addTearDown(appState.dispose);
+    await appState.connectXtream(
+      const UserCredentials(
+        server: 'http://example.com',
+        username: 'user',
+        password: 'pass',
+      ),
+    );
 
-      await tester.pumpWidget(
-        _TestApp(deviceType: DeviceType.phone, appState: appState),
-      );
-      await _pumpAppFrame(tester);
-      await tester.tap(find.text('Route News').last);
-      await _pumpAppFrame(tester);
-      expect(find.text('Player route: Route News'), findsOneWidget);
+    await tester.pumpWidget(
+      _TestApp(deviceType: DeviceType.phone, appState: appState),
+    );
+    await _pumpAppFrame(tester);
+    await tester.tap(find.text('Route News').last);
+    await _pumpAppFrame(tester);
+    expect(find.text('Player route: Route News'), findsOneWidget);
 
-      await _sendPlatformBackGestureMethod(
-        tester,
-        const MethodCall('startBackGesture', <String, Object>{
-          'touchOffset': <double>[5, 300],
-          'progress': 0.0,
-          'swipeEdge': 0,
-        }),
-      );
-      await _sendPlatformBackGestureMethod(
-        tester,
-        const MethodCall('commitBackGesture'),
-      );
-      await _pumpAppFrame(tester);
+    await _sendPlatformBackGestureMethod(
+      tester,
+      const MethodCall('startBackGesture', <String, Object>{
+        'touchOffset': <double>[5, 300],
+        'progress': 0.0,
+        'swipeEdge': 0,
+      }),
+    );
+    await _sendPlatformBackGestureMethod(
+      tester,
+      const MethodCall('commitBackGesture'),
+    );
+    await _pumpAppFrame(tester);
 
-      expect(find.text('Player route: Route News'), findsNothing);
-      expect(find.text('Route News'), findsWidgets);
-      expect(find.text('Press back again to exit'), findsNothing);
-      await tester.pumpWidget(const SizedBox.shrink());
-    },
-    variant: TargetPlatformVariant.only(TargetPlatform.android),
-  );
+    expect(find.text('Player route: Route News'), findsNothing);
+    expect(find.text('Route News'), findsWidgets);
+    expect(find.text('Press back again to exit'), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 
   testWidgets('TV back dismisses audio selection before closing player', (
     tester,
@@ -1547,68 +1520,65 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets(
-    'Escape key dismisses audio selection before closing player',
-    (tester) async {
-      final adapter = _NavigationPlayerAdapter(
-        audioTracks: const <PlaybackTrack>[
-          PlaybackTrack(id: 'audio-en', label: 'English'),
-        ],
-      );
-      final appState = _testAppState(
-        xtreamService: _NavigationXtreamService(),
-      );
-      addTearDown(appState.dispose);
-      await appState.connectXtream(
-        const UserCredentials(
-          server: 'http://example.com',
-          username: 'user',
-          password: 'pass',
-        ),
-      );
+  testWidgets('Escape key dismisses audio selection before closing player', (
+    tester,
+  ) async {
+    final adapter = _NavigationPlayerAdapter(
+      audioTracks: const <PlaybackTrack>[
+        PlaybackTrack(id: 'audio-en', label: 'English'),
+      ],
+    );
+    final appState = _testAppState(xtreamService: _NavigationXtreamService());
+    addTearDown(appState.dispose);
+    await appState.connectXtream(
+      const UserCredentials(
+        server: 'http://example.com',
+        username: 'user',
+        password: 'pass',
+      ),
+    );
 
-      await tester.pumpWidget(
-        _TestApp(
-          deviceType: DeviceType.tv,
-          appState: appState,
-          playbackOrchestratorBuilder: () => _testPlaybackOrchestrator(adapter),
-          useProductionPlayer: true,
-        ),
-      );
-      await _pumpAppFrame(tester);
+    await tester.pumpWidget(
+      _TestApp(
+        deviceType: DeviceType.tv,
+        appState: appState,
+        playbackOrchestratorBuilder: () => _testPlaybackOrchestrator(adapter),
+        useProductionPlayer: true,
+      ),
+    );
+    await _pumpAppFrame(tester);
 
-      await tester.tap(find.text('Route News').last);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.tap(find.byIcon(Icons.audiotrack));
-      await tester.pumpAndSettle();
+    await tester.tap(find.text('Route News').last);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.byIcon(Icons.audiotrack));
+    await tester.pumpAndSettle();
 
-      expect(find.text('Audio Track'), findsOneWidget);
+    expect(find.text('Audio Track'), findsOneWidget);
 
-      // Escape/GoBack routes through PlayerScreen's own local Shortcuts
-      // (_handleBack) while focus is inside the player - a separate path
-      // from the popRoute/PopScope back handling covered above - and it
-      // must also respect an open track dialog instead of falling through
-      // to its "hide controls" / "close player" steps.
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      await _pumpAppFrame(tester);
+    // Escape/GoBack routes through PlayerScreen's own local Shortcuts
+    // (_handleBack) while focus is inside the player - a separate path
+    // from the popRoute/PopScope back handling covered above - and it
+    // must also respect an open track dialog instead of falling through
+    // to its "hide controls" / "close player" steps.
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await _pumpAppFrame(tester);
 
-      expect(find.text('Audio Track'), findsNothing);
-      expect(find.byType(PlayerScreen), findsOneWidget);
+    expect(find.text('Audio Track'), findsNothing);
+    expect(find.byType(PlayerScreen), findsOneWidget);
 
-      // Next press hides the (still-visible) player controls, matching the
-      // ordinary two-step back behavior once no dialog is in the way.
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      await _pumpAppFrame(tester);
-      expect(find.byType(PlaybackControls), findsNothing);
-      expect(find.byType(PlayerScreen), findsOneWidget);
+    // Next press hides the (still-visible) player controls, matching the
+    // ordinary two-step back behavior once no dialog is in the way.
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await _pumpAppFrame(tester);
+    expect(find.byType(PlaybackControls), findsNothing);
+    expect(find.byType(PlayerScreen), findsOneWidget);
 
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      await _pumpAppFrame(tester);
-      expect(find.byType(PlayerScreen), findsNothing);
-      await tester.pumpWidget(const SizedBox.shrink());
-    },
-  );
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await _pumpAppFrame(tester);
+    expect(find.byType(PlayerScreen), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets('TV back dismisses player controls before closing player', (
     tester,
@@ -2558,9 +2528,7 @@ void main() {
     }) async {
       final base = DateTime(2026, 1, 1, 12);
       withClock(Clock.fixed(base), () {
-        tester.binding.handleAppLifecycleStateChanged(
-          AppLifecycleState.paused,
-        );
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       });
       withClock(Clock.fixed(base.add(away)), () {
         tester.binding.handleAppLifecycleStateChanged(
@@ -2705,10 +2673,7 @@ void main() {
           );
           await _pumpAppFrame(tester);
 
-          expect(
-            xtreamService.epgBatchRequests > before,
-            refreshes,
-          );
+          expect(xtreamService.epgBatchRequests > before, refreshes);
           await tester.pumpWidget(const SizedBox.shrink());
           await settleEpgRetry(tester);
         },
@@ -2932,9 +2897,7 @@ PlaybackOrchestrator _testPlaybackOrchestrator([
 }
 
 class _NavigationPlayerAdapter implements PlayerAdapter, NativePlaneProvider {
-  _NavigationPlayerAdapter({
-    this.audioTracks = const <PlaybackTrack>[],
-  });
+  _NavigationPlayerAdapter({this.audioTracks = const <PlaybackTrack>[]});
 
   final StreamController<PlaybackState> _stateController =
       StreamController<PlaybackState>.broadcast();

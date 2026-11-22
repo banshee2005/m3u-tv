@@ -39,9 +39,8 @@ void main() {
               builder: (context) {
                 resolved = Localizations.localeOf(context);
                 title = AppLocalizations.of(context).navLiveTv;
-                time = DateFormat.jm(
-                  resolved.toLanguageTag(),
-                ).format(DateTime(2026, 10, 21, 15, 30));
+                time = DateFormat.jm(resolved.toLanguageTag())
+                    .format(DateTime(2026, 10, 21, 15, 30));
                 return const SizedBox.shrink();
               },
             ),

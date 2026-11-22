@@ -519,9 +519,7 @@ class AppStateController extends ChangeNotifier {
     late final Future<void> tracked;
     tracked = operation
         .then<void>((_) {})
-        .whenComplete(
-          () => _backgroundPersistence.remove(tracked),
-        );
+        .whenComplete(() => _backgroundPersistence.remove(tracked));
     _backgroundPersistence.add(tracked);
     unawaited(tracked);
   }
@@ -1060,17 +1058,15 @@ class AppStateController extends ChangeNotifier {
         await _restoreSource(previousSource);
       });
       if (replacingNotificationSession) {
-        await _bestEffort(
-          () async {
-            if (_sourceRollbackGeneration.isStale(rollbackGeneration)) return;
-            await _restoreNotificationSession(
-              previousCredentials,
-              sourceGeneration: sourceGeneration,
-              notificationGeneration: notificationGeneration,
-              allowStaleSource: allowStaleSource,
-            );
-          },
-        );
+        await _bestEffort(() async {
+          if (_sourceRollbackGeneration.isStale(rollbackGeneration)) return;
+          await _restoreNotificationSession(
+            previousCredentials,
+            sourceGeneration: sourceGeneration,
+            notificationGeneration: notificationGeneration,
+            allowStaleSource: allowStaleSource,
+          );
+        });
       }
     }
 
@@ -1230,9 +1226,8 @@ class AppStateController extends ChangeNotifier {
       onRequestStatus: (request) =>
           _requests.onStatusPush(request, ownsRequests),
       onFavoriteToggled: _onFavoriteTogglePush,
-      onConnected: () => unawaited(
-        _dvr.refreshActiveWith(credentials, ownsDvr),
-      ),
+      onConnected: () =>
+          unawaited(_dvr.refreshActiveWith(credentials, ownsDvr)),
     );
   }
 
@@ -2050,10 +2045,7 @@ class AppStateController extends ChangeNotifier {
   Future<void> setEpgRefreshInterval(Duration interval) async {
     cacheService.refreshInterval = interval;
     epgService.cacheTtl = interval;
-    await secureStorage.write(
-      _epgIntervalKey,
-      '${interval.inMinutes}',
-    );
+    await secureStorage.write(_epgIntervalKey, '${interval.inMinutes}');
     notifyListeners();
   }
 

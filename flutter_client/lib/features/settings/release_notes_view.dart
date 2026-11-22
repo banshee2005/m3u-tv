@@ -149,9 +149,8 @@ class _ReleaseNotesViewState extends State<ReleaseNotesView> {
     final published = note.publishedAt;
     if (published != null) {
       parts.add(
-        DateFormat.yMMMd(
-          Localizations.localeOf(context).toLanguageTag(),
-        ).format(published.toLocal()),
+        DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag())
+            .format(published.toLocal()),
       );
     }
     final structured = _structuredFor(note);
@@ -205,9 +204,8 @@ class _ReleaseNotesViewState extends State<ReleaseNotesView> {
       showAppDialog<void>(
         context: context,
         builder: (dialogContext) => QrLinkDialog(
-          title: AppLocalizations.of(
-            dialogContext,
-          ).settingsReleaseNotesViewOnGithub,
+          title: AppLocalizations.of(dialogContext)
+              .settingsReleaseNotesViewOnGithub,
           url: _githubReleasesUrl,
           memoryKey: 'release-notes-github-qr',
         ),
@@ -637,10 +635,8 @@ class _Pill extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: foreground,
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(context).textTheme.labelMedium
+                  ?.copyWith(color: foreground, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -963,10 +959,7 @@ class _StructuredNotes {
 }
 
 class _StructuredNotesBody extends StatelessWidget {
-  const _StructuredNotesBody({
-    required this.notes,
-    required this.compact,
-  });
+  const _StructuredNotesBody({required this.notes, required this.compact});
 
   final _StructuredNotes notes;
   final bool compact;
@@ -977,12 +970,7 @@ class _StructuredNotesBody extends StatelessWidget {
     final children = <Widget>[];
     for (final section in notes.sections) {
       if (children.isNotEmpty) children.add(SizedBox(height: 12 * scale));
-      children.add(
-        _SectionCard(
-          section: section,
-          compact: compact,
-        ),
-      );
+      children.add(_SectionCard(section: section, compact: compact));
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -992,10 +980,7 @@ class _StructuredNotesBody extends StatelessWidget {
 }
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({
-    required this.section,
-    required this.compact,
-  });
+  const _SectionCard({required this.section, required this.compact});
 
   final _NotesSection section;
 
@@ -1007,10 +992,7 @@ class _SectionCard extends StatelessWidget {
     _SectionKind.features => (Icons.auto_awesome, scheme.primary),
     _SectionKind.fixes => (Icons.bug_report_outlined, scheme.tertiary),
     _SectionKind.performance => (Icons.bolt, scheme.secondary),
-    _SectionKind.maintenance => (
-      Icons.build_outlined,
-      scheme.onSurfaceVariant,
-    ),
+    _SectionKind.maintenance => (Icons.build_outlined, scheme.onSurfaceVariant),
     _SectionKind.other => (Icons.notes, scheme.onSurfaceVariant),
   };
 
@@ -1155,9 +1137,7 @@ class _MarkdownBody extends StatelessWidget {
           ),
           child: Text(
             fenceBuffer.join('\n'),
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontFamily: 'monospace',
-            ),
+            style: theme.textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
           ),
         ),
       );

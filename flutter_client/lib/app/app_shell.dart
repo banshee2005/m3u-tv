@@ -309,9 +309,8 @@ class AppShellState extends ConsumerState<AppShell>
     super.didChangeDependencies();
     unawaited(
       _desktopNotificationDispatcher.initialize(
-        defaultActionName: AppLocalizations.of(
-          context,
-        ).notificationsDesktopOpen,
+        defaultActionName: AppLocalizations.of(context)
+            .notificationsDesktopOpen,
         onActivation: _appState.handleNotificationActivation,
       ),
     );
@@ -1526,17 +1525,12 @@ class AppShellState extends ConsumerState<AppShell>
     _appState.updateProgressEntry(updated);
     unawaited(_appState.refreshRecentlyWatched());
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-      ),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
   }
 
   void _openAioSearch() {
-    unawaited(
-      _pushDetail(RouteNames.aiostreamsSearchPath, fullScreen: true),
-    );
+    unawaited(_pushDetail(RouteNames.aiostreamsSearchPath, fullScreen: true));
   }
 
   void _openShow(EpgShow show) {
@@ -1792,9 +1786,7 @@ class AppShellState extends ConsumerState<AppShell>
         listenable: _appState,
         builder: (_, _) {
           if (_appState.isBootstrapping) {
-            return const Scaffold(
-              body: Center(child: AppLoadingIndicator()),
-            );
+            return const Scaffold(body: Center(child: AppLoadingIndicator()));
           }
           return DvrRecordingsScreen(
             recordings: _appState.dvrRecordings,
@@ -1822,9 +1814,7 @@ class AppShellState extends ConsumerState<AppShell>
         listenable: _appState,
         builder: (_, _) {
           if (_appState.isBootstrapping) {
-            return const Scaffold(
-              body: Center(child: AppLoadingIndicator()),
-            );
+            return const Scaffold(body: Center(child: AppLoadingIndicator()));
           }
           return RequestScreen(
             key: ValueKey(_appState.mediaRequestOwner),
@@ -1933,10 +1923,7 @@ class AppShellState extends ConsumerState<AppShell>
       onMarkEpisodeWatched: _markEpisodeWatched,
       onHandleTopLevelBack: handleBackFromTopLevelRoute,
       buildTabScreen: _buildTabScreen,
-      child: FocusScope(
-        node: _contentFocusNode,
-        child: widget.navigationShell,
-      ),
+      child: FocusScope(node: _contentFocusNode, child: widget.navigationShell),
     );
 
     final shell = Shortcuts(
@@ -2298,9 +2285,7 @@ class AppShellState extends ConsumerState<AppShell>
                       child: ClipRect(
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                          child: const ColoredBox(
-                            color: Color(0x8009090b),
-                          ),
+                          child: const ColoredBox(color: Color(0x8009090b)),
                         ),
                       ),
                     ),
@@ -2318,10 +2303,7 @@ class AppShellState extends ConsumerState<AppShell>
     List<String> routes,
     int unreadCount,
   ) {
-    final primaryCount = RouteNames.mobilePrimaryCount.clamp(
-      0,
-      routes.length,
-    );
+    final primaryCount = RouteNames.mobilePrimaryCount.clamp(0, routes.length);
     final overflowRoutes = routes.skip(primaryCount).toList();
     final overflowUnread = overflowRoutes.contains(RouteNames.notifications)
         ? unreadCount
@@ -2342,9 +2324,9 @@ class AppShellState extends ConsumerState<AppShell>
                   ? _showMoreSheet(overflowRoutes, primaryCount, unreadCount)
                   : _navigateTo(index),
               selectedItemColor: Theme.of(context).colorScheme.primary,
-              unselectedItemColor: Theme.of(
-                context,
-              ).colorScheme.onSurfaceVariant,
+              unselectedItemColor: Theme.of(context)
+                  .colorScheme
+                  .onSurfaceVariant,
               items: [
                 ...routes.take(primaryCount).map((route) {
                   return BottomNavigationBarItem(

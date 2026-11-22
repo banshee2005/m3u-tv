@@ -29,29 +29,24 @@ const _accountB = UserCredentials(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test(
-    'mark-all cannot pair account A IDs with account B credentials after its first await',
-    () async {
-      final auth = _MutableAuthNotifier(_accountA);
-      final api = _RecordingNotificationService();
-      final controller = AppStateController(
-        authNotifier: auth,
-        tvNotificationService: api,
-        tvNotificationStore: _SwitchingAllStore(
-          () => auth.current = _accountB,
-        ),
-      );
-      addTearDown(controller.dispose);
+  test('mark-all cannot pair account A IDs with account B credentials after its first await', () async {
+    final auth = _MutableAuthNotifier(_accountA);
+    final api = _RecordingNotificationService();
+    final controller = AppStateController(
+      authNotifier: auth,
+      tvNotificationService: api,
+      tvNotificationStore: _SwitchingAllStore(() => auth.current = _accountB),
+    );
+    addTearDown(controller.dispose);
 
-      await controller.markAllNotificationsRead();
-      await pumpEventQueue();
+    await controller.markAllNotificationsRead();
+    await pumpEventQueue();
 
-      expect(
-        api.markCalls,
-        isNot(contains(const _MarkCall(_accountB, _notificationId))),
-      );
-    },
-  );
+    expect(
+      api.markCalls,
+      isNot(contains(const _MarkCall(_accountB, _notificationId))),
+    );
+  });
 
   final handoffs = <_Handoff>[
     _Handoff(
@@ -161,48 +156,40 @@ void main() {
     },
   );
 
-  test(
-    'delayed mark-all unread count cannot publish or send after account B takes ownership',
-    () async {
-      final fixture = await _connectedFixture();
-      addTearDown(fixture.controller.dispose);
-      fixture.store.delayNextUnreadCount(returning: 9);
+  test('delayed mark-all unread count cannot publish or send after account B takes ownership', () async {
+    final fixture = await _connectedFixture();
+    addTearDown(fixture.controller.dispose);
+    fixture.store.delayNextUnreadCount(returning: 9);
 
-      final staleMark = fixture.controller.markAllNotificationsRead();
-      await fixture.store.unreadCountStarted.future;
+    final staleMark = fixture.controller.markAllNotificationsRead();
+    await fixture.store.unreadCountStarted.future;
 
-      expect(await fixture.controller.connectXtream(_accountB), isTrue);
-      fixture.store.selectLocalOwner('account-b');
-      fixture.store.releaseUnreadCount.complete();
-      await staleMark;
-      await pumpEventQueue();
+    expect(await fixture.controller.connectXtream(_accountB), isTrue);
+    fixture.store.selectLocalOwner('account-b');
+    fixture.store.releaseUnreadCount.complete();
+    await staleMark;
+    await pumpEventQueue();
 
-      expect(fixture.store.isRead('account-b'), isFalse);
-      expect(fixture.controller.unreadNotificationCount, 0);
-      expect(fixture.api.markCalls, isEmpty);
-    },
-  );
+    expect(fixture.store.isRead('account-b'), isFalse);
+    expect(fixture.controller.unreadNotificationCount, 0);
+    expect(fixture.api.markCalls, isEmpty);
+  });
 
-  test(
-    'delayed channel unread count cannot publish after account B takes ownership',
-    () async {
-      final fixture = await _connectedFixture();
-      addTearDown(fixture.controller.dispose);
-      fixture.store.delayNextUnreadCount(returning: 9);
+  test('delayed channel unread count cannot publish after account B takes ownership', () async {
+    final fixture = await _connectedFixture();
+    addTearDown(fixture.controller.dispose);
+    fixture.store.delayNextUnreadCount(returning: 9);
 
-      final staleUpdate = fixture.controller.setNotificationChannels({
-        'general',
-      });
-      await fixture.store.unreadCountStarted.future;
+    final staleUpdate = fixture.controller.setNotificationChannels({'general'});
+    await fixture.store.unreadCountStarted.future;
 
-      expect(await fixture.controller.connectXtream(_accountB), isTrue);
-      fixture.store.selectLocalOwner('account-b');
-      fixture.store.releaseUnreadCount.complete();
-      await staleUpdate;
+    expect(await fixture.controller.connectXtream(_accountB), isTrue);
+    fixture.store.selectLocalOwner('account-b');
+    fixture.store.releaseUnreadCount.complete();
+    await staleUpdate;
 
-      expect(fixture.controller.unreadNotificationCount, 0);
-    },
-  );
+    expect(fixture.controller.unreadNotificationCount, 0);
+  });
 
   test(
     'current owner mark-all publishes and applies each effect once',

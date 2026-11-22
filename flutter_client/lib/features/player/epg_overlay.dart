@@ -107,9 +107,7 @@ class EpgOverlay extends StatelessWidget {
                         child: Text(
                           channelName ?? currentTitle,
                           style: theme.textTheme.titleMedium?.copyWith(
-                            color: colorScheme.onSurface.withValues(
-                              alpha: 0.9,
-                            ),
+                            color: colorScheme.onSurface.withValues(alpha: 0.9),
                             shadows: const [
                               Shadow(
                                 offset: Offset(1, 1),

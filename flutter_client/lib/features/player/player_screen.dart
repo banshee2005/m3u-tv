@@ -205,9 +205,7 @@ class _PlayerScreenState extends State<PlayerScreen>
   // scrub is pending, else [_currentPosition]). Position ticks only update
   // this notifier, so they rebuild the seek bar and "ends at" label instead
   // of the whole player overlay twice a second.
-  final ValueNotifier<Duration> _displayPosition = ValueNotifier(
-    Duration.zero,
-  );
+  final ValueNotifier<Duration> _displayPosition = ValueNotifier(Duration.zero);
   Duration _positionValue = Duration.zero;
   Duration get _currentPosition => _positionValue;
   set _currentPosition(Duration value) {
@@ -427,9 +425,8 @@ class _PlayerScreenState extends State<PlayerScreen>
     final parts = <String>[];
     if (season != null && episode != null) {
       parts.add(
-        AppLocalizations.of(
-          context,
-        ).playerNowPlayingSeasonEpisode(season, episode),
+        AppLocalizations.of(context)
+            .playerNowPlayingSeasonEpisode(season, episode),
       );
     }
     if (episodeTitle != null && episodeTitle.isNotEmpty) {
@@ -964,11 +961,7 @@ class _PlayerScreenState extends State<PlayerScreen>
   void _scrobble(String action, {bool heartbeat = false}) =>
       _scrobbleFor(widget.args, action, heartbeat: heartbeat);
 
-  void _scrobbleFor(
-    PlayerArgs args,
-    String action, {
-    bool heartbeat = false,
-  }) {
+  void _scrobbleFor(PlayerArgs args, String action, {bool heartbeat = false}) {
     final services = widget.watchHistoryServices
         .where(
           (service) =>
@@ -1833,10 +1826,9 @@ class _PlayerScreenState extends State<PlayerScreen>
         _publishNowPlaying();
       }
     } on Object catch (_) {
-      widget.epgService.markFetchFailed(
-        <String>[channelId],
-        sourceGeneration: sourceGeneration,
-      );
+      widget.epgService.markFetchFailed(<String>[
+        channelId,
+      ], sourceGeneration: sourceGeneration);
       if (_disposed || !mounted) return;
     } finally {
       if (identical(_epgFetch, fetch)) {
@@ -2262,10 +2254,7 @@ class _PlayerScreenState extends State<PlayerScreen>
         _status == PlaybackStatus.buffering &&
         _skipCommitDeferrals < 8) {
       _skipCommitDeferrals++;
-      _skipCommitTimer = Timer(
-        const Duration(milliseconds: 250),
-        _commitSkip,
-      );
+      _skipCommitTimer = Timer(const Duration(milliseconds: 250), _commitSkip);
       return;
     }
     // Hard spacing between seeks too: a rapid rewind burst otherwise flushes
@@ -2896,21 +2885,17 @@ class _PlayerScreenState extends State<PlayerScreen>
                     ? UpNextOverlay(
                         eyebrowLabel: AppLocalizations.of(context).playerUpNext,
                         title: _nextEpisode!.title,
-                        subtitle:
-                            AppLocalizations.of(
-                              context,
-                            ).playerNowPlayingSeasonEpisode(
+                        subtitle: AppLocalizations.of(context)
+                            .playerNowPlayingSeasonEpisode(
                               _nextEpisode!.seasonNumber,
                               _nextEpisode!.episodeNumber,
                             ),
                         plot: _nextEpisode!.plot,
                         thumbnailUrl: _nextEpisode!.thumbnailUrl,
-                        playLabel: AppLocalizations.of(
-                          context,
-                        ).playerUpNextPlay,
-                        dismissLabel: AppLocalizations.of(
-                          context,
-                        ).playerUpNextDismiss,
+                        playLabel: AppLocalizations.of(context)
+                            .playerUpNextPlay,
+                        dismissLabel: AppLocalizations.of(context)
+                            .playerUpNextDismiss,
                         playFocusNode: _upNextFocusNode,
                         onPlay: _playNextEpisode,
                         onDismiss: _dismissUpNext,
@@ -3012,15 +2997,12 @@ class _PlayerScreenState extends State<PlayerScreen>
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 12),
-                              const AppLoadingIndicator(
-                                color: Colors.white,
-                              ),
+                              const AppLoadingIndicator(color: Colors.white),
                               const SizedBox(height: 12),
                               Text(
                                 _retryStatusMessage ??
-                                    AppLocalizations.of(
-                                      context,
-                                    ).playerLoadingStream,
+                                    AppLocalizations.of(context)
+                                        .playerLoadingStream,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -3041,9 +3023,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                               children: [
                                 Text(
                                   _liveEndReason ??
-                                      AppLocalizations.of(
-                                        context,
-                                      ).playerLiveStreamEnded,
+                                      AppLocalizations.of(context)
+                                          .playerLiveStreamEnded,
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineSmall
@@ -3054,9 +3035,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  ).playerReturningToMenu,
+                                  AppLocalizations.of(context)
+                                      .playerReturningToMenu,
                                   style: const TextStyle(
                                     color: Colors.white70,
                                     fontSize: 14,
@@ -3100,9 +3080,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                                   focusNode: _errorButtonFocusNode,
                                   autofocus: true,
                                   icon: AppIcons.back(context),
-                                  label: AppLocalizations.of(
-                                    context,
-                                  ).playerGoBack,
+                                  label: AppLocalizations.of(context)
+                                      .playerGoBack,
                                   variant: AppButtonVariant.primary,
                                   onPressed: _goBack,
                                 ),
@@ -3132,9 +3111,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                                   !_isLive &&
                                       _duration > Duration.zero &&
                                       _seekBlockedByTranscode
-                                  ? AppLocalizations.of(
-                                      context,
-                                    ).playerSeekUnavailableTranscoding
+                                  ? AppLocalizations.of(context)
+                                        .playerSeekUnavailableTranscoding
                                   : null,
                               currentPosition:
                                   _skipScrubPosition ?? _currentPosition,
@@ -3305,9 +3283,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                           top: edgePadding,
                           left: edgePadding,
                           child: ComskipSkippedBadge(
-                            label: AppLocalizations.of(
-                              context,
-                            ).playerCommercialSkipped,
+                            label: AppLocalizations.of(context)
+                                .playerCommercialSkipped,
                           ),
                         ),
 

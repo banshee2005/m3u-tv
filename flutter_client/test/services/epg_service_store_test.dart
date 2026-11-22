@@ -40,11 +40,7 @@ void main() {
   setUp(() {
     now = base.add(const Duration(minutes: 10));
     repo = CatalogRepository(CatalogDatabase.memory());
-    service = EpgService(
-      clock: () => now,
-      store: repo,
-      residentCapacity: 2,
-    );
+    service = EpgService(clock: () => now, store: repo, residentCapacity: 2);
   });
 
   tearDown(() => repo.close());
@@ -170,34 +166,31 @@ void main() {
     await settle();
   });
 
-  test(
-    'a channel with no stored guide takes no resident slot and is not '
-    'reloaded',
-    () async {
-      final evicted = <String>[];
-      service
-        ..onEvicted = evicted.add
-        ..applySuccessfulResponse(['a'], day('a'));
-      await settle();
-      service.programsForChannel(channel('a'));
-      await settle();
+  test('a channel with no stored guide takes no resident slot and is not '
+      'reloaded', () async {
+    final evicted = <String>[];
+    service
+      ..onEvicted = evicted.add
+      ..applySuccessfulResponse(['a'], day('a'));
+    await settle();
+    service.programsForChannel(channel('a'));
+    await settle();
 
-      var notified = 0;
-      service.addListener(() => notified++);
-      for (final id in ['none1', 'none2', 'none3']) {
-        service.programsForChannel(channel(id));
-        await settle();
-      }
-      expect(evicted, isEmpty);
-      expect(notified, 0);
-      expect(service.programsForChannel(channel('a')), hasLength(8));
-
-      // Programmes arriving later are picked up as usual.
-      service.applySuccessfulResponse(['none1'], day('none1'));
-      expect(service.lookup('none1'), isNotNull);
+    var notified = 0;
+    service.addListener(() => notified++);
+    for (final id in ['none1', 'none2', 'none3']) {
+      service.programsForChannel(channel(id));
       await settle();
-    },
-  );
+    }
+    expect(evicted, isEmpty);
+    expect(notified, 0);
+    expect(service.programsForChannel(channel('a')), hasLength(8));
+
+    // Programmes arriving later are picked up as usual.
+    service.applySuccessfulResponse(['none1'], day('none1'));
+    expect(service.lookup('none1'), isNotNull);
+    await settle();
+  });
 
   test('clear drops queued writes for the old source', () async {
     service

@@ -37,10 +37,10 @@ class _RecordingMessenger extends BinaryMessenger {
   ];
 }
 
-ByteData _textInput(String method, [Object? arguments]) =>
-    SystemChannels.textInput.codec.encodeMethodCall(
-      MethodCall(method, arguments),
-    );
+ByteData _textInput(String method, [Object? arguments]) => SystemChannels
+    .textInput
+    .codec
+    .encodeMethodCall(MethodCall(method, arguments));
 
 void _post(BinaryMessenger messenger, String channel, ByteData? message) =>
     unawaited(messenger.send(channel, message));
@@ -87,10 +87,9 @@ void main() {
       _textInput('TextInput.setClient', [2, <String, Object?>{}]),
     );
 
-    expect(
-      inner.log.where((entry) => entry.startsWith(report)),
-      ['$report:setActive:true'],
-    );
+    expect(inner.log.where((entry) => entry.startsWith(report)), [
+      '$report:setActive:true',
+    ]);
   });
 
   test('passes other channels through untouched', () {

@@ -27,14 +27,15 @@ import 'package:m3u_tv/shared/image_quality_scope.dart';
 import 'package:m3u_tv/shared/recording_dot.dart';
 import 'package:material_ui/material_ui.dart';
 
-typedef CatchupProgramSelect =
-    void Function(Channel channel, EpgProgram program);
-typedef EnsureEpg =
-    void Function(
-      List<Channel> channels, {
-      DateTime? startDate,
-      DateTime? endDate,
-    });
+typedef CatchupProgramSelect = void Function(
+  Channel channel,
+  EpgProgram program,
+);
+typedef EnsureEpg = void Function(
+  List<Channel> channels, {
+  DateTime? startDate,
+  DateTime? endDate,
+});
 
 // When a row builds, also request EPG for this many channels past it so a
 // downward scroll lands on already-loaded data instead of waiting on a lazy
@@ -868,9 +869,7 @@ class TimelineEpgViewState extends State<TimelineEpgView> {
           final target = EpgGuideNavigation.at(programs, entry);
           if (target == null) {
             _anchor = entry;
-            _setCursor(
-              cursor.copyWith(onChannel: false, clearProgram: true),
-            );
+            _setCursor(cursor.copyWith(onChannel: false, clearProgram: true));
           } else {
             _moveToProgram(target);
           }
@@ -1149,9 +1148,7 @@ class TimelineEpgViewState extends State<TimelineEpgView> {
     if (onEnsureEpg == null) return;
     final end = math.min(rows.length, index + 1 + ahead);
     onEnsureEpg(
-      [
-        for (var i = index; i < end; i++) ?rows[i],
-      ],
+      [for (var i = index; i < end; i++) ?rows[i]],
       startDate: _selectedDate,
       endDate: _selectedDate,
     );
@@ -2374,10 +2371,7 @@ class _ChannelCell extends StatelessWidget {
 
     final Widget content = switch (layout) {
       ChannelColumnLayout.logoOnly => Center(
-        child: _logoWithRecordingDot(
-          colorScheme,
-          (compact ? 36 : 44) * scale,
-        ),
+        child: _logoWithRecordingDot(colorScheme, (compact ? 36 : 44) * scale),
       ),
       // A phone's column is too narrow to spare the number its own slot: it
       // shares a line above the title, which gets the full width and a drag

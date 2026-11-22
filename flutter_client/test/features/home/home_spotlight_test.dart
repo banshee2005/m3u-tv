@@ -352,9 +352,8 @@ void main() {
         'Utah Mammoth 1  ·  Toronto Maple Leafs 2',
       );
       expect(
-        resolve(
-          SportsSpotlightTarget(withLogo(SportsFixtureState.scheduled)),
-        ).secondaryTitle,
+        resolve(SportsSpotlightTarget(withLogo(SportsFixtureState.scheduled)))
+            .secondaryTitle,
         'Utah Mammoth at Toronto Maple Leafs',
       );
     });

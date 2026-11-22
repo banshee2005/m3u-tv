@@ -38,10 +38,7 @@ void main() {
     (tester) async {
       await tester.binding.setSurfaceSize(const Size(800, 400));
       addTearDown(() => tester.binding.setSurfaceSize(null));
-      await _pumpPhoneApp(
-        tester,
-        const EdgeInsets.only(left: 36, right: 52),
-      );
+      await _pumpPhoneApp(tester, const EdgeInsets.only(left: 36, right: 52));
 
       final routePaint = _routeGradient();
       expect(routePaint, findsOneWidget);
@@ -119,10 +116,7 @@ void _expectSafeAreaPadding(
   if (right > 0) expect(insets.right, right);
 }
 
-Future<GoRouter> _pumpPhoneApp(
-  WidgetTester tester,
-  EdgeInsets padding,
-) async {
+Future<GoRouter> _pumpPhoneApp(WidgetTester tester, EdgeInsets padding) async {
   final memory = <String, Object?>{};
   final appState = AppStateController(
     secureStorage: InMemorySecureStorage(),
@@ -143,9 +137,8 @@ Future<GoRouter> _pumpPhoneApp(
     ProviderScope(
       overrides: [overrideAppState(appState)],
       child: MaterialApp.router(
-        theme: ThemeData.dark(useMaterial3: true).copyWith(
-          scaffoldBackgroundColor: Colors.transparent,
-        ),
+        theme: ThemeData.dark(useMaterial3: true)
+            .copyWith(scaffoldBackgroundColor: Colors.transparent),
         routerConfig: router,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

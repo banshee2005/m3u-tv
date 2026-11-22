@@ -127,9 +127,8 @@ void main() {
         ),
       ),
     );
-    Navigator.of(
-      homeContext,
-    ).push(appPageRoute<void>(builder: (context) => const Text('Detail')));
+    Navigator.of(homeContext)
+        .push(appPageRoute<void>(builder: (context) => const Text('Detail')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     final slide = tester.widget<SlideTransition>(

@@ -115,9 +115,8 @@ void main() {
             : (context, child) => FontSizeScope(
                 fontSize: fontSize,
                 child: MediaQuery(
-                  data: MediaQuery.of(
-                    context,
-                  ).copyWith(textScaler: TextScaler.linear(fontSize.scale)),
+                  data: MediaQuery.of(context)
+                      .copyWith(textScaler: TextScaler.linear(fontSize.scale)),
                   child: child!,
                 ),
               ),
@@ -474,9 +473,7 @@ void main() {
       expect(titleLeft, lessThan(800));
     });
 
-    testWidgets('follows today into the next day at midnight', (
-      tester,
-    ) async {
+    testWidgets('follows today into the next day at midnight', (tester) async {
       var now = DateTime(2026, 7, 31, 23, 59, 50);
       await pumpGuide(
         tester,
@@ -841,39 +838,37 @@ void main() {
       skip: !observesBerlinDst,
     );
 
-    testWidgets(
-      'fall-back navigation and window keep calendar boundaries',
-      (tester) async {
-        final now = DateTime(2026, 10, 24, 12);
-        await pumpGuide(
-          tester,
-          clock: () => now,
-          epgStartView: EpgStartView.primeTime,
-          channels: const [bbcOne],
-          epgService: EpgService(clock: () => now)
-            ..loadPrograms([
-              EpgProgram(
-                channelId: 'bbc.one',
-                title: 'Late Sunday',
-                description: 'Inside Sunday',
-                start: DateTime(2026, 10, 25, 23, 30),
-                end: DateTime(2026, 10, 25, 23, 50),
-              ),
-            ]),
-        );
+    testWidgets('fall-back navigation and window keep calendar boundaries', (
+      tester,
+    ) async {
+      final now = DateTime(2026, 10, 24, 12);
+      await pumpGuide(
+        tester,
+        clock: () => now,
+        epgStartView: EpgStartView.primeTime,
+        channels: const [bbcOne],
+        epgService: EpgService(clock: () => now)
+          ..loadPrograms([
+            EpgProgram(
+              channelId: 'bbc.one',
+              title: 'Late Sunday',
+              description: 'Inside Sunday',
+              start: DateTime(2026, 10, 25, 23, 30),
+              end: DateTime(2026, 10, 25, 23, 50),
+            ),
+          ]),
+      );
 
-        await tester.tap(find.byKey(const ValueKey('timeline-next-day')));
-        await tester.pumpAndSettle();
-        expect(find.text('Oct 25, 2026'), findsOneWidget);
-        expect(find.text('Late Sunday'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('timeline-next-day')));
+      await tester.pumpAndSettle();
+      expect(find.text('Oct 25, 2026'), findsOneWidget);
+      expect(find.text('Late Sunday'), findsOneWidget);
 
-        await tester.tap(find.byKey(const ValueKey('timeline-next-day')));
-        await tester.pumpAndSettle();
-        expect(find.text('Oct 26, 2026'), findsOneWidget);
-        expect(find.text('Late Sunday'), findsNothing);
-      },
-      skip: !observesBerlinDst,
-    );
+      await tester.tap(find.byKey(const ValueKey('timeline-next-day')));
+      await tester.pumpAndSettle();
+      expect(find.text('Oct 26, 2026'), findsOneWidget);
+      expect(find.text('Late Sunday'), findsNothing);
+    }, skip: !observesBerlinDst);
 
     testWidgets('keeps horizontal pointer scrolling available', (tester) async {
       final now = DateTime(2026, 7, 31, 12);
@@ -1631,9 +1626,7 @@ void main() {
 
     testWidgets(
       'a long description shows whole lines and scrolls once rested',
-      (
-        tester,
-      ) async {
+      (tester) async {
         final synopsis = List.filled(
           40,
           'A long synopsis that keeps on going.',

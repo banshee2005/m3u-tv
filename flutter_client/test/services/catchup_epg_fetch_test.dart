@@ -94,44 +94,41 @@ void main() {
     },
   );
 
-  test(
-    'evicting a channel schedule forgets its catchup fetch, so the next '
-    'open fetches again',
-    () async {
-      final transport = _CatchupTransport();
-      final epgService = EpgService(residentCapacity: 1);
-      final controller = _controller(transport, epgService: epgService);
-      addTearDown(controller.dispose);
-      expect(await controller.connectXtream(_credentials), isTrue);
-      await controller.ensureCatchupEpgForChannel(_catchupChannel);
+  test('evicting a channel schedule forgets its catchup fetch, so the next '
+      'open fetches again', () async {
+    final transport = _CatchupTransport();
+    final epgService = EpgService(residentCapacity: 1);
+    final controller = _controller(transport, epgService: epgService);
+    addTearDown(controller.dispose);
+    expect(await controller.connectXtream(_credentials), isTrue);
+    await controller.ensureCatchupEpgForChannel(_catchupChannel);
 
-      // Another channel's schedule becoming resident (a guide row scrolled
-      // to a dated range) pushes this one out of memory.
-      final now = DateTime.now().toUtc();
-      epgService.mergePrograms(
-        [
-          EpgProgram(
-            channelId: 'plain.epg',
-            title: 'Other',
-            description: '',
-            start: now,
-            end: now.add(const Duration(hours: 1)),
-          ),
-        ],
-        channelIds: ['plain.epg'],
-        replaceExisting: false,
-        markFresh: false,
-      );
-      for (var i = 0; i < 4; i++) {
-        await pumpEventQueue();
-        await epgService.flushStore();
-      }
+    // Another channel's schedule becoming resident (a guide row scrolled
+    // to a dated range) pushes this one out of memory.
+    final now = DateTime.now().toUtc();
+    epgService.mergePrograms(
+      [
+        EpgProgram(
+          channelId: 'plain.epg',
+          title: 'Other',
+          description: '',
+          start: now,
+          end: now.add(const Duration(hours: 1)),
+        ),
+      ],
+      channelIds: ['plain.epg'],
+      replaceExisting: false,
+      markFresh: false,
+    );
+    for (var i = 0; i < 4; i++) {
+      await pumpEventQueue();
+      await epgService.flushStore();
+    }
 
-      transport.epgDates.clear();
-      await controller.ensureCatchupEpgForChannel(_catchupChannel);
-      expect(transport.epgDates, isNotEmpty);
-    },
-  );
+    transport.epgDates.clear();
+    await controller.ensureCatchupEpgForChannel(_catchupChannel);
+    expect(transport.epgDates, isNotEmpty);
+  });
 
   test('channels without catchup never trigger a fetch', () async {
     final transport = _CatchupTransport();
@@ -230,28 +227,25 @@ void main() {
     },
   );
 
-  test(
-    'a successful catchup fetch marks the channel fresh so a later default '
-    'guide fetch will not replace the retention window back out',
-    () async {
-      final transport = _CatchupTransport();
-      final controller = _controller(transport);
-      addTearDown(controller.dispose);
-      expect(await controller.connectXtream(_credentials), isTrue);
+  test('a successful catchup fetch marks the channel fresh so a later default '
+      'guide fetch will not replace the retention window back out', () async {
+    final transport = _CatchupTransport();
+    final controller = _controller(transport);
+    addTearDown(controller.dispose);
+    expect(await controller.connectXtream(_credentials), isTrue);
 
-      expect(
-        controller.epgService.hasFreshDataForChannel(_catchupChannel),
-        isFalse,
-      );
+    expect(
+      controller.epgService.hasFreshDataForChannel(_catchupChannel),
+      isFalse,
+    );
 
-      await controller.ensureCatchupEpgForChannel(_catchupChannel);
+    await controller.ensureCatchupEpgForChannel(_catchupChannel);
 
-      expect(
-        controller.epgService.hasFreshDataForChannel(_catchupChannel),
-        isTrue,
-      );
-    },
-  );
+    expect(
+      controller.epgService.hasFreshDataForChannel(_catchupChannel),
+      isTrue,
+    );
+  });
 
   test(
     'a second concurrent open resolves only when the shared fetch does',
@@ -276,28 +270,22 @@ void main() {
     },
   );
 
-  test(
-    'a response that lands after a source switch is not merged into the new '
-    'guide',
-    () async {
-      final transport = _CatchupTransport();
-      final gate = Completer<void>();
-      transport.beforeEpgBatch = gate.future;
-      final controller = _controller(transport);
-      addTearDown(controller.dispose);
-      expect(await controller.connectXtream(_credentials), isTrue);
+  test('a response that lands after a source switch is not merged into the new '
+      'guide', () async {
+    final transport = _CatchupTransport();
+    final gate = Completer<void>();
+    transport.beforeEpgBatch = gate.future;
+    final controller = _controller(transport);
+    addTearDown(controller.dispose);
+    expect(await controller.connectXtream(_credentials), isTrue);
 
-      final pending = controller.ensureCatchupEpgForChannel(_catchupChannel);
-      await controller.disconnect();
-      gate.complete();
-      await pending;
+    final pending = controller.ensureCatchupEpgForChannel(_catchupChannel);
+    await controller.disconnect();
+    gate.complete();
+    await pending;
 
-      expect(
-        controller.epgService.programsForChannel(_catchupChannel),
-        isEmpty,
-      );
-    },
-  );
+    expect(controller.epgService.programsForChannel(_catchupChannel), isEmpty);
+  });
 }
 
 String _ymd(DateTime value) {

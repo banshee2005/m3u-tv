@@ -90,30 +90,29 @@ void main() {
     },
   );
 
-  testWidgets(
-    'shows Scheduled badge when the recording is padded backward by '
-    'start_early_seconds beyond the 1-minute singular tolerance',
-    (tester) async {
-      // 5 minutes of padding — the singular `scheduleDvrAiring` return-match
-      // only tolerates 1 minute, so this case would have been missed by any
-      // helper built on near-exact start-time equality. The new overlap
-      // helper must still match.
-      await pumpScreen(
-        tester,
-        show: testShow(episodes: [episode]),
-        recordings: [
-          recording(
-            scheduledStart: episode.startTime.subtract(
-              const Duration(minutes: 5),
-            ),
-            scheduledEnd: episode.endTime,
+  testWidgets('shows Scheduled badge when the recording is padded backward by '
+      'start_early_seconds beyond the 1-minute singular tolerance', (
+    tester,
+  ) async {
+    // 5 minutes of padding — the singular `scheduleDvrAiring` return-match
+    // only tolerates 1 minute, so this case would have been missed by any
+    // helper built on near-exact start-time equality. The new overlap
+    // helper must still match.
+    await pumpScreen(
+      tester,
+      show: testShow(episodes: [episode]),
+      recordings: [
+        recording(
+          scheduledStart: episode.startTime.subtract(
+            const Duration(minutes: 5),
           ),
-        ],
-      );
+          scheduledEnd: episode.endTime,
+        ),
+      ],
+    );
 
-      expect(scheduledBadge(tester), findsOneWidget);
-    },
-  );
+    expect(scheduledBadge(tester), findsOneWidget);
+  });
 
   testWidgets(
     'does NOT show Scheduled badge when the recording is on a different '
@@ -135,22 +134,17 @@ void main() {
     },
   );
 
-  testWidgets(
-    'does NOT show Scheduled badge when the recording has null '
-    'scheduledStart/End ("cannot confirm" semantics)',
-    (tester) async {
-      // The provider yields a recording whose window can't be checked
-      // (both timestamps null). Overlap match must return false rather than
-      // locking out a still-seeding recording from being scheduled.
-      await pumpScreen(
-        tester,
-        show: testShow(episodes: [episode]),
-        recordings: [
-          recording(scheduledStart: null, scheduledEnd: null),
-        ],
-      );
+  testWidgets('does NOT show Scheduled badge when the recording has null '
+      'scheduledStart/End ("cannot confirm" semantics)', (tester) async {
+    // The provider yields a recording whose window can't be checked
+    // (both timestamps null). Overlap match must return false rather than
+    // locking out a still-seeding recording from being scheduled.
+    await pumpScreen(
+      tester,
+      show: testShow(episodes: [episode]),
+      recordings: [recording(scheduledStart: null, scheduledEnd: null)],
+    );
 
-      expect(scheduledBadge(tester), findsNothing);
-    },
-  );
+    expect(scheduledBadge(tester), findsNothing);
+  });
 }

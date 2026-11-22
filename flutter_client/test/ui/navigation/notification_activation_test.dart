@@ -10,10 +10,7 @@ void main() {
       RouteNames.notifications,
     );
     expect(
-      notificationRouteFor(
-        TvNotificationDestination.dvr,
-        hasDvrFeature: true,
-      ),
+      notificationRouteFor(TvNotificationDestination.dvr, hasDvrFeature: true),
       RouteNames.dvr,
     );
     expect(

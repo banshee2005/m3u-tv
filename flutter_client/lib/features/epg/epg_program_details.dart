@@ -101,9 +101,9 @@ String epgDurationLabel(AppLocalizations l10n, Duration duration) {
       : l10n.epgDurationHoursMinutes(hours, minutes);
 }
 
-String epgTimeLabel(BuildContext context, DateTime time) => DateFormat.jm(
-  Localizations.localeOf(context).toLanguageTag(),
-).format(time.toLocal());
+String epgTimeLabel(BuildContext context, DateTime time) =>
+    DateFormat.jm(Localizations.localeOf(context).toLanguageTag())
+        .format(time.toLocal());
 
 String epgTimeRangeLabel(BuildContext context, EpgProgram program) =>
     '${epgTimeLabel(context, program.start)} - '
@@ -702,10 +702,8 @@ class _MetaChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: fg,
-          fontWeight: FontWeight.w600,
-        ),
+        style: Theme.of(context).textTheme.labelMedium
+            ?.copyWith(color: fg, fontWeight: FontWeight.w600),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
@@ -896,10 +894,7 @@ Future<void> showEpgProgramDetailsSheet(
                 ),
                 const SizedBox(height: 16),
               ],
-              _ProgramInfo(
-                selection: selection,
-                compact: true,
-              ),
+              _ProgramInfo(selection: selection, compact: true),
               const SizedBox(height: 12),
               Row(
                 children: [

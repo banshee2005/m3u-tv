@@ -273,9 +273,8 @@ class _InlineMediaSearchFieldState extends State<InlineMediaSearchField> {
     // Scaled with the display-size setting so the field doesn't clip its
     // own (already-scaling) text/icons at Large/Very Large.
     final fieldHeight = 52.0 * scale;
-    final hintStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-      color: colorScheme.onSurfaceVariant,
-    );
+    final hintStyle = Theme.of(context).textTheme.bodyMedium
+        ?.copyWith(color: colorScheme.onSurfaceVariant);
 
     if (widget.activateOnSelect && !_activated) {
       return SizedBox(
@@ -377,9 +376,8 @@ class _InlineMediaSearchFieldState extends State<InlineMediaSearchField> {
                           onSelect: _clear,
                           effects: kStadiumFocusEffects,
                           child: IconButton(
-                            tooltip: AppLocalizations.of(
-                              context,
-                            ).mediaClearSearch,
+                            tooltip: AppLocalizations.of(context)
+                                .mediaClearSearch,
                             icon: Icon(Icons.clear, size: 24 * scale),
                             onPressed: _clear,
                           ),
@@ -818,9 +816,8 @@ class _ScrollableCategoryBarState extends State<ScrollableCategoryBar> {
                       scrollDirection: Axis.horizontal,
                       padding: EdgeInsets.zero,
                       itemCount: widget.tabs.length,
-                      separatorBuilder: (_, _) => const SizedBox(
-                        width: MediaBrowsingMetrics.chipGap,
-                      ),
+                      separatorBuilder: (_, _) =>
+                          const SizedBox(width: MediaBrowsingMetrics.chipGap),
                       itemBuilder: (context, index) {
                         final tab = widget.tabs[index];
                         return CategoryFilterChip(
@@ -1122,8 +1119,10 @@ class MediaPreviewItem {
 /// `hovered: false` when it leaves. Content sliding under a pointer that
 /// hasn't moved (a row docking or auto-scrolling for the keyboard) does not
 /// count as hovering. `focusCard` moves D-pad focus to the card.
-typedef HoverIntentCallback =
-    void Function({required bool hovered, required VoidCallback focusCard});
+typedef HoverIntentCallback = void Function({
+  required bool hovered,
+  required VoidCallback focusCard,
+});
 
 /// Non-focusable wrapper that reports focus entering [child] and mouse hover
 /// over it, and can move focus to [child]'s own focus node on request. Shared
@@ -1206,13 +1205,12 @@ class _PreviewFocusAnchorState extends State<PreviewFocusAnchor> {
 }
 
 /// Builds one card of a [MediaPreviewSection.builder] row at [cardSize].
-typedef PreviewCardBuilder =
-    Widget Function(
-      BuildContext context,
-      int index,
-      Size cardSize, {
-      required bool autofocus,
-    });
+typedef PreviewCardBuilder = Widget Function(
+  BuildContext context,
+  int index,
+  Size cardSize, {
+  required bool autofocus,
+});
 
 class MediaPreviewSection extends StatefulWidget {
   const MediaPreviewSection({
@@ -1513,9 +1511,8 @@ class _MediaPreviewSectionState extends State<MediaPreviewSection> {
               ],
               Text(
                 widget.title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontSize: 18),
+                style: Theme.of(context).textTheme.titleLarge
+                    ?.copyWith(fontSize: 18),
               ),
             ],
           ),
@@ -1582,9 +1579,8 @@ class _MediaPreviewSectionState extends State<MediaPreviewSection> {
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.only(bottom: 12),
                       itemCount: cardCount,
-                      separatorBuilder: (_, _) => const SizedBox(
-                        width: MediaBrowsingMetrics.itemGap,
-                      ),
+                      separatorBuilder: (_, _) =>
+                          const SizedBox(width: MediaBrowsingMetrics.itemGap),
                       itemBuilder: (context, index) {
                         if (index == visibleCount) {
                           return PreviewActionCard(
@@ -2237,10 +2233,8 @@ class _MediaPreviewCardState extends State<MediaPreviewCard>
                                 ),
                                 child: Text(
                                   badge,
-                                  style:
-                                      Theme.of(
-                                        context,
-                                      ).textTheme.labelSmall?.copyWith(
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -2324,9 +2318,8 @@ class _MediaPreviewCardState extends State<MediaPreviewCard>
             children: [
               Text(
                 item.title,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(fontWeight: FontWeight.w700),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -2334,9 +2327,8 @@ class _MediaPreviewCardState extends State<MediaPreviewCard>
                 const SizedBox(height: 2),
                 Text(
                   item.subtitle!,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  style: Theme.of(context).textTheme.labelSmall
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

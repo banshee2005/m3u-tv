@@ -623,9 +623,10 @@ HomeSpotlight _progressSpotlight(
         : season != null
         ? l.epgSeasonNumber(season)
         : null;
-    final secondary = [?numbering, ?nullIfBlank(progress.episodeTitle)].join(
-      ' - ',
-    );
+    final secondary = [
+      ?numbering,
+      ?nullIfBlank(progress.episodeTitle),
+    ].join(' - ');
     return HomeSpotlight(
       key: target.key,
       title:

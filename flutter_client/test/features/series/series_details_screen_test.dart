@@ -96,20 +96,16 @@ Progress _prog(
 
 void main() {
   group('trailer button', () {
-    SeriesInfo trailerInfo({String? seriesTrailer, String? seasonTrailer}) =>
-        SeriesInfo(
-          series: Series(
-            id: 7,
-            name: 'Fixture Show',
-            trailerUrl: seriesTrailer,
-          ),
-          seasons: [
-            Season(number: 1, name: 'Season 1', trailerUrl: seasonTrailer),
-          ],
-          episodesBySeason: {
-            1: [_ep(1, 1)],
-          },
-        );
+    SeriesInfo trailerInfo({
+      String? seriesTrailer,
+      String? seasonTrailer,
+    }) => SeriesInfo(
+      series: Series(id: 7, name: 'Fixture Show', trailerUrl: seriesTrailer),
+      seasons: [Season(number: 1, name: 'Season 1', trailerUrl: seasonTrailer)],
+      episodesBySeason: {
+        1: [_ep(1, 1)],
+      },
+    );
 
     testWidgets('prefers the shown season trailer', (tester) async {
       await tester.pumpWidget(
@@ -333,10 +329,7 @@ void main() {
     await tester.pumpWidget(_app(_info()));
     await tester.pumpAndSettle();
 
-    expect(
-      FocusManager.instance.primaryFocus?.debugLabel,
-      'seriesPlayButton',
-    );
+    expect(FocusManager.instance.primaryFocus?.debugLabel, 'seriesPlayButton');
   });
 
   testWidgets('defaults to season 1 and its overview when nothing is watched', (
@@ -730,9 +723,7 @@ void main() {
 
   testWidgets(
     'tapping an in-progress episode card can resume from the dialog',
-    (
-      tester,
-    ) async {
+    (tester) async {
       PlayerArgs? played;
       await tester.pumpWidget(
         _app(
@@ -867,14 +858,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(deleted, ['rec-1']);
-    expect(
-      find.textContaining('S1E1 Title', findRichText: true),
-      findsNothing,
-    );
-    expect(
-      find.textContaining('S1E2 Title', findRichText: true),
-      findsWidgets,
-    );
+    expect(find.textContaining('S1E1 Title', findRichText: true), findsNothing);
+    expect(find.textContaining('S1E2 Title', findRichText: true), findsWidgets);
   });
 
   testWidgets('mark-season reports partial sync failure', (tester) async {

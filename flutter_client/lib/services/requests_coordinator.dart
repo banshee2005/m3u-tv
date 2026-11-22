@@ -50,10 +50,7 @@ class RequestsCoordinator {
   /// in place  /// from the lightweight `request.status` push (approved/rejected/completed
   /// by MediaRequestStatusEvent on the server) instead of re-polling
   /// request_history.
-  void onStatusPush(
-    MediaRequestSummary request,
-    bool Function() ownsWork,
-  ) {
+  void onStatusPush(MediaRequestSummary request, bool Function() ownsWork) {
     if (!ownsWork()) return;
     final next = [..._mediaRequests];
     final index = next.indexWhere((r) => r.id == request.id);
@@ -101,10 +98,7 @@ class RequestsCoordinator {
     if (credentials == null) {
       throw StateError('Xtream credentials not configured');
     }
-    final ownsWork = _captureOwnership(
-      credentials,
-      owner: requestOwner,
-    );
+    final ownsWork = _captureOwnership(credentials, owner: requestOwner);
     if (!ownsWork()) {
       throw StateError('Xtream credentials not configured');
     }

@@ -62,9 +62,7 @@ ButtonStyle _primaryGradientStyle(ButtonStyle base, {bool inverted = false}) {
   final fill = inverted ? _kWhite : _kBlack;
   return base.copyWith(
     backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-    foregroundColor: WidgetStatePropertyAll(
-      inverted ? _kBlack : Colors.white,
-    ),
+    foregroundColor: WidgetStatePropertyAll(inverted ? _kBlack : Colors.white),
     // Focus/hover is already shown via the gradient DpadFocusable border —
     // Material's own hover/press state layer on top of the background just
     // fights with it (background looks like it's flickering between
@@ -475,10 +473,8 @@ class _CountBadge extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         '$count',
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: textColor ?? scheme.onError,
-          height: 1,
-        ),
+        style: Theme.of(context).textTheme.labelSmall
+            ?.copyWith(color: textColor ?? scheme.onError, height: 1),
       ),
     );
   }

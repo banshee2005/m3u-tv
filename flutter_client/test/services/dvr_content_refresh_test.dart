@@ -27,13 +27,14 @@ const _testCredentials = UserCredentials(
 /// "Initial Show") is distinct from the post-push fixture so tests can
 /// prove a refresh actually fetched new data rather than just asserting
 /// the controller still has its initial state.
-final VodItem _postPushVod = VodItem.fromXtream(
-  <String, Object?>{'stream_id': 7001, 'name': 'New Recording Movie'},
-  'http://fixture.invalid/movie/7001.mp4',
-);
-final Series _postPushSeries = Series.fromXtream(
-  <String, Object?>{'series_id': 8001, 'name': 'New Episode Show'},
-);
+final VodItem _postPushVod = VodItem.fromXtream(<String, Object?>{
+  'stream_id': 7001,
+  'name': 'New Recording Movie',
+}, 'http://fixture.invalid/movie/7001.mp4');
+final Series _postPushSeries = Series.fromXtream(<String, Object?>{
+  'series_id': 8001,
+  'name': 'New Episode Show',
+});
 
 /// Builds a [DvrRecording] suitable for firing into the controller's DVR
 /// push handler. The pushed status is only consulted for the
@@ -151,10 +152,7 @@ void main() {
         // Both lists picked up the post-push fixture data — proves the
         // refresh actually fired (the initial data was Initial Movie /
         // Initial Show).
-        expect(
-          (await fixture.vodItems).single.name,
-          'New Recording Movie',
-        );
+        expect((await fixture.vodItems).single.name, 'New Recording Movie');
         expect((await fixture.seriesList).single.name, 'New Episode Show');
       },
     );
@@ -198,121 +196,99 @@ void main() {
       },
     );
 
-    test(
-      'Other detail statuses (scheduled/recording/failed/cancelled/'
-      ' deleted/unknown) do NOT trigger refresh',
-      () async {
-        final fixture = _Fixture();
-        addTearDown(fixture.dispose);
-        expect(
-          await fixture.controller.connectXtream(_testCredentials),
-          isTrue,
-        );
-        await fixture.reverb.connected.future;
+    test('Other detail statuses (scheduled/recording/failed/cancelled/'
+        ' deleted/unknown) do NOT trigger refresh', () async {
+      final fixture = _Fixture();
+      addTearDown(fixture.dispose);
+      expect(await fixture.controller.connectXtream(_testCredentials), isTrue);
+      await fixture.reverb.connected.future;
 
-        // For each non-refresh-triggering status, enqueue a matching detail
-        // row so the controller sees that status when it re-fetches the
-        // recording. The pushed wire status on its own is NOT what the
-        // controller checks — it refetches and uses the detail's status.
-        for (final status in <String>[
-          'scheduled',
-          'recording',
-          'failed',
-          'cancelled',
-          'unknown',
-          'deleted',
-        ]) {
-          fixture.transport.actionCounts.clear();
-          fixture.enqueueNextDetail(<String, Object?>{
-            'uuid': 'rec-$status',
-            'title': 'Recording',
-            'status': status,
-          });
-          fixture.reverb.simulateDvrStatus(
-            _recording(uuid: 'rec-$status', status: status),
-          );
-          await _waitForDebounce();
-
-          final counts = fixture.transport.actionCounts;
-          expect(
-            counts['get_vod_streams'] ?? 0,
-            0,
-            reason: 'VOD re-fetched for status "$status"',
-          );
-          expect(
-            counts['get_series'] ?? 0,
-            0,
-            reason: 'Series re-fetched for status "$status"',
-          );
-        }
-      },
-    );
-  });
-
-  group('debounce coalesces multiple pushes', () {
-    test(
-      'Multiple completed pushes within debounce window → single batched '
-      'refresh',
-      () async {
-        final fixture = _Fixture();
-        addTearDown(fixture.dispose);
-        expect(
-          await fixture.controller.connectXtream(_testCredentials),
-          isTrue,
-        );
-        await fixture.reverb.connected.future;
-
-        // Three pushes back-to-back. Targets union to {vod, series}, so the
-        // batched refresh should fetch each list exactly once.
-        fixture.transport.setVodItems(<VodItem>[_postPushVod]);
-        fixture.transport.setSeries(<Series>[_postPushSeries]);
-        fixture
-          ..enqueueNextDetail(<String, Object?>{
-            'uuid': 'rec-1',
-            'title': 'Recording',
-            'status': 'completed',
-            'season': 1,
-            'episode_number': 1,
-          })
-          ..enqueueNextDetail(<String, Object?>{
-            'uuid': 'rec-2',
-            'title': 'Recording',
-            'status': 'completed',
-          })
-          ..enqueueNextDetail(<String, Object?>{
-            'uuid': 'rec-3',
-            'title': 'Recording',
-            'status': 'completed',
-            'season': 4,
-            'episode_number': 9,
-          });
-
+      // For each non-refresh-triggering status, enqueue a matching detail
+      // row so the controller sees that status when it re-fetches the
+      // recording. The pushed wire status on its own is NOT what the
+      // controller checks — it refetches and uses the detail's status.
+      for (final status in <String>[
+        'scheduled',
+        'recording',
+        'failed',
+        'cancelled',
+        'unknown',
+        'deleted',
+      ]) {
+        fixture.transport.actionCounts.clear();
+        fixture.enqueueNextDetail(<String, Object?>{
+          'uuid': 'rec-$status',
+          'title': 'Recording',
+          'status': status,
+        });
         fixture.reverb.simulateDvrStatus(
-          _recording(
-            uuid: 'rec-1',
-            status: 'completed',
-            season: 1,
-            episode: 1,
-          ),
-        );
-        fixture.reverb.simulateDvrStatus(
-          _recording(uuid: 'rec-2', status: 'completed'),
-        );
-        fixture.reverb.simulateDvrStatus(
-          _recording(
-            uuid: 'rec-3',
-            status: 'completed',
-            season: 4,
-            episode: 9,
-          ),
+          _recording(uuid: 'rec-$status', status: status),
         );
         await _waitForDebounce();
 
         final counts = fixture.transport.actionCounts;
-        expect(counts['get_vod_streams'], 2);
-        expect(counts['get_series'], 2);
-      },
-    );
+        expect(
+          counts['get_vod_streams'] ?? 0,
+          0,
+          reason: 'VOD re-fetched for status "$status"',
+        );
+        expect(
+          counts['get_series'] ?? 0,
+          0,
+          reason: 'Series re-fetched for status "$status"',
+        );
+      }
+    });
+  });
+
+  group('debounce coalesces multiple pushes', () {
+    test('Multiple completed pushes within debounce window → single batched '
+        'refresh', () async {
+      final fixture = _Fixture();
+      addTearDown(fixture.dispose);
+      expect(await fixture.controller.connectXtream(_testCredentials), isTrue);
+      await fixture.reverb.connected.future;
+
+      // Three pushes back-to-back. Targets union to {vod, series}, so the
+      // batched refresh should fetch each list exactly once.
+      fixture.transport.setVodItems(<VodItem>[_postPushVod]);
+      fixture.transport.setSeries(<Series>[_postPushSeries]);
+      fixture
+        ..enqueueNextDetail(<String, Object?>{
+          'uuid': 'rec-1',
+          'title': 'Recording',
+          'status': 'completed',
+          'season': 1,
+          'episode_number': 1,
+        })
+        ..enqueueNextDetail(<String, Object?>{
+          'uuid': 'rec-2',
+          'title': 'Recording',
+          'status': 'completed',
+        })
+        ..enqueueNextDetail(<String, Object?>{
+          'uuid': 'rec-3',
+          'title': 'Recording',
+          'status': 'completed',
+          'season': 4,
+          'episode_number': 9,
+        });
+
+      fixture.reverb.simulateDvrStatus(
+        _recording(uuid: 'rec-1', status: 'completed', season: 1, episode: 1),
+      );
+      fixture.reverb.simulateDvrStatus(
+        _recording(uuid: 'rec-2', status: 'completed'),
+      );
+      fixture.reverb.simulateDvrStatus(
+        _recording(uuid: 'rec-3', status: 'completed', season: 4, episode: 9),
+      );
+      await _waitForDebounce();
+
+      final counts = fixture.transport.actionCounts;
+      expect(counts['get_vod_streams'], 2);
+      expect(counts['get_series'], 2);
+    });
 
     test(
       'Mixed targets in the same window — only fetch each list once',
@@ -359,111 +335,86 @@ void main() {
         final counts = fixture.transport.actionCounts;
         expect(counts['get_vod_streams'], 2);
         expect(counts['get_series'], 2);
-        expect(
-          (await fixture.vodItems).single.name,
-          'New Recording Movie',
-        );
+        expect((await fixture.vodItems).single.name, 'New Recording Movie');
         expect((await fixture.seriesList).single.name, 'New Episode Show');
       },
     );
 
-    test(
-      'Second push AFTER debounce fires creates a SECOND refresh',
-      () async {
-        final fixture = _Fixture();
-        addTearDown(fixture.dispose);
-        expect(
-          await fixture.controller.connectXtream(_testCredentials),
-          isTrue,
-        );
-        await fixture.reverb.connected.future;
+    test('Second push AFTER debounce fires creates a SECOND refresh', () async {
+      final fixture = _Fixture();
+      addTearDown(fixture.dispose);
+      expect(await fixture.controller.connectXtream(_testCredentials), isTrue);
+      await fixture.reverb.connected.future;
 
-        // Both pushes use the default detail (completed series-episode),
-        // so each fires a Series-only refresh.
-        fixture.transport.setSeries(<Series>[_postPushSeries]);
+      // Both pushes use the default detail (completed series-episode),
+      // so each fires a Series-only refresh.
+      fixture.transport.setSeries(<Series>[_postPushSeries]);
 
-        fixture.reverb.simulateDvrStatus(
-          _recording(
-            uuid: 'rec-a',
-            status: 'completed',
-            season: 1,
-            episode: 1,
-          ),
-        );
-        await _waitForDebounce();
+      fixture.reverb.simulateDvrStatus(
+        _recording(uuid: 'rec-a', status: 'completed', season: 1, episode: 1),
+      );
+      await _waitForDebounce();
 
-        var counts = fixture.transport.actionCounts;
-        expect(counts['get_vod_streams'], 1);
-        expect(counts['get_series'], 2);
+      var counts = fixture.transport.actionCounts;
+      expect(counts['get_vod_streams'], 1);
+      expect(counts['get_series'], 2);
 
-        fixture.reverb.simulateDvrStatus(
-          _recording(
-            uuid: 'rec-b',
-            status: 'completed',
-            season: 1,
-            episode: 2,
-          ),
-        );
-        await _waitForDebounce();
+      fixture.reverb.simulateDvrStatus(
+        _recording(uuid: 'rec-b', status: 'completed', season: 1, episode: 2),
+      );
+      await _waitForDebounce();
 
-        counts = fixture.transport.actionCounts;
-        expect(counts['get_vod_streams'], 1);
-        expect(counts['get_series'], 3);
-      },
-    );
+      counts = fixture.transport.actionCounts;
+      expect(counts['get_vod_streams'], 1);
+      expect(counts['get_series'], 3);
+    });
 
-    test(
-      'push arriving while a flush is still in-flight (slow network) is '
-      'coalesced into the next loop iteration, not run as a concurrent '
-      'duplicate fetch',
-      () async {
-        // Regression test for a bug where a push landing mid-flush — its own
-        // debounce timer already cleared by the in-flight flush — started an
-        // independent second flush that issued a duplicate `get_series` call
-        // while the first was still awaiting. The fix makes
-        // `_flushDvrContentRefresh` loop internally instead, guarded by
-        // `_dvrContentRefreshFlushing`.
-        final fixture = _Fixture();
-        addTearDown(fixture.dispose);
-        expect(
-          await fixture.controller.connectXtream(_testCredentials),
-          isTrue,
-        );
-        await fixture.reverb.connected.future;
+    test('push arriving while a flush is still in-flight (slow network) is '
+        'coalesced into the next loop iteration, not run as a concurrent '
+        'duplicate fetch', () async {
+      // Regression test for a bug where a push landing mid-flush — its own
+      // debounce timer already cleared by the in-flight flush — started an
+      // independent second flush that issued a duplicate `get_series` call
+      // while the first was still awaiting. The fix makes
+      // `_flushDvrContentRefresh` loop internally instead, guarded by
+      // `_dvrContentRefreshFlushing`.
+      final fixture = _Fixture();
+      addTearDown(fixture.dispose);
+      expect(await fixture.controller.connectXtream(_testCredentials), isTrue);
+      await fixture.reverb.connected.future;
 
-        final hold = Completer<void>();
-        fixture.transport.holdSeries = hold;
-        fixture.transport.setSeries(<Series>[_postPushSeries]);
+      final hold = Completer<void>();
+      fixture.transport.holdSeries = hold;
+      fixture.transport.setSeries(<Series>[_postPushSeries]);
 
-        // Push A: debounce fires, flush starts, `get_series` call #2 begins
-        // and parks on `hold`.
-        fixture.reverb.simulateDvrStatus(
-          _recording(uuid: 'rec-a', status: 'completed', season: 1, episode: 1),
-        );
-        await _waitForDebounce();
-        expect(fixture.transport.actionCounts['get_series'], 2);
+      // Push A: debounce fires, flush starts, `get_series` call #2 begins
+      // and parks on `hold`.
+      fixture.reverb.simulateDvrStatus(
+        _recording(uuid: 'rec-a', status: 'completed', season: 1, episode: 1),
+      );
+      await _waitForDebounce();
+      expect(fixture.transport.actionCounts['get_series'], 2);
 
-        // Push B arrives while flush A is still parked. Its own debounce
-        // timer fires 1500ms later, well before `hold` is released below.
-        fixture.reverb.simulateDvrStatus(
-          _recording(uuid: 'rec-b', status: 'completed', season: 1, episode: 2),
-        );
-        await _waitForDebounce();
+      // Push B arrives while flush A is still parked. Its own debounce
+      // timer fires 1500ms later, well before `hold` is released below.
+      fixture.reverb.simulateDvrStatus(
+        _recording(uuid: 'rec-b', status: 'completed', season: 1, episode: 2),
+      );
+      await _waitForDebounce();
 
-        // Push B's timer fired, but `_dvrContentRefreshFlushing` was still
-        // true, so it must NOT have started a concurrent second fetch — the
-        // call count stays at 2 while flush A is still parked.
-        expect(fixture.transport.actionCounts['get_series'], 2);
+      // Push B's timer fired, but `_dvrContentRefreshFlushing` was still
+      // true, so it must NOT have started a concurrent second fetch — the
+      // call count stays at 2 while flush A is still parked.
+      expect(fixture.transport.actionCounts['get_series'], 2);
 
-        // Release flush A. It resolves, sees push B's target still pending,
-        // and loops to fetch it — one more call, not a race with a second
-        // in-flight one.
-        hold.complete();
-        await pumpEventQueue();
+      // Release flush A. It resolves, sees push B's target still pending,
+      // and loops to fetch it — one more call, not a race with a second
+      // in-flight one.
+      hold.complete();
+      await pumpEventQueue();
 
-        expect(fixture.transport.actionCounts['get_series'], 3);
-      },
-    );
+      expect(fixture.transport.actionCounts['get_series'], 3);
+    });
   });
 
   group('error handling and notifications', () {
@@ -531,10 +482,7 @@ void main() {
         final counts = fixture.transport.actionCounts;
         expect(counts['get_vod_streams'], 2);
         expect(counts['get_series'], 2);
-        expect(
-          (await fixture.vodItems).single.name,
-          'New Recording Movie',
-        );
+        expect((await fixture.vodItems).single.name, 'New Recording Movie');
         expect((await fixture.seriesList).single.name, 'Initial Show');
       },
     );
@@ -542,10 +490,7 @@ void main() {
     test('Both fetches fail → no extra notifyListeners', () async {
       final fixture = _Fixture();
       addTearDown(fixture.dispose);
-      expect(
-        await fixture.controller.connectXtream(_testCredentials),
-        isTrue,
-      );
+      expect(await fixture.controller.connectXtream(_testCredentials), isTrue);
       await fixture.reverb.connected.future;
 
       fixture.enqueueNextDetail(<String, Object?>{
@@ -617,10 +562,7 @@ void main() {
 
     test('dispose() cancels pending debounce timer', () async {
       final fixture = _Fixture();
-      expect(
-        await fixture.controller.connectXtream(_testCredentials),
-        isTrue,
-      );
+      expect(await fixture.controller.connectXtream(_testCredentials), isTrue);
       await fixture.reverb.connected.future;
 
       fixture.reverb.simulateDvrStatus(
@@ -639,113 +581,101 @@ void main() {
       expect(counts['get_series'], 1);
     });
 
-    test(
-      'dispose() DURING an in-flight refresh does not notify a disposed '
-      'notifier',
-      () async {
-        // Cancelling the debounce timer only helps before it fires. Here the
-        // timer fires, the Series fetch is held open, and dispose lands while
-        // it is still in flight — so the flush resumes against a disposed
-        // notifier. _flushDvrContentRefresh runs from a fire-and-forget Timer
-        // callback, so an unguarded notifyListeners() here surfaces as an
-        // unhandled async error rather than being caught anywhere.
-        final fixture = _Fixture();
-        expect(
-          await fixture.controller.connectXtream(_testCredentials),
-          isTrue,
-        );
-        await fixture.reverb.connected.future;
+    test('dispose() DURING an in-flight refresh does not notify a disposed '
+        'notifier', () async {
+      // Cancelling the debounce timer only helps before it fires. Here the
+      // timer fires, the Series fetch is held open, and dispose lands while
+      // it is still in flight — so the flush resumes against a disposed
+      // notifier. _flushDvrContentRefresh runs from a fire-and-forget Timer
+      // callback, so an unguarded notifyListeners() here surfaces as an
+      // unhandled async error rather than being caught anywhere.
+      final fixture = _Fixture();
+      expect(await fixture.controller.connectXtream(_testCredentials), isTrue);
+      await fixture.reverb.connected.future;
 
-        final hold = Completer<void>();
-        fixture.transport.holdSeries = hold;
-        fixture.transport.setSeries(<Series>[_postPushSeries]);
+      final hold = Completer<void>();
+      fixture.transport.holdSeries = hold;
+      fixture.transport.setSeries(<Series>[_postPushSeries]);
 
-        fixture.reverb.simulateDvrStatus(
-          _recording(
-            uuid: 'rec-dispose-inflight',
-            status: 'completed',
-            season: 1,
-            episode: 1,
-          ),
-        );
+      fixture.reverb.simulateDvrStatus(
+        _recording(
+          uuid: 'rec-dispose-inflight',
+          status: 'completed',
+          season: 1,
+          episode: 1,
+        ),
+      );
 
-        // Let the debounce fire so the Series fetch starts and then parks on
-        // the hold completer.
-        await _waitForDebounce();
-        expect(fixture.transport.actionCounts['get_series'], 2);
+      // Let the debounce fire so the Series fetch starts and then parks on
+      // the hold completer.
+      await _waitForDebounce();
+      expect(fixture.transport.actionCounts['get_series'], 2);
 
-        // Dispose while the fetch is still parked, then release it.
-        fixture.controller.dispose();
-        hold.complete();
-        await pumpEventQueue();
+      // Dispose while the fetch is still parked, then release it.
+      fixture.controller.dispose();
+      hold.complete();
+      await pumpEventQueue();
 
-        // Reaching here without an unhandled error is the assertion: the
-        // flush saw _disposed and bailed instead of notifying.
-        expect(fixture.transport.actionCounts['get_series'], 2);
-      },
-    );
+      // Reaching here without an unhandled error is the assertion: the
+      // flush saw _disposed and bailed instead of notifying.
+      expect(fixture.transport.actionCounts['get_series'], 2);
+    });
   });
 
   group('ownership change mid-flight abandons refresh', () {
-    test(
-      'Flipping ownsWork() to false mid-flight abandons the refresh — '
-      'in-memory state is NOT overwritten',
-      () async {
-        // The whole point of the rework. A 1500ms debounce sits between
-        // _refreshDvrRecordingDetail's notifyListeners() and
-        // _flushDvrContentRefresh's getSeries/getVodStreams fetches. If
-        // account/source ownership flips during that window (account switch,
-        // logout, source swap), the in-flight refresh must NOT overwrite
-        // the catalog repository — that would write another account's
-        // library into current state.
-        final fixture = _Fixture();
-        addTearDown(fixture.dispose);
-        expect(
-          await fixture.controller.connectXtream(_testCredentials),
-          isTrue,
-        );
-        await fixture.reverb.connected.future;
+    test('Flipping ownsWork() to false mid-flight abandons the refresh — '
+        'in-memory state is NOT overwritten', () async {
+      // The whole point of the rework. A 1500ms debounce sits between
+      // _refreshDvrRecordingDetail's notifyListeners() and
+      // _flushDvrContentRefresh's getSeries/getVodStreams fetches. If
+      // account/source ownership flips during that window (account switch,
+      // logout, source swap), the in-flight refresh must NOT overwrite
+      // the catalog repository — that would write another account's
+      // library into current state.
+      final fixture = _Fixture();
+      addTearDown(fixture.dispose);
+      expect(await fixture.controller.connectXtream(_testCredentials), isTrue);
+      await fixture.reverb.connected.future;
 
-        final hold = Completer<void>();
-        fixture.transport.holdSeries = hold;
-        fixture.transport.setSeries(<Series>[_postPushSeries]);
+      final hold = Completer<void>();
+      fixture.transport.holdSeries = hold;
+      fixture.transport.setSeries(<Series>[_postPushSeries]);
 
-        fixture.reverb.simulateDvrStatus(
-          _recording(
-            uuid: 'rec-ownership-flip',
-            status: 'completed',
-            season: 1,
-            episode: 1,
-          ),
-        );
+      fixture.reverb.simulateDvrStatus(
+        _recording(
+          uuid: 'rec-ownership-flip',
+          status: 'completed',
+          season: 1,
+          episode: 1,
+        ),
+      );
 
-        // Let the debounce fire so the Series fetch starts and then parks
-        // on the hold completer.
-        await _waitForDebounce();
-        expect(fixture.transport.actionCounts['get_series'], 2);
+      // Let the debounce fire so the Series fetch starts and then parks
+      // on the hold completer.
+      await _waitForDebounce();
+      expect(fixture.transport.actionCounts['get_series'], 2);
 
-        // Flip ownsWork() to false mid-flight. AuthNotifier.disconnect()
-        // nulls out both auth.credentials and xtreamService.credentials,
-        // so the captured predicate — which checks
-        // _sameCredentials(authNotifier.credentials, capturedCreds) AND
-        // _sameCredentials(xtreamService.credentials, capturedCreds) —
-        // now returns false on the next call. _disposed stays false, so
-        // this test exercises the ownsWork path, not the dispose path.
-        await fixture.auth.disconnect();
+      // Flip ownsWork() to false mid-flight. AuthNotifier.disconnect()
+      // nulls out both auth.credentials and xtreamService.credentials,
+      // so the captured predicate — which checks
+      // _sameCredentials(authNotifier.credentials, capturedCreds) AND
+      // _sameCredentials(xtreamService.credentials, capturedCreds) —
+      // now returns false on the next call. _disposed stays false, so
+      // this test exercises the ownsWork path, not the dispose path.
+      await fixture.auth.disconnect();
 
-        // Release the parked fetch. The transport returns the post-push
-        // fixture data; the refresh sees ownsWork()=false on its post-await
-        // check and bails before overwriting _seriesList.
-        hold.complete();
-        await pumpEventQueue();
+      // Release the parked fetch. The transport returns the post-push
+      // fixture data; the refresh sees ownsWork()=false on its post-await
+      // check and bails before overwriting _seriesList.
+      hold.complete();
+      await pumpEventQueue();
 
-        // Fetch DID fire (proves the test isn't accidentally short-
-        // circuiting earlier), but in-memory state was NOT overwritten —
-        // the controller still holds its initial value.
-        expect(fixture.transport.actionCounts['get_series'], 2);
-        expect((await fixture.seriesList).single.name, 'Initial Show');
-      },
-    );
+      // Fetch DID fire (proves the test isn't accidentally short-
+      // circuiting earlier), but in-memory state was NOT overwritten —
+      // the controller still holds its initial value.
+      expect(fixture.transport.actionCounts['get_series'], 2);
+      expect((await fixture.seriesList).single.name, 'Initial Show');
+    });
   });
 
   group('Active-recordings reconnect reconciliation', () {
@@ -823,10 +753,7 @@ void main() {
         // now reflect Recording — this is the regression test: pre-fix, the
         // active reconcile patched only the channel-ids set and left the
         // dvrRecordings entry stuck on Scheduled.
-        expect(
-          fixture.controller.dvrRecordings.single.uuid,
-          'rec-flip',
-        );
+        expect(fixture.controller.dvrRecordings.single.uuid, 'rec-flip');
         expect(
           fixture.controller.dvrRecordings.single.status,
           DvrRecordingStatus.recording,
@@ -834,10 +761,7 @@ void main() {
         // Channel id parity: the dot is on, and the entry points at the
         // same channel. _recordingChannelIds is private but observable via
         // the public EPG channel map; assert via dvrRecordings instead.
-        expect(
-          fixture.controller.dvrRecordings.single.channelId,
-          42,
-        );
+        expect(fixture.controller.dvrRecordings.single.channelId, 42);
       },
     );
 
@@ -901,48 +825,38 @@ void main() {
       },
     );
 
-    test(
-      'c) Recording in active fetch but unknown to _dvrRecordings is '
-      'inserted, not dropped',
-      () async {
-        final fixture = _Fixture();
-        addTearDown(fixture.dispose);
-        // Connect-time state: empty — the controller knows of no recordings.
-        // (Default dvrRecordingsAll = []; default dvrRecordingsActive = []).
-        // Reconnect-time active fetch: a single recording the controller has
-        // never seen. This models "first connect racing a push" — the push
-        // path never ran for this recording, and connect-time fetch
-        // returned it under a status other than `recording` so it was
-        // missed there too.
-        fixture.transport.setDvrRecordingsActive(<Map<String, Object?>>[
-          dvrRecordingsJson(
-            uuid: 'rec-new',
-            status: 'recording',
-            channelId: 11,
-          ),
-        ]);
+    test('c) Recording in active fetch but unknown to _dvrRecordings is '
+        'inserted, not dropped', () async {
+      final fixture = _Fixture();
+      addTearDown(fixture.dispose);
+      // Connect-time state: empty — the controller knows of no recordings.
+      // (Default dvrRecordingsAll = []; default dvrRecordingsActive = []).
+      // Reconnect-time active fetch: a single recording the controller has
+      // never seen. This models "first connect racing a push" — the push
+      // path never ran for this recording, and connect-time fetch
+      // returned it under a status other than `recording` so it was
+      // missed there too.
+      fixture.transport.setDvrRecordingsActive(<Map<String, Object?>>[
+        dvrRecordingsJson(uuid: 'rec-new', status: 'recording', channelId: 11),
+      ]);
 
-        expect(
-          await fixture.controller.connectXtream(_testCredentials),
-          isTrue,
-        );
-        await fixture.reverb.connected.future;
-        expect(fixture.controller.dvrRecordings, isEmpty);
+      expect(await fixture.controller.connectXtream(_testCredentials), isTrue);
+      await fixture.reverb.connected.future;
+      expect(fixture.controller.dvrRecordings, isEmpty);
 
-        await fixture.controller.refreshActiveDvrRecordings();
+      await fixture.controller.refreshActiveDvrRecordings();
 
-        expect(fixture.controller.dvrRecordings, hasLength(1));
-        expect(fixture.controller.dvrRecordings.single.uuid, 'rec-new');
-        expect(
-          fixture.controller.dvrRecordings.single.status,
-          DvrRecordingStatus.recording,
-        );
-        expect(fixture.controller.dvrRecordings.single.channelId, 11);
-        // Insertion convention: unknown uuid is inserted at index 0,
-        // matching _refreshDvrRecordingDetail's existing pattern.
-        expect(fixture.controller.dvrRecordings.first.uuid, 'rec-new');
-      },
-    );
+      expect(fixture.controller.dvrRecordings, hasLength(1));
+      expect(fixture.controller.dvrRecordings.single.uuid, 'rec-new');
+      expect(
+        fixture.controller.dvrRecordings.single.status,
+        DvrRecordingStatus.recording,
+      );
+      expect(fixture.controller.dvrRecordings.single.channelId, 11);
+      // Insertion convention: unknown uuid is inserted at index 0,
+      // matching _refreshDvrRecordingDetail's existing pattern.
+      expect(fixture.controller.dvrRecordings.first.uuid, 'rec-new');
+    });
   });
 
   test(
@@ -985,10 +899,7 @@ class _Fixture {
       catalogRepository: catalogRepository,
     );
     transport = _RecordingXtreamTransport();
-    xtream = XtreamService(
-      transport: transport.call,
-      cache: cacheService,
-    );
+    xtream = XtreamService(transport: transport.call, cache: cacheService);
     auth = AuthNotifier(
       xtreamService: xtream,
       secureStorage: InMemorySecureStorage(),
@@ -1122,23 +1033,13 @@ class _RecordingXtreamTransport {
 
   void setVodItems(List<VodItem> items) {
     _vodItems = items
-        .map(
-          (v) => <String, Object?>{
-            'stream_id': v.id,
-            'name': v.name,
-          },
-        )
+        .map((v) => <String, Object?>{'stream_id': v.id, 'name': v.name})
         .toList(growable: false);
   }
 
   void setSeries(List<Series> items) {
     _seriesItems = items
-        .map(
-          (s) => <String, Object?>{
-            'series_id': s.id,
-            'name': s.name,
-          },
-        )
+        .map((s) => <String, Object?>{'series_id': s.id, 'name': s.name})
         .toList(growable: false);
   }
 

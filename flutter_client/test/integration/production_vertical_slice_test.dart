@@ -26,152 +26,141 @@ void main() {
       await server.close();
     });
 
-    test(
-      'happy_path: source fixture opens playable HLS through orchestrator and cleans up',
-      () async {
-        final sourceFixture = _ProductionSourceFixture(server.uri);
-        final liveItem = sourceFixture.liveChannels.singleWhere(
-          (channel) => channel.name == hlsLiveFixture.title,
-        );
-        final playerArgs = hlsLiveFixture.playerArgs(server.uri);
+    test('happy_path: source fixture opens playable HLS through orchestrator and cleans up', () async {
+      final sourceFixture = _ProductionSourceFixture(server.uri);
+      final liveItem = sourceFixture.liveChannels.singleWhere(
+        (channel) => channel.name == hlsLiveFixture.title,
+      );
+      final playerArgs = hlsLiveFixture.playerArgs(server.uri);
 
-        expect(sourceFixture.credentials.server, server.uri.toString());
-        expect(liveItem.streamUrl, playerArgs.streamUrl);
-        expect(playerArgs.videoCodec, 'h264');
-        expect(
-          playerArgs.headers,
-          containsPair('Referer', 'https://fixture.invalid/app'),
-        );
+      expect(sourceFixture.credentials.server, server.uri.toString());
+      expect(liveItem.streamUrl, playerArgs.streamUrl);
+      expect(playerArgs.videoCodec, 'h264');
+      expect(
+        playerArgs.headers,
+        containsPair('Referer', 'https://fixture.invalid/app'),
+      );
 
-        final directPlayer = _FixturePlayerAdapter(
-          capabilities: PlaybackCapabilities.androidExoPlayer,
-        );
-        final serverPlayer = _FixturePlayerAdapter(
-          capabilities: PlaybackCapabilities.serverTranscode,
-        );
-        final gateway = _HttpPlaybackTranscodeGateway(server: server);
-        final orchestrator = PlaybackOrchestrator(
-          platform: PlaybackPlatform.android,
-          adapters: <PlaybackBackend, PlayerAdapter>{
-            PlaybackBackend.androidExoPlayer: directPlayer,
-            PlaybackBackend.serverTranscode: serverPlayer,
-          },
-          transcodeGateway: gateway,
-        );
+      final directPlayer = _FixturePlayerAdapter(
+        capabilities: PlaybackCapabilities.androidExoPlayer,
+      );
+      final serverPlayer = _FixturePlayerAdapter(
+        capabilities: PlaybackCapabilities.serverTranscode,
+      );
+      final gateway = _HttpPlaybackTranscodeGateway(server: server);
+      final orchestrator = PlaybackOrchestrator(
+        platform: PlaybackPlatform.android,
+        adapters: <PlaybackBackend, PlayerAdapter>{
+          PlaybackBackend.androidExoPlayer: directPlayer,
+          PlaybackBackend.serverTranscode: serverPlayer,
+        },
+        transcodeGateway: gateway,
+      );
 
-        await orchestrator.open(playerArgs.toPlaybackSource());
-        await orchestrator.play();
+      await orchestrator.open(playerArgs.toPlaybackSource());
+      await orchestrator.play();
 
-        expect(orchestrator.activeBackend, PlaybackBackend.androidExoPlayer);
-        expect(
-          orchestrator.diagnostics,
-          contains('active-backend:androidExoPlayer:ready'),
-        );
+      expect(orchestrator.activeBackend, PlaybackBackend.androidExoPlayer);
+      expect(
+        orchestrator.diagnostics,
+        contains('active-backend:androidExoPlayer:ready'),
+      );
 
-        await orchestrator.stop();
-        expect(orchestrator.activeBackend, isNull);
-        await orchestrator.dispose();
+      await orchestrator.stop();
+      expect(orchestrator.activeBackend, isNull);
+      await orchestrator.dispose();
 
-        expect(
-          directPlayer.loadedSources.single.uri,
-          hlsLiveFixture.uriFor(server.uri).toString(),
-        );
-        expect(
-          directPlayer.loadedSources.single.metadata['fixture_id'],
-          'hls-live',
-        );
-        expect(directPlayer.commands, contains('play'));
-        expect(directPlayer.commands, contains('stop'));
-        expect(serverPlayer.loadedSources, isEmpty);
-        expect(server.activeBroadcasts, isEmpty);
-        expect(gateway.stoppedBroadcasts, isEmpty);
-      },
-    );
+      expect(
+        directPlayer.loadedSources.single.uri,
+        hlsLiveFixture.uriFor(server.uri).toString(),
+      );
+      expect(
+        directPlayer.loadedSources.single.metadata['fixture_id'],
+        'hls-live',
+      );
+      expect(directPlayer.commands, contains('play'));
+      expect(directPlayer.commands, contains('stop'));
+      expect(serverPlayer.loadedSources, isEmpty);
+      expect(server.activeBroadcasts, isEmpty);
+      expect(gateway.stoppedBroadcasts, isEmpty);
+    });
 
-    test(
-      'happy_path: VOD and track fixture metadata survive PlayerArgs to PlaybackSource',
-      () async {
-        final sourceFixture = _ProductionSourceFixture(server.uri);
-        final vodItem = sourceFixture.vodItems.singleWhere(
-          (item) => item.name == subtitlesAndAudioFixture.title,
-        );
-        final playerArgs = subtitlesAndAudioFixture.playerArgs(
-          server.uri,
-          startPosition: 91,
-        );
-        final source = playerArgs.toPlaybackSource();
+    test('happy_path: VOD and track fixture metadata survive PlayerArgs to PlaybackSource', () async {
+      final sourceFixture = _ProductionSourceFixture(server.uri);
+      final vodItem = sourceFixture.vodItems.singleWhere(
+        (item) => item.name == subtitlesAndAudioFixture.title,
+      );
+      final playerArgs = subtitlesAndAudioFixture.playerArgs(
+        server.uri,
+        startPosition: 91,
+      );
+      final source = playerArgs.toPlaybackSource();
 
-        expect(vodItem.streamUrl, source.uri);
-        expect(source.isLive, isFalse);
-        expect(source.startPosition, const Duration(seconds: 91));
-        expect(source.metadata['audio_tracks'], isA<List<Object?>>());
-        expect(source.metadata['subtitle_tracks'], isA<List<Object?>>());
-      },
-    );
+      expect(vodItem.streamUrl, source.uri);
+      expect(source.isLive, isFalse);
+      expect(source.startPosition, const Duration(seconds: 91));
+      expect(source.metadata['audio_tracks'], isA<List<Object?>>());
+      expect(source.metadata['subtitle_tracks'], isA<List<Object?>>());
+    });
 
-    test(
-      'failure_paths: expired token, dead stream, unsupported codec, and stalled transcode are typed',
-      () async {
-        final expiredGateway = _HttpPlaybackTranscodeGateway(server: server);
-        final deadGateway = _HttpPlaybackTranscodeGateway(server: server);
-        final unsupportedGateway = _HttpPlaybackTranscodeGateway(
-          server: server,
-        );
-        final stalledGateway = _HttpPlaybackTranscodeGateway(server: server);
+    test('failure_paths: expired token, dead stream, unsupported codec, and stalled transcode are typed', () async {
+      final expiredGateway = _HttpPlaybackTranscodeGateway(server: server);
+      final deadGateway = _HttpPlaybackTranscodeGateway(server: server);
+      final unsupportedGateway = _HttpPlaybackTranscodeGateway(server: server);
+      final stalledGateway = _HttpPlaybackTranscodeGateway(server: server);
 
-        final expiredError = await _openAndCollectFirstError(
-          expiredTokenFixture.playerArgs(server.uri),
-          expiredGateway,
-        );
-        final deadError = await _openAndCollectFirstError(
-          deadUrlFixture.playerArgs(server.uri),
-          deadGateway,
-        );
-        final unsupportedResult = await _openAndCollectResult(
-          unsupportedCodecFixture.playerArgs(server.uri),
-          unsupportedGateway,
-        );
-        final stalledError = await _openAndCollectFirstError(
-          stalledTranscodeFixture.playerArgs(server.uri),
-          stalledGateway,
-        );
+      final expiredError = await _openAndCollectFirstError(
+        expiredTokenFixture.playerArgs(server.uri),
+        expiredGateway,
+      );
+      final deadError = await _openAndCollectFirstError(
+        deadUrlFixture.playerArgs(server.uri),
+        deadGateway,
+      );
+      final unsupportedResult = await _openAndCollectResult(
+        unsupportedCodecFixture.playerArgs(server.uri),
+        unsupportedGateway,
+      );
+      final stalledError = await _openAndCollectFirstError(
+        stalledTranscodeFixture.playerArgs(server.uri),
+        stalledGateway,
+      );
 
-        expect(expiredError.code, 'expired_token');
-        expect(expiredError.recoverable, isFalse);
-        expect(deadError.code, 'stream_not_found');
-        expect(deadError.recoverable, isFalse);
-        expect(
-          unsupportedResult.orchestrator.activeBackend,
-          PlaybackBackend.serverTranscode,
-        );
-        expect(
-          unsupportedResult
-              .gateway
-              .startedServerRequests
-              .single
-              .metadata['fallback_reason'],
-          'unsupported_codec',
-        );
-        expect(
-          unsupportedResult
-              .serverPlayer
-              .loadedSources
-              .single
-              .metadata['transcode_stream_id'],
-          startsWith('server-'),
-        );
-        expect(stalledError.code, 'transcode_stalled');
-        expect(stalledError.recoverable, isTrue);
-        expect(
-          stalledGateway.stoppedServerTranscodes.any(
-            (item) => item.contains('server-'),
-          ),
-          isTrue,
-        );
+      expect(expiredError.code, 'expired_token');
+      expect(expiredError.recoverable, isFalse);
+      expect(deadError.code, 'stream_not_found');
+      expect(deadError.recoverable, isFalse);
+      expect(
+        unsupportedResult.orchestrator.activeBackend,
+        PlaybackBackend.serverTranscode,
+      );
+      expect(
+        unsupportedResult
+            .gateway
+            .startedServerRequests
+            .single
+            .metadata['fallback_reason'],
+        'unsupported_codec',
+      );
+      expect(
+        unsupportedResult
+            .serverPlayer
+            .loadedSources
+            .single
+            .metadata['transcode_stream_id'],
+        startsWith('server-'),
+      );
+      expect(stalledError.code, 'transcode_stalled');
+      expect(stalledError.recoverable, isTrue);
+      expect(
+        stalledGateway.stoppedServerTranscodes.any(
+          (item) => item.contains('server-'),
+        ),
+        isTrue,
+      );
 
-        await unsupportedResult.dispose();
-      },
-    );
+      await unsupportedResult.dispose();
+    });
   });
 }
 

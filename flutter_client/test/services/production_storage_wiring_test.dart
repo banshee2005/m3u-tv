@@ -48,15 +48,12 @@ void main() {
   });
 
   test('desktop builds bundle secure storage and Linux installs libsecret', () {
-    final linuxPlugins = File(
-      'linux/flutter/generated_plugins.cmake',
-    ).readAsStringSync();
-    final windowsPlugins = File(
-      'windows/flutter/generated_plugins.cmake',
-    ).readAsStringSync();
-    final releaseWorkflow = File(
-      '../.github/workflows/release.yml',
-    ).readAsStringSync();
+    final linuxPlugins = File('linux/flutter/generated_plugins.cmake')
+        .readAsStringSync();
+    final windowsPlugins = File('windows/flutter/generated_plugins.cmake')
+        .readAsStringSync();
+    final releaseWorkflow = File('../.github/workflows/release.yml')
+        .readAsStringSync();
 
     expect(linuxPlugins, contains('flutter_secure_storage_linux'));
     expect(windowsPlugins, contains('flutter_secure_storage_windows'));

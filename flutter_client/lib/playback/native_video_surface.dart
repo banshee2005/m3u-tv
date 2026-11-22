@@ -202,10 +202,7 @@ class _NativePlaneHolePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..blendMode = BlendMode.clear,
-    );
+    canvas.drawRect(Offset.zero & size, Paint()..blendMode = BlendMode.clear);
   }
 
   @override

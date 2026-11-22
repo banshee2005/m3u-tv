@@ -293,36 +293,35 @@ void main() {
   });
 
   group('VodDetailsScreen - rich cast', () {
-    testWidgets(
-      'renders rich cast row when richCast is populated',
-      (tester) async {
-        await tester.pumpWidget(
-          _TestApp(
-            service: _VodDetailsXtreamService(
-              info: const VodInfo(
-                id: 201,
-                name: 'Big Buck Bunny',
-                cast: 'Bunny, Frank, Rinky',
-                richCast: <CastMember>[
-                  CastMember(name: 'Bunny', character: 'Frank'),
-                  CastMember(name: 'Big Buck', character: 'The Squirrel'),
-                ],
-              ),
+    testWidgets('renders rich cast row when richCast is populated', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _TestApp(
+          service: _VodDetailsXtreamService(
+            info: const VodInfo(
+              id: 201,
+              name: 'Big Buck Bunny',
+              cast: 'Bunny, Frank, Rinky',
+              richCast: <CastMember>[
+                CastMember(name: 'Bunny', character: 'Frank'),
+                CastMember(name: 'Big Buck', character: 'The Squirrel'),
+              ],
             ),
           ),
-        );
-        await tester.pumpAndSettle();
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        // Wide layout: the shared scrollable CastStrip, not the compact chip.
-        expect(find.byType(CastStrip), findsOneWidget);
-        expect(find.byType(CastMemberRow), findsNothing);
-        // Names also render as the resilient-image placeholder, so allow >1.
-        expect(find.text('Bunny'), findsWidgets);
-        expect(find.text('Big Buck'), findsWidgets);
-        expect(find.text('Frank'), findsOneWidget);
-        expect(find.text('The Squirrel'), findsOneWidget);
-      },
-    );
+      // Wide layout: the shared scrollable CastStrip, not the compact chip.
+      expect(find.byType(CastStrip), findsOneWidget);
+      expect(find.byType(CastMemberRow), findsNothing);
+      // Names also render as the resilient-image placeholder, so allow >1.
+      expect(find.text('Bunny'), findsWidgets);
+      expect(find.text('Big Buck'), findsWidgets);
+      expect(find.text('Frank'), findsOneWidget);
+      expect(find.text('The Squirrel'), findsOneWidget);
+    });
 
     testWidgets(
       'hides rich cast row when richCast is null (unpatched server)',
@@ -355,25 +354,24 @@ void main() {
       },
     );
 
-    testWidgets(
-      'hides rich cast row when richCast is empty list',
-      (tester) async {
-        await tester.pumpWidget(
-          _TestApp(
-            service: _VodDetailsXtreamService(
-              info: const VodInfo(
-                id: 201,
-                name: 'Big Buck Bunny',
-                richCast: <CastMember>[],
-              ),
+    testWidgets('hides rich cast row when richCast is empty list', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _TestApp(
+          service: _VodDetailsXtreamService(
+            info: const VodInfo(
+              id: 201,
+              name: 'Big Buck Bunny',
+              richCast: <CastMember>[],
             ),
           ),
-        );
-        await tester.pumpAndSettle();
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        expect(find.byType(CastMemberRow), findsNothing);
-      },
-    );
+      expect(find.byType(CastMemberRow), findsNothing);
+    });
 
     testWidgets(
       'narrow layout: rich cast picker chip opens bottom sheet listing all members',

@@ -24,17 +24,13 @@ void main() {
 
   testWidgets(
     'swiping the toast down dismisses it when swipeToDismiss is true',
-    (
-      tester,
-    ) async {
+    (tester) async {
       await pump(tester, swipeToDismiss: true);
       final key =
           find.byType(NotificationToastOverlay).evaluate().single.widget
               as NotificationToastOverlay;
       tester
-          .state<NotificationToastOverlayState>(
-            find.byWidget(key),
-          )
+          .state<NotificationToastOverlayState>(find.byWidget(key))
           .enqueue(item);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
@@ -56,9 +52,7 @@ void main() {
         find.byType(NotificationToastOverlay).evaluate().single.widget
             as NotificationToastOverlay;
     tester
-        .state<NotificationToastOverlayState>(
-          find.byWidget(key),
-        )
+        .state<NotificationToastOverlayState>(find.byWidget(key))
         .enqueue(item);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
@@ -86,9 +80,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     final restingBottom = tester.getBottomLeft(find.text('Hello')).dy;
 
-    final controller = ScaffoldMessenger.of(
-      scaffoldKey.currentContext!,
-    ).showSnackBar(const SnackBar(content: Text('Saved')));
+    final controller = ScaffoldMessenger.of(scaffoldKey.currentContext!)
+        .showSnackBar(const SnackBar(content: Text('Saved')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 

@@ -322,70 +322,67 @@ void main() {
     expect(find.text('Stale Noon News'), findsNothing);
   });
 
-  testWidgets(
-    'catchup row shows the show title, not the episode subtitle',
-    (tester) async {
-      final favorites = FavoritesService(memory: <String, Object?>{});
-      final now = DateTime.utc(2026, 1, 1, 12);
-      final epg = EpgService(clock: () => now)
-        ..loadPrograms([
-          EpgProgram(
-            channelId: 'news.epg',
-            title: 'The Simpsons',
-            subtitle: 'Aug 28 Episode',
-            description: 'Animated sitcom',
-            start: now.subtract(const Duration(hours: 3)),
-            end: now.subtract(const Duration(hours: 2)),
-          ),
-        ]);
-      const channels = [
-        Channel(
-          id: 101,
-          name: 'Route News',
-          streamUrl: 'https://example.com/news.m3u8',
-          epgChannelId: 'news.epg',
-          catchupSupported: true,
-          catchupDays: 7,
+  testWidgets('catchup row shows the show title, not the episode subtitle', (
+    tester,
+  ) async {
+    final favorites = FavoritesService(memory: <String, Object?>{});
+    final now = DateTime.utc(2026, 1, 1, 12);
+    final epg = EpgService(clock: () => now)
+      ..loadPrograms([
+        EpgProgram(
+          channelId: 'news.epg',
+          title: 'The Simpsons',
+          subtitle: 'Aug 28 Episode',
+          description: 'Animated sitcom',
+          start: now.subtract(const Duration(hours: 3)),
+          end: now.subtract(const Duration(hours: 2)),
         ),
-      ];
+      ]);
+    const channels = [
+      Channel(
+        id: 101,
+        name: 'Route News',
+        streamUrl: 'https://example.com/news.m3u8',
+        epgChannelId: 'news.epg',
+        catchupSupported: true,
+        catchupDays: 7,
+      ),
+    ];
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            isBootstrappingProvider.overrideWith((_) => false),
-            isConfiguredProvider.overrideWith((_) => true),
-            isLoadingContentProvider.overrideWith((_) => false),
-            catalogRepositoryProvider.overrideWith(
-              (_) => catalogWith(channels),
-            ),
-            liveCategoriesProvider.overrideWith((_) => const []),
-            epgServiceProvider.overrideWith((_) => epg),
-            dvrRecordingsProvider.overrideWith((_) => const []),
-            recordingChannelIdsProvider.overrideWith((_) => const <int>{}),
-          ],
-          child: MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: LiveTvScreen(
-              favoritesService: favorites,
-              onChannelSelect: (_) {},
-              useSidebarLayout: true,
-            ),
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          isBootstrappingProvider.overrideWith((_) => false),
+          isConfiguredProvider.overrideWith((_) => true),
+          isLoadingContentProvider.overrideWith((_) => false),
+          catalogRepositoryProvider.overrideWith((_) => catalogWith(channels)),
+          liveCategoriesProvider.overrideWith((_) => const []),
+          epgServiceProvider.overrideWith((_) => epg),
+          dvrRecordingsProvider.overrideWith((_) => const []),
+          recordingChannelIdsProvider.overrideWith((_) => const <int>{}),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: LiveTvScreen(
+            favoritesService: favorites,
+            onChannelSelect: (_) {},
+            useSidebarLayout: true,
           ),
         ),
-      );
-      await tester.pump();
+      ),
+    );
+    await tester.pump();
 
-      await tester.longPress(find.text('Route News'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Catchup shows'));
-      await tester.pumpAndSettle();
+    await tester.longPress(find.text('Route News'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Catchup shows'));
+    await tester.pumpAndSettle();
 
-      expect(find.text('The Simpsons'), findsOneWidget);
-      expect(find.textContaining('Aug 28 Episode'), findsOneWidget);
-      expect(find.textContaining('Aug 28 Episode · '), findsOneWidget);
-    },
-  );
+    expect(find.text('The Simpsons'), findsOneWidget);
+    expect(find.textContaining('Aug 28 Episode'), findsOneWidget);
+    expect(find.textContaining('Aug 28 Episode · '), findsOneWidget);
+  });
 
   testWidgets(
     'catchup row falls back to subtitle as label when title is blank',
@@ -511,78 +508,73 @@ void main() {
     },
   );
 
-  testWidgets(
-    'catchup dialog live-updates as history arrives',
-    (tester) async {
-      final favorites = FavoritesService(memory: <String, Object?>{});
-      final now = DateTime.utc(2026, 1, 1, 12);
-      final epg = EpgService(clock: () => now);
-      const channels = [
-        Channel(
-          id: 101,
-          name: 'Route News',
-          streamUrl: 'https://example.com/news.m3u8',
-          epgChannelId: 'news.epg',
-          catchupSupported: true,
-          catchupDays: 7,
-        ),
-      ];
-      final loadComplete = Completer<void>();
+  testWidgets('catchup dialog live-updates as history arrives', (tester) async {
+    final favorites = FavoritesService(memory: <String, Object?>{});
+    final now = DateTime.utc(2026, 1, 1, 12);
+    final epg = EpgService(clock: () => now);
+    const channels = [
+      Channel(
+        id: 101,
+        name: 'Route News',
+        streamUrl: 'https://example.com/news.m3u8',
+        epgChannelId: 'news.epg',
+        catchupSupported: true,
+        catchupDays: 7,
+      ),
+    ];
+    final loadComplete = Completer<void>();
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            isBootstrappingProvider.overrideWith((_) => false),
-            isConfiguredProvider.overrideWith((_) => true),
-            isLoadingContentProvider.overrideWith((_) => false),
-            catalogRepositoryProvider.overrideWith(
-              (_) => catalogWith(channels),
-            ),
-            liveCategoriesProvider.overrideWith((_) => const []),
-            epgServiceProvider.overrideWith((_) => epg),
-            dvrRecordingsProvider.overrideWith((_) => const []),
-            recordingChannelIdsProvider.overrideWith((_) => const <int>{}),
-          ],
-          child: MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: LiveTvScreen(
-              favoritesService: favorites,
-              onChannelSelect: (_) {},
-              useSidebarLayout: true,
-              onCatchupEpgRequested: (channel) => loadComplete.future,
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
-
-      await tester.longPress(find.text('Route News'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Catchup shows'));
-      await tester.pump();
-
-      expect(find.text('Loading catchup shows…'), findsOneWidget);
-
-      epg.mergePrograms(
-        [
-          EpgProgram(
-            channelId: 'news.epg',
-            title: 'Yesterday Plus',
-            description: 'News',
-            start: now.subtract(const Duration(hours: 27)),
-            end: now.subtract(const Duration(hours: 26)),
-          ),
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          isBootstrappingProvider.overrideWith((_) => false),
+          isConfiguredProvider.overrideWith((_) => true),
+          isLoadingContentProvider.overrideWith((_) => false),
+          catalogRepositoryProvider.overrideWith((_) => catalogWith(channels)),
+          liveCategoriesProvider.overrideWith((_) => const []),
+          epgServiceProvider.overrideWith((_) => epg),
+          dvrRecordingsProvider.overrideWith((_) => const []),
+          recordingChannelIdsProvider.overrideWith((_) => const <int>{}),
         ],
-        channelIds: const ['news.epg'],
-        replaceExisting: false,
-        markFresh: false,
-      );
-      loadComplete.complete();
-      await tester.pumpAndSettle();
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: LiveTvScreen(
+            favoritesService: favorites,
+            onChannelSelect: (_) {},
+            useSidebarLayout: true,
+            onCatchupEpgRequested: (channel) => loadComplete.future,
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
 
-      expect(find.text('Yesterday Plus'), findsOneWidget);
-      expect(find.text('No catchup shows available'), findsNothing);
-    },
-  );
+    await tester.longPress(find.text('Route News'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Catchup shows'));
+    await tester.pump();
+
+    expect(find.text('Loading catchup shows…'), findsOneWidget);
+
+    epg.mergePrograms(
+      [
+        EpgProgram(
+          channelId: 'news.epg',
+          title: 'Yesterday Plus',
+          description: 'News',
+          start: now.subtract(const Duration(hours: 27)),
+          end: now.subtract(const Duration(hours: 26)),
+        ),
+      ],
+      channelIds: const ['news.epg'],
+      replaceExisting: false,
+      markFresh: false,
+    );
+    loadComplete.complete();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Yesterday Plus'), findsOneWidget);
+    expect(find.text('No catchup shows available'), findsNothing);
+  });
 }

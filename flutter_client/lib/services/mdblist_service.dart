@@ -73,8 +73,9 @@ class MdblistResponse {
   };
 }
 
-typedef MdblistTransport =
-    Future<MdblistResponse> Function(MdblistRequest request);
+typedef MdblistTransport = Future<MdblistResponse> Function(
+  MdblistRequest request,
+);
 
 /// Looks up the signed-in account's display name for an access token.
 typedef MdblistAccountNameLookup = Future<String?> Function(String accessToken);
@@ -496,11 +497,7 @@ class MdblistService extends ChangeNotifier implements WatchHistoryService {
     final token = _accessToken;
     if (token == null) return null;
     return _send(
-      MdblistRequest(
-        path: '/scrobble/$action',
-        json: body,
-        accessToken: token,
-      ),
+      MdblistRequest(path: '/scrobble/$action', json: body, accessToken: token),
     );
   }
 

@@ -81,9 +81,8 @@ class _StoragePageState extends State<StoragePage> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _clearPlaylist(PlaylistStorage entry, String name) async {
@@ -169,9 +168,8 @@ class _StoragePageState extends State<StoragePage> {
           for (final count in _storage.cachedPlaylistLimitOptions)
             SettingsPickerOption(
               value: count,
-              label: AppLocalizations.of(
-                context,
-              ).settingsStorageKeepPlaylistsValue(count),
+              label: AppLocalizations.of(context)
+                  .settingsStorageKeepPlaylistsValue(count),
             ),
         ],
         selected: _storage.cachedPlaylistLimit(),

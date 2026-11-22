@@ -148,9 +148,7 @@ class OnlineSubtitleService {
       await _deleteOldFiles(directory);
       // The id comes from the add-on, so keep it out of the path's structure.
       final safeId = subtitle.id.replaceAll(RegExp('[^A-Za-z0-9_-]'), '_');
-      final file = File(
-        '${directory.path}/$safeId.${subtitle.fileExtension}',
-      );
+      final file = File('${directory.path}/$safeId.${subtitle.fileExtension}');
       await file.writeAsBytes(bytes, flush: true);
       return file.path;
     } on OnlineSubtitleException {

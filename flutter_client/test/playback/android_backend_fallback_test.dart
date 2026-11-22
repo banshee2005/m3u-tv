@@ -140,148 +140,131 @@ void main() {
       await adapter.dispose();
     });
 
-    test(
-      'uses server transcode for unsupported codec fixtures',
-      () async {
-        final adapter = AndroidPlaybackAdapter(
-          probe: const AndroidPlaybackProbe(
-            hardwareCodecs: <VideoCodec>{VideoCodec.h264},
-            passthroughAudioCodecs: <AudioCodec>{AudioCodec.aac},
-            serverTranscodeAvailable: true,
-          ),
-        );
-        final states = <PlaybackState>[];
-        final subscription = adapter.onState.listen(states.add);
+    test('uses server transcode for unsupported codec fixtures', () async {
+      final adapter = AndroidPlaybackAdapter(
+        probe: const AndroidPlaybackProbe(
+          hardwareCodecs: <VideoCodec>{VideoCodec.h264},
+          passthroughAudioCodecs: <AudioCodec>{AudioCodec.aac},
+          serverTranscodeAvailable: true,
+        ),
+      );
+      final states = <PlaybackState>[];
+      final subscription = adapter.onState.listen(states.add);
 
-        await adapter.load(
-          const PlaybackSource(
-            uri: 'https://fixtures.example/unsupported-hevc-dts.mkv',
-            title: 'Unsupported HEVC + DTS fixture',
-            videoCodec: 'hevc',
-            audioCodec: 'dts',
-          ),
-        );
-        await adapter.play();
+      await adapter.load(
+        const PlaybackSource(
+          uri: 'https://fixtures.example/unsupported-hevc-dts.mkv',
+          title: 'Unsupported HEVC + DTS fixture',
+          videoCodec: 'hevc',
+          audioCodec: 'dts',
+        ),
+      );
+      await adapter.play();
 
-        expect(adapter.activeBackend, PlaybackBackend.serverTranscode);
-        expect(
-          states.map((state) => state.backend),
-          contains(PlaybackBackend.serverTranscode),
-        );
-        expect(
-          adapter.decisionLog,
-          contains('fallback:server-transcode:unsupported-codec'),
-        );
+      expect(adapter.activeBackend, PlaybackBackend.serverTranscode);
+      expect(
+        states.map((state) => state.backend),
+        contains(PlaybackBackend.serverTranscode),
+      );
+      expect(
+        adapter.decisionLog,
+        contains('fallback:server-transcode:unsupported-codec'),
+      );
 
-        await subscription.cancel();
-        await adapter.dispose();
-      },
-    );
+      await subscription.cancel();
+      await adapter.dispose();
+    });
 
-    test(
-      'uses server transcode for decoder failures',
-      () async {
-        final adapter = AndroidPlaybackAdapter(
-          probe: const AndroidPlaybackProbe(
-            hardwareCodecs: <VideoCodec>{VideoCodec.h264},
-            passthroughAudioCodecs: <AudioCodec>{AudioCodec.aac},
-            serverTranscodeAvailable: true,
-          ),
-        );
+    test('uses server transcode for decoder failures', () async {
+      final adapter = AndroidPlaybackAdapter(
+        probe: const AndroidPlaybackProbe(
+          hardwareCodecs: <VideoCodec>{VideoCodec.h264},
+          passthroughAudioCodecs: <AudioCodec>{AudioCodec.aac},
+          serverTranscodeAvailable: true,
+        ),
+      );
 
-        await adapter.load(
-          const PlaybackSource(
-            uri: 'https://fixtures.example/black-screen-h264.ts',
-            videoCodec: 'h264',
-            audioCodec: 'aac',
-            metadata: <String, Object?>{'decoderFailure': 'black-screen'},
-          ),
-        );
+      await adapter.load(
+        const PlaybackSource(
+          uri: 'https://fixtures.example/black-screen-h264.ts',
+          videoCodec: 'h264',
+          audioCodec: 'aac',
+          metadata: <String, Object?>{'decoderFailure': 'black-screen'},
+        ),
+      );
 
-        expect(adapter.activeBackend, PlaybackBackend.serverTranscode);
-        expect(
-          adapter.decisionLog,
-          contains('fallback:server-transcode:black-screen'),
-        );
+      expect(adapter.activeBackend, PlaybackBackend.serverTranscode);
+      expect(
+        adapter.decisionLog,
+        contains('fallback:server-transcode:black-screen'),
+      );
 
-        await adapter.dispose();
-      },
-    );
+      await adapter.dispose();
+    });
 
-    test(
-      'uses server transcode for audio codec mismatch and typed unsupported error when unavailable',
-      () async {
-        final serverAdapter = AndroidPlaybackAdapter(
-          probe: const AndroidPlaybackProbe(
-            hardwareCodecs: <VideoCodec>{VideoCodec.h264},
-            passthroughAudioCodecs: <AudioCodec>{AudioCodec.aac},
-            serverTranscodeAvailable: true,
-          ),
-        );
+    test('uses server transcode for audio codec mismatch and typed unsupported error when unavailable', () async {
+      final serverAdapter = AndroidPlaybackAdapter(
+        probe: const AndroidPlaybackProbe(
+          hardwareCodecs: <VideoCodec>{VideoCodec.h264},
+          passthroughAudioCodecs: <AudioCodec>{AudioCodec.aac},
+          serverTranscodeAvailable: true,
+        ),
+      );
 
-        await serverAdapter.load(
+      await serverAdapter.load(
+        const PlaybackSource(
+          uri: 'https://fixtures.example/unsupported-dts.mkv',
+          videoCodec: 'h264',
+          audioCodec: 'dts',
+        ),
+      );
+
+      expect(serverAdapter.activeBackend, PlaybackBackend.serverTranscode);
+      expect(
+        serverAdapter.decisionLog,
+        contains('fallback:server-transcode:unsupported-codec'),
+      );
+
+      final unsupportedAdapter = AndroidPlaybackAdapter(
+        probe: const AndroidPlaybackProbe(
+          hardwareCodecs: <VideoCodec>{VideoCodec.h264},
+          passthroughAudioCodecs: <AudioCodec>{AudioCodec.aac},
+          serverTranscodeAvailable: false,
+        ),
+      );
+      final errors = <PlaybackError>[];
+      final subscription = unsupportedAdapter.onError.listen(errors.add);
+
+      await expectLater(
+        unsupportedAdapter.load(
           const PlaybackSource(
             uri: 'https://fixtures.example/unsupported-dts.mkv',
             videoCodec: 'h264',
             audioCodec: 'dts',
           ),
-        );
+        ),
+        throwsA(
+          isA<PlaybackException>()
+              .having((error) => error.code, 'code', 'unsupported')
+              .having((error) => error.recoverable, 'recoverable', isTrue),
+        ),
+      );
+      await pumpEventQueue();
+      expect(
+        unsupportedAdapter.activeBackend,
+        PlaybackBackend.androidExoPlayer,
+      );
+      expect(errors.single.code, 'unsupported');
+      expect(errors.single.recoverable, isTrue);
+      expect(
+        unsupportedAdapter.decisionLog,
+        contains('error:unsupported:unsupported-codec'),
+      );
 
-        expect(serverAdapter.activeBackend, PlaybackBackend.serverTranscode);
-        expect(
-          serverAdapter.decisionLog,
-          contains('fallback:server-transcode:unsupported-codec'),
-        );
-
-        final unsupportedAdapter = AndroidPlaybackAdapter(
-          probe: const AndroidPlaybackProbe(
-            hardwareCodecs: <VideoCodec>{VideoCodec.h264},
-            passthroughAudioCodecs: <AudioCodec>{AudioCodec.aac},
-            serverTranscodeAvailable: false,
-          ),
-        );
-        final errors = <PlaybackError>[];
-        final subscription = unsupportedAdapter.onError.listen(errors.add);
-
-        await expectLater(
-          unsupportedAdapter.load(
-            const PlaybackSource(
-              uri: 'https://fixtures.example/unsupported-dts.mkv',
-              videoCodec: 'h264',
-              audioCodec: 'dts',
-            ),
-          ),
-          throwsA(
-            isA<PlaybackException>()
-                .having(
-                  (error) => error.code,
-                  'code',
-                  'unsupported',
-                )
-                .having(
-                  (error) => error.recoverable,
-                  'recoverable',
-                  isTrue,
-                ),
-          ),
-        );
-        await pumpEventQueue();
-        expect(
-          unsupportedAdapter.activeBackend,
-          PlaybackBackend.androidExoPlayer,
-        );
-        expect(errors.single.code, 'unsupported');
-        expect(errors.single.recoverable, isTrue);
-        expect(
-          unsupportedAdapter.decisionLog,
-          contains('error:unsupported:unsupported-codec'),
-        );
-
-        await subscription.cancel();
-        await serverAdapter.dispose();
-        await unsupportedAdapter.dispose();
-      },
-    );
+      await subscription.cancel();
+      await serverAdapter.dispose();
+      await unsupportedAdapter.dispose();
+    });
 
     test(
       'maps native Media3 track events and forwards track selection',
@@ -350,39 +333,36 @@ void main() {
       },
     );
 
-    test(
-      'forwards finite positive playback speed to Media3 without updating invalid state',
-      () async {
-        final host = _FakeAndroidMedia3Host();
-        final adapter = AndroidPlaybackAdapter(
-          probe: const AndroidPlaybackProbe(
-            hardwareCodecs: <VideoCodec>{VideoCodec.h264},
-            passthroughAudioCodecs: <AudioCodec>{AudioCodec.aac},
-            serverTranscodeAvailable: false,
-          ),
-          media3Host: host,
-        );
-        final states = <PlaybackState>[];
-        final subscription = adapter.onState.listen(states.add);
+    test('forwards finite positive playback speed to Media3 without updating invalid state', () async {
+      final host = _FakeAndroidMedia3Host();
+      final adapter = AndroidPlaybackAdapter(
+        probe: const AndroidPlaybackProbe(
+          hardwareCodecs: <VideoCodec>{VideoCodec.h264},
+          passthroughAudioCodecs: <AudioCodec>{AudioCodec.aac},
+          serverTranscodeAvailable: false,
+        ),
+        media3Host: host,
+      );
+      final states = <PlaybackState>[];
+      final subscription = adapter.onState.listen(states.add);
 
-        await adapter.setPlaybackSpeed(1.25);
-        await pumpEventQueue();
+      await adapter.setPlaybackSpeed(1.25);
+      await pumpEventQueue();
 
-        expect(host.commands, <String>['setPlaybackSpeed:1.25']);
-        expect(states.single.playbackSpeed, 1.25);
+      expect(host.commands, <String>['setPlaybackSpeed:1.25']);
+      expect(states.single.playbackSpeed, 1.25);
 
-        await expectLater(
-          adapter.setPlaybackSpeed(double.nan),
-          throwsArgumentError,
-        );
-        expect(host.commands, <String>['setPlaybackSpeed:1.25']);
-        expect(states, hasLength(1));
-        expect(states.single.playbackSpeed, 1.25);
+      await expectLater(
+        adapter.setPlaybackSpeed(double.nan),
+        throwsArgumentError,
+      );
+      expect(host.commands, <String>['setPlaybackSpeed:1.25']);
+      expect(states, hasLength(1));
+      expect(states.single.playbackSpeed, 1.25);
 
-        await subscription.cancel();
-        await adapter.dispose();
-      },
-    );
+      await subscription.cancel();
+      await adapter.dispose();
+    });
 
     test(
       'maps ExoPlayer commands and typed native events through Media3 host',

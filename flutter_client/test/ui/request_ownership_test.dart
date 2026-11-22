@@ -74,9 +74,8 @@ void main() {
     final router = await _pumpDetail(tester, fixture.controller);
     addTearDown(router.dispose);
     final detailContext = tester.element(find.byType(RequestDetailScreen));
-    final requestLabel = AppLocalizations.of(
-      detailContext,
-    ).requestsRequestButton;
+    final requestLabel = AppLocalizations.of(detailContext)
+        .requestsRequestButton;
     final requestButton = find.text(requestLabel);
     expect(requestButton, findsOneWidget);
 

@@ -107,9 +107,8 @@ class ListPickerSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewportHeight = MediaQuery.sizeOf(context).height;
     final scheme = Theme.of(context).colorScheme;
-    final titleStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
-      color: scheme.onSurface,
-    );
+    final titleStyle = Theme.of(context).textTheme.titleLarge
+        ?.copyWith(color: scheme.onSurface);
     // Same metric split as the season picker: 70% cap in the sheet,
     // 65% + visible thumb + tighter bottom padding in the dialog.
     final maxListHeight = viewportHeight * (asDialog ? 0.65 : 0.7);

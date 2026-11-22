@@ -310,9 +310,8 @@ class _AIOStreamsSearchEntry extends StatelessWidget {
             Expanded(
               child: Text(
                 hintText,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.bodyLarge
+                    ?.copyWith(color: colorScheme.onSurfaceVariant),
               ),
             ),
           ],
@@ -368,9 +367,8 @@ class _AIOStreamsHomeScreenState extends State<AIOStreamsHomeScreen> {
 
   Set<String> get _favoriteIds => _favorites.map((f) => f.id).toSet();
 
-  bool get _hasSearchableCatalog => widget.integrations.any(
-    (i) => i.catalogs.any((c) => c.searchable),
-  );
+  bool get _hasSearchableCatalog =>
+      widget.integrations.any((i) => i.catalogs.any((c) => c.searchable));
 
   @override
   void initState() {
@@ -520,9 +518,7 @@ class _AIOStreamsHomeScreenState extends State<AIOStreamsHomeScreen> {
     final l = AppLocalizations.of(context);
 
     if (widget.integrations.isEmpty) {
-      return Scaffold(
-        body: Center(child: Text(l.aiostrreamsCatalogEmpty)),
-      );
+      return Scaffold(body: Center(child: Text(l.aiostrreamsCatalogEmpty)));
     }
 
     final continueWatching = widget.progressList
@@ -708,11 +704,7 @@ class AIOStreamsCatalogRow extends StatefulWidget {
 
 class _AIOStreamsCatalogRowState extends State<AIOStreamsCatalogRow> {
   late final Future<List<AIOStreamsItem>> _future = widget.apiService
-      .getCatalog(
-        widget.integrationId,
-        widget.catalog.type,
-        widget.catalog.id,
-      );
+      .getCatalog(widget.integrationId, widget.catalog.type, widget.catalog.id);
 
   @override
   Widget build(BuildContext context) {

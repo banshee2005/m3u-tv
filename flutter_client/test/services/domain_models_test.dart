@@ -195,9 +195,7 @@ void main() {
   group('VodInfo.edlUrl from get_vod_info', () {
     test('reads edl_url nested under info (DVR-backed movie)', () {
       final info = VodInfo.fromXtream(<String, Object?>{
-        'info': {
-          'edl_url': 'https://xtream.example/dvr/movie/edl',
-        },
+        'info': {'edl_url': 'https://xtream.example/dvr/movie/edl'},
         'movie_data': {
           'stream_id': 201,
           'name': 'Recorded Movie',
@@ -348,14 +346,11 @@ void main() {
       expect(ep.subtitle, isNull);
     });
 
-    test(
-      'subtitle with an unexpected non-string JSON type is coerced instead '
-      'of throwing',
-      () {
-        final ep = EpgShowEpisode.fromXtream(baseJson(subtitle: 42));
-        expect(ep.subtitle, '42');
-      },
-    );
+    test('subtitle with an unexpected non-string JSON type is coerced instead '
+        'of throwing', () {
+      final ep = EpgShowEpisode.fromXtream(baseJson(subtitle: 42));
+      expect(ep.subtitle, '42');
+    });
   });
 
   // m3u-tv #263: XMLTV <sub-title> is often a segment/topic, not an episode

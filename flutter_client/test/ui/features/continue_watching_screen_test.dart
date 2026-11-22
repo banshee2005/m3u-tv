@@ -153,9 +153,7 @@ void main() {
       expect(selectedProgress!.streamId, 10);
     });
 
-    testWidgets('only shows items with position > 30 seconds', (
-      tester,
-    ) async {
+    testWidgets('only shows items with position > 30 seconds', (tester) async {
       final shortProgress = [
         const Progress(
           viewerId: 'v1',

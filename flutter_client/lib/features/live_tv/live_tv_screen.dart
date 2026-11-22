@@ -356,10 +356,7 @@ class _LiveTvScreenState extends ConsumerState<LiveTvScreen>
             final seekable = streamUrl.contains('timeshift=1');
             return applyPlayerSourceSettings(
               args
-                  .copyWith(
-                    streamUrl: streamUrl,
-                    seekableLive: seekable,
-                  )
+                  .copyWith(streamUrl: streamUrl, seekableLive: seekable)
                   .toPlaybackSource(),
               settings,
             );
@@ -413,9 +410,7 @@ class _LiveTvScreenState extends ConsumerState<LiveTvScreen>
     }
     if (!mounted) return;
     widget.onChannelContextChanged?.call(
-      _channelContext(
-        index: _window.indexWhere((row) => row.id == channel.id),
-      ),
+      _channelContext(index: _window.indexWhere((row) => row.id == channel.id)),
     );
     widget.onChannelSelect(channel);
   }
@@ -841,17 +836,16 @@ class _LiveTvScreenState extends ConsumerState<LiveTvScreen>
                           ? Icons.stop_circle
                           : Icons.fiber_manual_record,
                       label: activeRecording != null
-                          ? AppLocalizations.of(
-                              dialogContext,
-                            ).liveTvStopRecording
+                          ? AppLocalizations.of(dialogContext)
+                                .liveTvStopRecording
                           : AppLocalizations.of(dialogContext).liveTvRecord,
                       subtitle: activeRecording != null
                           ? null
                           : recordableProgram?.displayTitle,
                       autofocus: true,
-                      onTap: () => Navigator.of(
-                        dialogContext,
-                      ).pop(_ChannelContextAction.record),
+                      onTap: () =>
+                          Navigator.of(dialogContext)
+                              .pop(_ChannelContextAction.record),
                     ),
                   if (hasSeriesRule)
                     _ContextMenuOption(
@@ -859,31 +853,29 @@ class _LiveTvScreenState extends ConsumerState<LiveTvScreen>
                       label: AppLocalizations.of(dialogContext).epgRecordSeries,
                       subtitle: recordableProgram.title,
                       autofocus: !hasRecord,
-                      onTap: () => Navigator.of(
-                        dialogContext,
-                      ).pop(_ChannelContextAction.recordSeries),
+                      onTap: () =>
+                          Navigator.of(dialogContext)
+                              .pop(_ChannelContextAction.recordSeries),
                     ),
                   _ContextMenuOption(
                     icon: isFavorite ? Icons.star : Icons.star_border,
                     label: isFavorite
-                        ? AppLocalizations.of(
-                            dialogContext,
-                          ).liveTvRemoveFavorite
+                        ? AppLocalizations.of(dialogContext)
+                              .liveTvRemoveFavorite
                         : AppLocalizations.of(dialogContext).liveTvFavorite,
                     autofocus: !hasRecord && !hasSeriesRule,
-                    onTap: () => Navigator.of(
-                      dialogContext,
-                    ).pop(_ChannelContextAction.toggleFavorite),
+                    onTap: () =>
+                        Navigator.of(dialogContext)
+                            .pop(_ChannelContextAction.toggleFavorite),
                   ),
                   if (channel.catchupSupported)
                     _ContextMenuOption(
                       icon: Icons.video_library,
-                      label: AppLocalizations.of(
-                        dialogContext,
-                      ).liveTvCatchupShows,
-                      onTap: () => Navigator.of(
-                        dialogContext,
-                      ).pop(_ChannelContextAction.catchupShows),
+                      label: AppLocalizations.of(dialogContext)
+                          .liveTvCatchupShows,
+                      onTap: () =>
+                          Navigator.of(dialogContext)
+                              .pop(_ChannelContextAction.catchupShows),
                     ),
                   if (multiviewSupported)
                     _ContextMenuOption(
@@ -891,15 +883,13 @@ class _LiveTvScreenState extends ConsumerState<LiveTvScreen>
                           ? Icons.grid_view
                           : Icons.grid_view_outlined,
                       label: isInMultiview
-                          ? AppLocalizations.of(
-                              dialogContext,
-                            ).liveTvRemoveMultiview
-                          : AppLocalizations.of(
-                              dialogContext,
-                            ).liveTvAddMultiview,
-                      onTap: () => Navigator.of(
-                        dialogContext,
-                      ).pop(_ChannelContextAction.toggleMultiview),
+                          ? AppLocalizations.of(dialogContext)
+                                .liveTvRemoveMultiview
+                          : AppLocalizations.of(dialogContext)
+                                .liveTvAddMultiview,
+                      onTap: () =>
+                          Navigator.of(dialogContext)
+                              .pop(_ChannelContextAction.toggleMultiview),
                     ),
                   _ContextMenuOption(
                     icon: Icons.close,

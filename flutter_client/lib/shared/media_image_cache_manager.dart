@@ -98,10 +98,7 @@ Future<int?> mediaImageCacheBytes() async {
   }
   try {
     final directory = Directory(
-      p.join(
-        (await getTemporaryDirectory()).path,
-        MediaImageCacheManager._key,
-      ),
+      p.join((await getTemporaryDirectory()).path, MediaImageCacheManager._key),
     );
     if (!await directory.exists()) return 0;
     var total = 0;

@@ -299,10 +299,7 @@ class _PersonDetailBodyState extends State<_PersonDetailBody> {
                   final availableWidth =
                       constraints.crossAxisExtent -
                       MediaBrowsingMetrics.contentPadding * 2;
-                  final columnCount = _posterColumnCount(
-                    availableWidth,
-                    scale,
-                  );
+                  final columnCount = _posterColumnCount(availableWidth, scale);
                   return SliverPadding(
                     padding: const EdgeInsets.all(
                       MediaBrowsingMetrics.contentPadding,

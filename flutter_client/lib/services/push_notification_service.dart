@@ -14,9 +14,8 @@ class PushMessage {
 
   final Map<String, String> data;
 
-  String? get notificationId => canonicalNotificationId(
-    data['notification_id'],
-  );
+  String? get notificationId =>
+      canonicalNotificationId(data['notification_id']);
 }
 
 abstract interface class PushMessagingClient {
@@ -77,9 +76,7 @@ class FirebasePushMessagingClient implements PushMessagingClient {
   }
 
   PushMessage _fromRemoteMessage(RemoteMessage message) => PushMessage(
-    data: message.data.map(
-      (key, value) => MapEntry(key, '$value'),
-    ),
+    data: message.data.map((key, value) => MapEntry(key, '$value')),
   );
 }
 

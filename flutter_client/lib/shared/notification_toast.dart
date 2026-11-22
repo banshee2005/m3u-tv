@@ -230,11 +230,8 @@ class _NotificationToastState extends State<_NotificationToast>
     );
 
     _opacity = CurvedAnimation(parent: _enterController, curve: Curves.easeOut);
-    _slide =
-        Tween<Offset>(
-          begin: const Offset(0, 0.25),
-          end: Offset.zero,
-        ).animate(
+    _slide = Tween<Offset>(begin: const Offset(0, 0.25), end: Offset.zero)
+        .animate(
           CurvedAnimation(parent: _enterController, curve: Curves.easeOutCubic),
         );
 

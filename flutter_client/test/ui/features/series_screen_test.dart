@@ -124,9 +124,9 @@ void main() {
             ],
           ),
         );
-        ProviderScope.containerOf(
-          tester.element(find.byType(SeriesScreen)),
-        ).read(categoriesState.notifier).state = const <Category>[
+        ProviderScope.containerOf(tester.element(find.byType(SeriesScreen)))
+            .read(categoriesState.notifier)
+            .state = const <Category>[
           Category(id: '50', name: 'Space'),
         ];
         await tester.pump();
@@ -404,28 +404,27 @@ void main() {
       },
     );
 
-    testWidgets(
-      'mobile layout renders a Sort button next to Filter',
-      (tester) async {
-        final repo = await _buildRepo(tester, testSeriesList);
-        await tester.pumpWidget(
-          _TestApp(
-            catalogRepository: repo,
-            categories: testCategories,
-            useSidebarLayout: false,
-          ),
-        );
-        await tester.pumpAndSettle();
+    testWidgets('mobile layout renders a Sort button next to Filter', (
+      tester,
+    ) async {
+      final repo = await _buildRepo(tester, testSeriesList);
+      await tester.pumpWidget(
+        _TestApp(
+          catalogRepository: repo,
+          categories: testCategories,
+          useSidebarLayout: false,
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        expect(find.text('Filter'), findsOneWidget);
-        expect(find.text('Sort'), findsOneWidget);
+      expect(find.text('Filter'), findsOneWidget);
+      expect(find.text('Sort'), findsOneWidget);
 
-        await tester.tap(find.byIcon(Icons.sort));
-        await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.sort));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Sort Series By'), findsOneWidget);
-      },
-    );
+      expect(find.text('Sort Series By'), findsOneWidget);
+    });
   });
 
   // ---------------------------------------------------------------------
@@ -457,11 +456,7 @@ void main() {
           rating: 7,
           year: '1999',
         ),
-        Series(
-          id: 3,
-          name: 'CCCC Unrated',
-          categoryId: '20',
-        ),
+        Series(id: 3, name: 'CCCC Unrated', categoryId: '20'),
         Series(
           id: 4,
           name: 'DDDD Third',
@@ -482,9 +477,7 @@ void main() {
       };
       return tester
           .widgetList<Text>(find.byType(Text))
-          .where(
-            (text) => text.data != null && knownNames.contains(text.data),
-          )
+          .where((text) => text.data != null && knownNames.contains(text.data))
           .map((text) => text.data!)
           .toList();
     }

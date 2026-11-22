@@ -37,12 +37,8 @@ class ReverbConfig {
     appKey: '${json['app_key'] ?? ''}',
   );
 
-  Uri get wsUri => Uri(
-    scheme: scheme,
-    host: host,
-    port: port,
-    path: '/app/$appKey',
-  );
+  Uri get wsUri =>
+      Uri(scheme: scheme, host: host, port: port, path: '/app/$appKey');
 }
 
 /// A notification channel defined in the m3u-editor settings.

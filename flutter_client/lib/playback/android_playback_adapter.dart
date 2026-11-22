@@ -567,13 +567,11 @@ class MethodChannelAndroidMedia3Host implements AndroidMedia3Host {
   });
 
   @override
-  Future<void> seek(Duration position) => _method.invokeMethod<void>(
-    'seek',
-    <String, Object?>{
-      'playerId': playerId,
-      'positionMs': position.inMilliseconds,
-    },
-  );
+  Future<void> seek(Duration position) =>
+      _method.invokeMethod<void>('seek', <String, Object?>{
+        'playerId': playerId,
+        'positionMs': position.inMilliseconds,
+      });
 
   @override
   Future<void> stop() => _method.invokeMethod<void>('stop', <String, Object?>{
@@ -581,18 +579,16 @@ class MethodChannelAndroidMedia3Host implements AndroidMedia3Host {
   });
 
   @override
-  Future<void> setAudioTrack(String? trackId) =>
-      _method.invokeMethod<void>('setAudioTrack', <String, Object?>{
-        'playerId': playerId,
-        'trackId': trackId,
-      });
+  Future<void> setAudioTrack(String? trackId) => _method.invokeMethod<void>(
+    'setAudioTrack',
+    <String, Object?>{'playerId': playerId, 'trackId': trackId},
+  );
 
   @override
-  Future<void> setSubtitleTrack(String? trackId) =>
-      _method.invokeMethod<void>('setSubtitleTrack', <String, Object?>{
-        'playerId': playerId,
-        'trackId': trackId,
-      });
+  Future<void> setSubtitleTrack(String? trackId) => _method.invokeMethod<void>(
+    'setSubtitleTrack',
+    <String, Object?>{'playerId': playerId, 'trackId': trackId},
+  );
 
   @override
   Future<void> addExternalSubtitle(ExternalSubtitle subtitle) =>
@@ -604,11 +600,10 @@ class MethodChannelAndroidMedia3Host implements AndroidMedia3Host {
       });
 
   @override
-  Future<void> setPlaybackSpeed(double speed) =>
-      _method.invokeMethod<void>('setPlaybackSpeed', <String, Object?>{
-        'playerId': playerId,
-        'speed': speed,
-      });
+  Future<void> setPlaybackSpeed(double speed) => _method.invokeMethod<void>(
+    'setPlaybackSpeed',
+    <String, Object?>{'playerId': playerId, 'speed': speed},
+  );
 
   @override
   Future<void> setSyncOffset({
@@ -621,11 +616,10 @@ class MethodChannelAndroidMedia3Host implements AndroidMedia3Host {
   });
 
   @override
-  Future<void> setVolume(double volume) =>
-      _method.invokeMethod<void>('setVolume', <String, Object?>{
-        'playerId': playerId,
-        'volume': volume,
-      });
+  Future<void> setVolume(double volume) => _method.invokeMethod<void>(
+    'setVolume',
+    <String, Object?>{'playerId': playerId, 'volume': volume},
+  );
 
   @override
   Future<void> setAllowDisplayModeChanges(bool allowed) =>

@@ -161,9 +161,7 @@ void main() {
         ],
       );
 
-      testWidgets('shows both credits by default (switch off)', (
-        tester,
-      ) async {
+      testWidgets('shows both credits by default (switch off)', (tester) async {
         await tester.pumpWidget(
           _TestApp(
             service: _PersonDetailXtreamService(filmography: filmography),
@@ -175,10 +173,7 @@ void main() {
           tester.element(find.byType(PersonDetailScreen)),
         );
         expect(find.text(l.personDetailsFilterInLibrary), findsOneWidget);
-        expect(
-          tester.widget<Switch>(find.byType(Switch)).value,
-          isFalse,
-        );
+        expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
         expect(find.text('Fight Club'), findsOneWidget);
         expect(find.text('Game of Thrones'), findsOneWidget);
       });

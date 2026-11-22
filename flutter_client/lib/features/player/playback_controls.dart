@@ -433,9 +433,8 @@ class PlaybackControls extends StatelessWidget {
             Text(
               seekUnavailableMessage!,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.white70,
-              ),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: Colors.white70),
             ),
           if ((showProgressBar && canSeek) || seekUnavailableMessage != null)
             SizedBox(height: compact ? 6 : 12),

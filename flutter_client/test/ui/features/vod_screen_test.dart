@@ -210,9 +210,10 @@ void main() {
             items: reloadedItems,
           ),
         );
-        ProviderScope.containerOf(
-          tester.element(find.byType(VodScreen)),
-        ).read(categoriesState.notifier).state = reloadedCategories;
+        ProviderScope.containerOf(tester.element(find.byType(VodScreen)))
+                .read(categoriesState.notifier)
+                .state =
+            reloadedCategories;
         await tester.pump();
         await tester.runAsync(
           () => Future<void>.delayed(const Duration(milliseconds: 50)),
@@ -661,9 +662,7 @@ void main() {
       };
       return tester
           .widgetList<Text>(find.byType(Text))
-          .where(
-            (text) => text.data != null && knownNames.contains(text.data),
-          )
+          .where((text) => text.data != null && knownNames.contains(text.data))
           .map((text) => text.data!)
           .toList();
     }
@@ -673,10 +672,7 @@ void main() {
       (tester) async {
         final repo = await _buildRepo(tester, sortItems);
         await tester.pumpWidget(
-          _TestApp(
-            catalogRepository: repo,
-            categories: sortCategories,
-          ),
+          _TestApp(catalogRepository: repo, categories: sortCategories),
         );
         await tester.pumpAndSettle();
 
@@ -695,10 +691,7 @@ void main() {
       (tester) async {
         final repo = await _buildRepo(tester, sortItems);
         await tester.pumpWidget(
-          _TestApp(
-            catalogRepository: repo,
-            categories: sortCategories,
-          ),
+          _TestApp(catalogRepository: repo, categories: sortCategories),
         );
         await tester.pumpAndSettle();
 
@@ -724,50 +717,41 @@ void main() {
       },
     );
 
-    testWidgets(
-      'selecting Default reverts to the original server order',
-      (
-        tester,
-      ) async {
-        final repo = await _buildRepo(tester, sortItems);
-        await tester.pumpWidget(
-          _TestApp(
-            catalogRepository: repo,
-            categories: sortCategories,
-          ),
-        );
-        await tester.pumpAndSettle();
+    testWidgets('selecting Default reverts to the original server order', (
+      tester,
+    ) async {
+      final repo = await _buildRepo(tester, sortItems);
+      await tester.pumpWidget(
+        _TestApp(catalogRepository: repo, categories: sortCategories),
+      );
+      await tester.pumpAndSettle();
 
-        // Apply Rating first so we have something to revert.
-        await tester.tap(find.byIcon(Icons.sort));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Rating'));
-        await tester.pumpAndSettle();
+      // Apply Rating first so we have something to revert.
+      await tester.tap(find.byIcon(Icons.sort));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Rating'));
+      await tester.pumpAndSettle();
 
-        // Now switch back to Default.
-        await tester.tap(find.byIcon(Icons.sort));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Default'));
-        await tester.pumpAndSettle();
+      // Now switch back to Default.
+      await tester.tap(find.byIcon(Icons.sort));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Default'));
+      await tester.pumpAndSettle();
 
-        expect(gridTitles(tester), [
-          'AAAA Highest',
-          'BBBB Mid',
-          'CCCC Unrated',
-          'DDDD Third',
-        ]);
-      },
-    );
+      expect(gridTitles(tester), [
+        'AAAA Highest',
+        'BBBB Mid',
+        'CCCC Unrated',
+        'DDDD Third',
+      ]);
+    });
 
     testWidgets(
       'sort dialog autofocuses and checks the currently-active row, not always the first',
       (tester) async {
         final repo = await _buildRepo(tester, sortItems);
         await tester.pumpWidget(
-          _TestApp(
-            catalogRepository: repo,
-            categories: sortCategories,
-          ),
+          _TestApp(catalogRepository: repo, categories: sortCategories),
         );
         await tester.pumpAndSettle();
 
@@ -1088,9 +1072,7 @@ void main() {
       ]);
     });
 
-    testWidgets('follows a favorite added outside the screen', (
-      tester,
-    ) async {
+    testWidgets('follows a favorite added outside the screen', (tester) async {
       final repo = await _buildRepo(tester, items);
       await tester.pumpWidget(
         _TestApp(

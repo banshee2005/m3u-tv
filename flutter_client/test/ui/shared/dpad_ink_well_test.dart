@@ -132,9 +132,7 @@ void main() {
           await tester.pumpWidget(
             MaterialApp(
               theme: ThemeData.dark(useMaterial3: true),
-              home: _LongPressMenuHost(
-                innerTapRecorder: () => innerTapCount++,
-              ),
+              home: _LongPressMenuHost(innerTapRecorder: () => innerTapCount++),
             ),
           );
           await tester.pumpAndSettle();
@@ -244,9 +242,7 @@ void main() {
           await tester.pumpWidget(
             MaterialApp(
               theme: ThemeData.dark(useMaterial3: true),
-              home: _LongPressMenuHost(
-                innerTapRecorder: () => innerTapCount++,
-              ),
+              home: _LongPressMenuHost(innerTapRecorder: () => innerTapCount++),
             ),
           );
           await tester.pumpAndSettle();

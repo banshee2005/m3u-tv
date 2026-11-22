@@ -117,9 +117,7 @@ class UpNextOverlay extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               plot!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white70,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -138,10 +136,7 @@ class UpNextOverlay extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              AppButton(
-                label: dismissLabel,
-                onPressed: onDismiss,
-              ),
+              AppButton(label: dismissLabel, onPressed: onDismiss),
             ],
           ),
         ],

@@ -300,9 +300,7 @@ class HomeScreenConfig {
       for (final section in sections)
         if (!section.showInNav) section.route,
     ],
-    'home': {
-      for (final section in sections) section.route: section.showOnHome,
-    },
+    'home': {for (final section in sections) section.route: section.showOnHome},
   };
 
   Map<String, Object?> toJson() {

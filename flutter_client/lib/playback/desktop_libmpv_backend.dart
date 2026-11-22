@@ -41,10 +41,8 @@ class DesktopLibmpvBackend
   DesktopLibmpvBackend({MethodChannel? channel, EventChannel? eventChannel})
     : _channel = channel ?? const MethodChannel(_methodChannelName),
       _eventChannel = eventChannel ?? const EventChannel(_eventChannelName) {
-    _eventSubscription = _libmpvEvents(_eventChannel).listen(
-      _handleEvent,
-      onError: _handleEventStreamError,
-    );
+    _eventSubscription = _libmpvEvents(_eventChannel)
+        .listen(_handleEvent, onError: _handleEventStreamError);
   }
 
   static const String _methodChannelName = 'm3u_tv/desktop_libmpv';
@@ -333,22 +331,18 @@ class DesktopLibmpvBackend
   }
 
   @override
-  Future<void> setAudioDelay(Duration delay) => _invokeControl(
-    'setSyncOffset',
-    <String, Object?>{
-      'property': 'audio-delay',
-      'milliseconds': delay.inMilliseconds,
-    },
-  );
+  Future<void> setAudioDelay(Duration delay) =>
+      _invokeControl('setSyncOffset', <String, Object?>{
+        'property': 'audio-delay',
+        'milliseconds': delay.inMilliseconds,
+      });
 
   @override
-  Future<void> setSubtitleDelay(Duration delay) => _invokeControl(
-    'setSyncOffset',
-    <String, Object?>{
-      'property': 'sub-delay',
-      'milliseconds': delay.inMilliseconds,
-    },
-  );
+  Future<void> setSubtitleDelay(Duration delay) =>
+      _invokeControl('setSyncOffset', <String, Object?>{
+        'property': 'sub-delay',
+        'milliseconds': delay.inMilliseconds,
+      });
 
   @override
   Future<void> setHdrEnabled(bool enabled) async {

@@ -131,9 +131,7 @@ class SportsFixtureCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scale = FontSizeScope.scaleOf(context);
     final sides = fixture.displayOrder;
-    final colors = [
-      for (final side in sides) sportsTeamWash(side.team),
-    ];
+    final colors = [for (final side in sides) sportsTeamWash(side.team)];
     return Padding(
       padding: EdgeInsets.only(bottom: 10 * scale),
       child: DpadInkWell(
@@ -263,9 +261,7 @@ class SportsFixtureTile extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final scale = FontSizeScope.scaleOf(context);
     final sides = fixture.displayOrder;
-    final colors = [
-      for (final side in sides) sportsTeamWash(side.team),
-    ];
+    final colors = [for (final side in sides) sportsTeamWash(side.team)];
     final muted = theme.textTheme.labelMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
@@ -375,9 +371,8 @@ class SportsFixtureStatus extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       SportsFixtureState.scheduled => Text(
-        DateFormat.jm(
-          Localizations.localeOf(context).toLanguageTag(),
-        ).format(fixture.start.toLocal()),
+        DateFormat.jm(Localizations.localeOf(context).toLanguageTag())
+            .format(fixture.start.toLocal()),
         style: strong,
       ),
     };

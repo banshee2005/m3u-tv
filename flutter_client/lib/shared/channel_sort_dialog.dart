@@ -27,11 +27,7 @@ Future<ChannelSortOption?> showChannelSortDialog(
       l.channelSortPlaylistOrder,
       ChannelSortOption.playlistOrder,
     ),
-    (
-      Icons.tag,
-      l.channelSortChannelNumber,
-      ChannelSortOption.channelNumber,
-    ),
+    (Icons.tag, l.channelSortChannelNumber, ChannelSortOption.channelNumber),
     (
       Icons.sort_by_alpha,
       l.channelSortAlphabeticalAsc,

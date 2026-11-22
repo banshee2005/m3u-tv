@@ -147,10 +147,7 @@ MediaPreviewItem? _resumePreviewItem(
     if (item == null) return null;
     final fraction =
         (progress.durationSeconds != null && progress.durationSeconds! > 0)
-        ? (progress.positionSeconds / progress.durationSeconds!).clamp(
-            0.0,
-            1.0,
-          )
+        ? (progress.positionSeconds / progress.durationSeconds!).clamp(0.0, 1.0)
         : null;
     return MediaPreviewItem(
       title: item.name,

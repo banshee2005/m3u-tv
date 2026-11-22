@@ -84,9 +84,9 @@ class _InProgressRecordingStartModal extends StatelessWidget {
               autofocus: true,
               variant: AppButtonVariant.primary,
               label: l.playerStartFromBeginning,
-              onPressed: () => Navigator.of(
-                context,
-              ).pop(InProgressPlaybackChoice.fromBeginning),
+              onPressed: () =>
+                  Navigator.of(context)
+                      .pop(InProgressPlaybackChoice.fromBeginning),
             ),
           ],
         ),

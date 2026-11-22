@@ -56,9 +56,8 @@ void main() {
     }
   }
 
-  Widget card(String label) => SettingsCard(
-    child: SizedBox(height: 150, child: Text(label)),
-  );
+  Widget card(String label) =>
+      SettingsCard(child: SizedBox(height: 150, child: Text(label)));
 
   Widget rows({int count = 6}) => SettingsGroup(
     children: [

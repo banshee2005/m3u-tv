@@ -37,11 +37,10 @@ class EpgPreviewLease {
 /// [adoptBack] when it closes to give the player back to the preview. That
 /// returns false when the guide can no longer show it, and the full-screen
 /// player then disposes it as usual.
-typedef EpgPreviewHandoff =
-    void Function(
-      EpgPreviewLease lease,
-      bool Function(EpgPreviewLease lease) adoptBack,
-    );
+typedef EpgPreviewHandoff = void Function(
+  EpgPreviewLease lease,
+  bool Function(EpgPreviewLease lease) adoptBack,
+);
 
 /// The live channel playing in the EPG guide's preview panel (see
 /// `EpgPreviewPlayback` in view_settings_service.dart).

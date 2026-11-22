@@ -161,9 +161,7 @@ void main() {
         exoPlayer = _FakePlayerAdapter(
           capabilities: PlaybackCapabilities.androidExoPlayer,
         );
-        mpv = _FakePlayerAdapter(
-          capabilities: PlaybackCapabilities.androidMpv,
-        );
+        mpv = _FakePlayerAdapter(capabilities: PlaybackCapabilities.androidMpv);
       });
 
       PlaybackOrchestrator withBoth() => _orchestrator(
@@ -340,68 +338,62 @@ void main() {
       });
     });
 
-    test(
-      'switches to the next backend on a mid-stream decoder failure '
-      'instead of retrying the one that just failed',
-      () async {
-        final direct = _FakePlayerAdapter(
-          capabilities: PlaybackCapabilities.androidExoPlayer,
-        );
-        final fallback = _FakePlayerAdapter(
-          capabilities: PlaybackCapabilities.androidMpv,
-        );
-        final transcode = _FakeTranscodeGateway();
-        final orchestrator = _orchestrator(
-          adapters: <PlaybackBackend, PlayerAdapter>{
-            PlaybackBackend.androidExoPlayer: direct,
-            PlaybackBackend.androidMpv: fallback,
-          },
-          transcodeGateway: transcode,
-        );
+    test('switches to the next backend on a mid-stream decoder failure '
+        'instead of retrying the one that just failed', () async {
+      final direct = _FakePlayerAdapter(
+        capabilities: PlaybackCapabilities.androidExoPlayer,
+      );
+      final fallback = _FakePlayerAdapter(
+        capabilities: PlaybackCapabilities.androidMpv,
+      );
+      final transcode = _FakeTranscodeGateway();
+      final orchestrator = _orchestrator(
+        adapters: <PlaybackBackend, PlayerAdapter>{
+          PlaybackBackend.androidExoPlayer: direct,
+          PlaybackBackend.androidMpv: fallback,
+        },
+        transcodeGateway: transcode,
+      );
 
-        await orchestrator.open(_source(videoCodec: 'h264'));
-        await orchestrator.play();
-        expect(orchestrator.activeBackend, PlaybackBackend.androidExoPlayer);
+      await orchestrator.open(_source(videoCodec: 'h264'));
+      await orchestrator.play();
+      expect(orchestrator.activeBackend, PlaybackBackend.androidExoPlayer);
 
-        // ExoPlayer loaded fine but then failed mid-stream on an EAC3 audio
-        // track it has no on-device decoder for -- this can't be fixed by
-        // retrying ExoPlayer again, so the orchestrator should switch to
-        // androidMpv instead.
-        direct.emitError(
-          const PlaybackError(
-            backend: PlaybackBackend.androidExoPlayer,
-            message: 'MediaCodecAudioRenderer error',
-            code: 'ERROR_CODE_DECODER_INIT_FAILED',
-            recoverable: true,
-          ),
-        );
-        await Future<void>.delayed(Duration.zero);
-        await Future<void>.delayed(Duration.zero);
+      // ExoPlayer loaded fine but then failed mid-stream on an EAC3 audio
+      // track it has no on-device decoder for -- this can't be fixed by
+      // retrying ExoPlayer again, so the orchestrator should switch to
+      // androidMpv instead.
+      direct.emitError(
+        const PlaybackError(
+          backend: PlaybackBackend.androidExoPlayer,
+          message: 'MediaCodecAudioRenderer error',
+          code: 'ERROR_CODE_DECODER_INIT_FAILED',
+          recoverable: true,
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
 
-        expect(orchestrator.activeBackend, PlaybackBackend.androidMpv);
-        expect(fallback.commands, <String>[
-          'load:https://provider.example/live/news.ts',
-        ]);
-        expect(
-          direct.commands,
-          <String>[
-            'load:https://provider.example/live/news.ts',
-            'play',
-            'stop',
-          ],
-        );
-        expect(transcode.startedServerRequests, isEmpty);
-        expect(
-          orchestrator.diagnostics,
-          contains(
-            'decoder-fallback:ERROR_CODE_DECODER_INIT_FAILED:'
-            'androidExoPlayer->androidMpv',
-          ),
-        );
+      expect(orchestrator.activeBackend, PlaybackBackend.androidMpv);
+      expect(fallback.commands, <String>[
+        'load:https://provider.example/live/news.ts',
+      ]);
+      expect(direct.commands, <String>[
+        'load:https://provider.example/live/news.ts',
+        'play',
+        'stop',
+      ]);
+      expect(transcode.startedServerRequests, isEmpty);
+      expect(
+        orchestrator.diagnostics,
+        contains(
+          'decoder-fallback:ERROR_CODE_DECODER_INIT_FAILED:'
+          'androidExoPlayer->androidMpv',
+        ),
+      );
 
-        await orchestrator.dispose();
-      },
-    );
+      await orchestrator.dispose();
+    });
 
     test(
       'falls back to the native platform backend before transcoding',
@@ -478,9 +470,8 @@ void main() {
         );
 
         await orchestrator.open(
-          _source(
-            videoCodec: 'hevc',
-          ).copyWith(deinterlace: true, prebufferLive: true),
+          _source(videoCodec: 'hevc')
+              .copyWith(deinterlace: true, prebufferLive: true),
         );
         await orchestrator.play();
 
@@ -604,57 +595,54 @@ void main() {
       },
     );
 
-    test(
-      'treats stalled transcode as recoverable and cancels its server session',
-      () async {
-        final direct = _FakePlayerAdapter(
-          capabilities: PlaybackCapabilities.androidExoPlayer,
-          unsupportedVideoCodecs: <String>{'hevc'},
-        );
-        final fallback = _FakePlayerAdapter(
-          capabilities: PlaybackCapabilities.androidMpv,
-          unsupportedVideoCodecs: <String>{'hevc'},
-        );
-        final serverPlayer = _FakePlayerAdapter(
-          capabilities: PlaybackCapabilities.serverTranscode,
-        );
-        final transcode = _FakeTranscodeGateway(
-          serverResponse: const TranscodeResponse(
-            streamId: 'transcode-stalled',
-            streamUrl:
-                'https://m3u-editor.example/hls/transcode-stalled/playlist.m3u8',
-            mode: TranscodeMode.server,
-            status: 'stalled',
-            sessionId: 'plex-session-stalled',
-            errorCode: 'transcode_stalled',
-            message: 'No HLS segments arrived',
-          ),
-        );
-        final orchestrator = _orchestrator(
-          adapters: <PlaybackBackend, PlayerAdapter>{
-            PlaybackBackend.androidExoPlayer: direct,
-            PlaybackBackend.androidMpv: fallback,
-            PlaybackBackend.serverTranscode: serverPlayer,
-          },
-          transcodeGateway: transcode,
-        );
-        final errors = <PlaybackError>[];
-        final sub = orchestrator.onError.listen(errors.add);
+    test('treats stalled transcode as recoverable and cancels its server session', () async {
+      final direct = _FakePlayerAdapter(
+        capabilities: PlaybackCapabilities.androidExoPlayer,
+        unsupportedVideoCodecs: <String>{'hevc'},
+      );
+      final fallback = _FakePlayerAdapter(
+        capabilities: PlaybackCapabilities.androidMpv,
+        unsupportedVideoCodecs: <String>{'hevc'},
+      );
+      final serverPlayer = _FakePlayerAdapter(
+        capabilities: PlaybackCapabilities.serverTranscode,
+      );
+      final transcode = _FakeTranscodeGateway(
+        serverResponse: const TranscodeResponse(
+          streamId: 'transcode-stalled',
+          streamUrl:
+              'https://m3u-editor.example/hls/transcode-stalled/playlist.m3u8',
+          mode: TranscodeMode.server,
+          status: 'stalled',
+          sessionId: 'plex-session-stalled',
+          errorCode: 'transcode_stalled',
+          message: 'No HLS segments arrived',
+        ),
+      );
+      final orchestrator = _orchestrator(
+        adapters: <PlaybackBackend, PlayerAdapter>{
+          PlaybackBackend.androidExoPlayer: direct,
+          PlaybackBackend.androidMpv: fallback,
+          PlaybackBackend.serverTranscode: serverPlayer,
+        },
+        transcodeGateway: transcode,
+      );
+      final errors = <PlaybackError>[];
+      final sub = orchestrator.onError.listen(errors.add);
 
-        await orchestrator.open(_source(videoCodec: 'hevc'));
-        await pumpEventQueue();
+      await orchestrator.open(_source(videoCodec: 'hevc'));
+      await pumpEventQueue();
 
-        expect(serverPlayer.commands, isEmpty);
-        expect(transcode.stoppedServerTranscodes, <String>[
-          'transcode-stalled:plex-session-stalled',
-        ]);
-        expect(errors.single.code, 'transcode_stalled');
-        expect(errors.single.recoverable, isTrue);
+      expect(serverPlayer.commands, isEmpty);
+      expect(transcode.stoppedServerTranscodes, <String>[
+        'transcode-stalled:plex-session-stalled',
+      ]);
+      expect(errors.single.code, 'transcode_stalled');
+      expect(errors.single.recoverable, isTrue);
 
-        await sub.cancel();
-        await orchestrator.dispose();
-      },
-    );
+      await sub.cancel();
+      await orchestrator.dispose();
+    });
 
     test('cancels broadcast and server transcode sessions on stop', () async {
       final direct = _FakePlayerAdapter(
@@ -822,58 +810,54 @@ void main() {
       },
     );
 
-    test(
-      'deterministic desktop dead URL emits one final load error',
-      () async {
-        final events = _setUpDesktopEvents(eventChannel);
-        const sourceUri = 'http://127.0.0.1:9/fixture/dead-stream/master.m3u8';
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(methodChannel, (call) async {
-              if (call.method != 'load') return null;
-              final arguments = Map<String, Object?>.from(
-                call.arguments as Map<Object?, Object?>,
-              );
-              expect(arguments['uri'], sourceUri);
-              return <String, Object?>{
-                'ok': false,
-                'code': 'stream_not_found',
-                'error': 'Fixture stream is intentionally unavailable',
-              };
-            });
+    test('deterministic desktop dead URL emits one final load error', () async {
+      final events = _setUpDesktopEvents(eventChannel);
+      const sourceUri = 'http://127.0.0.1:9/fixture/dead-stream/master.m3u8';
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(methodChannel, (call) async {
+            if (call.method != 'load') return null;
+            final arguments = Map<String, Object?>.from(
+              call.arguments as Map<Object?, Object?>,
+            );
+            expect(arguments['uri'], sourceUri);
+            return <String, Object?>{
+              'ok': false,
+              'code': 'stream_not_found',
+              'error': 'Fixture stream is intentionally unavailable',
+            };
+          });
 
-        final desktop = DesktopLibmpvBackend();
-        final adapterErrors = <PlaybackError>[];
-        final adapterSubscription = desktop.onError.listen(adapterErrors.add);
-        final transcode = _FakeTranscodeGateway();
-        final orchestrator = PlaybackOrchestrator(
-          platform: PlaybackPlatform.desktop,
-          adapters: <PlaybackBackend, PlayerAdapter>{
-            PlaybackBackend.desktopLibmpv: desktop,
-          },
-          transcodeGateway: transcode,
-        );
-        final errors = <PlaybackError>[];
-        final subscription = orchestrator.onError.listen(errors.add);
+      final desktop = DesktopLibmpvBackend();
+      final adapterErrors = <PlaybackError>[];
+      final adapterSubscription = desktop.onError.listen(adapterErrors.add);
+      final transcode = _FakeTranscodeGateway();
+      final orchestrator = PlaybackOrchestrator(
+        platform: PlaybackPlatform.desktop,
+        adapters: <PlaybackBackend, PlayerAdapter>{
+          PlaybackBackend.desktopLibmpv: desktop,
+        },
+        transcodeGateway: transcode,
+      );
+      final errors = <PlaybackError>[];
+      final subscription = orchestrator.onError.listen(errors.add);
 
-        await orchestrator
-            .open(const PlaybackSource(uri: sourceUri, isLive: true))
-            .timeout(const Duration(seconds: 1));
-        await pumpEventQueue();
+      await orchestrator
+          .open(const PlaybackSource(uri: sourceUri, isLive: true))
+          .timeout(const Duration(seconds: 1));
+      await pumpEventQueue();
 
-        expect(adapterErrors, isEmpty);
-        expect(errors, hasLength(1));
-        expect(errors.single.code, 'stream_not_found');
-        expect(orchestrator.activeBackend, isNull);
-        expect(desktop.textureId, isNull);
-        expect(transcode.startedServerRequests, isEmpty);
+      expect(adapterErrors, isEmpty);
+      expect(errors, hasLength(1));
+      expect(errors.single.code, 'stream_not_found');
+      expect(orchestrator.activeBackend, isNull);
+      expect(desktop.textureId, isNull);
+      expect(transcode.startedServerRequests, isEmpty);
 
-        await adapterSubscription.cancel();
-        await subscription.cancel();
-        await orchestrator.dispose();
-        await events.close();
-      },
-      timeout: const Timeout(Duration(seconds: 3)),
-    );
+      await adapterSubscription.cancel();
+      await subscription.cancel();
+      await orchestrator.dispose();
+      await events.close();
+    }, timeout: const Timeout(Duration(seconds: 3)));
 
     test(
       'pre-ready desktop terminal cleanup completes before server fallback',
@@ -1096,92 +1080,88 @@ void main() {
       },
     );
 
-    test(
-      'a slower older server-transcode response cannot win after a faster '
-      'newer one loads',
-      () async {
-        // Regression test for the same race in the server-transcode
-        // fallback path: _openServerTranscode previously never checked the
-        // generation at all, so a delayed startServerTranscode() response
-        // for an abandoned channel could still get loaded after a newer
-        // channel's transcode had already started playing.
-        final serverPlayer = _FakePlayerAdapter(
-          capabilities: PlaybackCapabilities.serverTranscode,
-        );
-        final transcode = _GatedTranscodeGateway();
-        final orchestrator = PlaybackOrchestrator(
-          platform: PlaybackPlatform.android,
-          adapters: <PlaybackBackend, PlayerAdapter>{
-            PlaybackBackend.serverTranscode: serverPlayer,
-          },
-          transcodeGateway: transcode,
-        );
+    test('a slower older server-transcode response cannot win after a faster '
+        'newer one loads', () async {
+      // Regression test for the same race in the server-transcode
+      // fallback path: _openServerTranscode previously never checked the
+      // generation at all, so a delayed startServerTranscode() response
+      // for an abandoned channel could still get loaded after a newer
+      // channel's transcode had already started playing.
+      final serverPlayer = _FakePlayerAdapter(
+        capabilities: PlaybackCapabilities.serverTranscode,
+      );
+      final transcode = _GatedTranscodeGateway();
+      final orchestrator = PlaybackOrchestrator(
+        platform: PlaybackPlatform.android,
+        adapters: <PlaybackBackend, PlayerAdapter>{
+          PlaybackBackend.serverTranscode: serverPlayer,
+        },
+        transcodeGateway: transcode,
+      );
 
-        const older = PlaybackSource(
-          uri: 'https://provider.example/live/older-source.ts',
-          isLive: true,
-        );
-        const newer = PlaybackSource(
-          uri: 'https://provider.example/live/newer-source.ts',
-          isLive: true,
-        );
+      const older = PlaybackSource(
+        uri: 'https://provider.example/live/older-source.ts',
+        isLive: true,
+      );
+      const newer = PlaybackSource(
+        uri: 'https://provider.example/live/newer-source.ts',
+        isLive: true,
+      );
 
-        final olderOpen = orchestrator.open(older);
-        await pumpEventQueue();
-        expect(transcode.startedUrls, <String>[older.uri]);
+      final olderOpen = orchestrator.open(older);
+      await pumpEventQueue();
+      expect(transcode.startedUrls, <String>[older.uri]);
 
-        final newerOpen = orchestrator.open(newer);
-        await pumpEventQueue();
-        transcode.resolve(
-          newer.uri,
-          const TranscodeResponse(
-            streamId: 'newest-hls',
-            streamUrl:
-                'https://m3u-editor.example/hls/newest-hls/playlist.m3u8',
-            mode: TranscodeMode.server,
-            status: 'running',
-            sessionId: 'session-newest',
-          ),
-        );
-        await newerOpen;
-        await pumpEventQueue();
+      final newerOpen = orchestrator.open(newer);
+      await pumpEventQueue();
+      transcode.resolve(
+        newer.uri,
+        const TranscodeResponse(
+          streamId: 'newest-hls',
+          streamUrl: 'https://m3u-editor.example/hls/newest-hls/playlist.m3u8',
+          mode: TranscodeMode.server,
+          status: 'running',
+          sessionId: 'session-newest',
+        ),
+      );
+      await newerOpen;
+      await pumpEventQueue();
 
-        expect(serverPlayer.loadedSources, hasLength(1));
-        expect(
-          serverPlayer.loadedSources.single.uri,
-          'https://m3u-editor.example/hls/newest-hls/playlist.m3u8',
-        );
+      expect(serverPlayer.loadedSources, hasLength(1));
+      expect(
+        serverPlayer.loadedSources.single.uri,
+        'https://m3u-editor.example/hls/newest-hls/playlist.m3u8',
+      );
 
-        // Now resolve the older (stale) transcode request.
-        transcode.resolve(
-          older.uri,
-          const TranscodeResponse(
-            streamId: 'older-hls',
-            streamUrl: 'https://m3u-editor.example/hls/older-hls/playlist.m3u8',
-            mode: TranscodeMode.server,
-            status: 'running',
-            sessionId: 'session-older',
-          ),
-        );
-        await olderOpen;
-        await pumpEventQueue();
+      // Now resolve the older (stale) transcode request.
+      transcode.resolve(
+        older.uri,
+        const TranscodeResponse(
+          streamId: 'older-hls',
+          streamUrl: 'https://m3u-editor.example/hls/older-hls/playlist.m3u8',
+          mode: TranscodeMode.server,
+          status: 'running',
+          sessionId: 'session-older',
+        ),
+      );
+      await olderOpen;
+      await pumpEventQueue();
 
-        // The stale response must never reach the adapter — only
-        // "newest-hls" should ever have been loaded — and its now-orphaned
-        // server-transcode session must be torn down.
-        expect(serverPlayer.loadedSources, hasLength(1));
-        expect(
-          serverPlayer.loadedSources.single.uri,
-          'https://m3u-editor.example/hls/newest-hls/playlist.m3u8',
-        );
-        expect(
-          transcode.stoppedServerTranscodes,
-          contains('older-hls:session-older'),
-        );
+      // The stale response must never reach the adapter — only
+      // "newest-hls" should ever have been loaded — and its now-orphaned
+      // server-transcode session must be torn down.
+      expect(serverPlayer.loadedSources, hasLength(1));
+      expect(
+        serverPlayer.loadedSources.single.uri,
+        'https://m3u-editor.example/hls/newest-hls/playlist.m3u8',
+      );
+      expect(
+        transcode.stoppedServerTranscodes,
+        contains('older-hls:session-older'),
+      );
 
-        await orchestrator.dispose();
-      },
-    );
+      await orchestrator.dispose();
+    });
   });
 
   group('stream sessions', () {
@@ -1199,41 +1179,38 @@ void main() {
       );
     }
 
-    test(
-      'loads each source tagged with a fresh client id and releases it when the session ends',
-      () async {
-        final direct = _FakePlayerAdapter(
-          capabilities: PlaybackCapabilities.androidExoPlayer,
-        );
-        final sessions = _FakeStreamSessionGateway(log: direct.commands);
-        final orchestrator = sessionOrchestrator(direct, sessions);
+    test('loads each source tagged with a fresh client id and releases it when the session ends', () async {
+      final direct = _FakePlayerAdapter(
+        capabilities: PlaybackCapabilities.androidExoPlayer,
+      );
+      final sessions = _FakeStreamSessionGateway(log: direct.commands);
+      final orchestrator = sessionOrchestrator(direct, sessions);
 
-        await orchestrator.open(_source(isLive: false));
-        await orchestrator.open(_source(isLive: false));
-        await orchestrator.stop();
+      await orchestrator.open(_source(isLive: false));
+      await orchestrator.open(_source(isLive: false));
+      await orchestrator.stop();
 
-        final [first, second] = sessions.attached;
-        expect(first.clientId, matches(RegExp(r'^m3utv-[0-9a-f]{16}$')));
-        expect(second.clientId, isNot(first.clientId));
-        expect(sessions.released, <String>[first.clientId, second.clientId]);
-        // The previous session is released before the next source loads, so
-        // the server frees its stream before the new request arrives.
-        expect(
-          direct.commands.where(
-            (command) =>
-                command.startsWith('load:') || command.startsWith('release:'),
-          ),
-          <String>[
-            'load:${first.source.uri}',
-            'release:${first.clientId}',
-            'load:${second.source.uri}',
-            'release:${second.clientId}',
-          ],
-        );
+      final [first, second] = sessions.attached;
+      expect(first.clientId, matches(RegExp(r'^m3utv-[0-9a-f]{16}$')));
+      expect(second.clientId, isNot(first.clientId));
+      expect(sessions.released, <String>[first.clientId, second.clientId]);
+      // The previous session is released before the next source loads, so
+      // the server frees its stream before the new request arrives.
+      expect(
+        direct.commands.where(
+          (command) =>
+              command.startsWith('load:') || command.startsWith('release:'),
+        ),
+        <String>[
+          'load:${first.source.uri}',
+          'release:${first.clientId}',
+          'load:${second.source.uri}',
+          'release:${second.clientId}',
+        ],
+      );
 
-        await orchestrator.dispose();
-      },
-    );
+      await orchestrator.dispose();
+    });
 
     test('a failed release does not block the next source', () async {
       final direct = _FakePlayerAdapter(

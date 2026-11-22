@@ -261,42 +261,31 @@ void main() {
             start: '  build-android:',
             end: '  build-ios:',
             checksumCommands: const [r'sha256sum "$APK" > "$APK.sha256"'],
-            uploadedAsset:
-                r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-android.apk',
+            uploadedAsset: r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-android.apk',
           ),
           (
             start: '  build-ios:',
             end: '  build-tvos:',
-            checksumCommands: const [
-              r'shasum -a 256 "$IPA" > "$IPA.sha256"',
-            ],
-            uploadedAsset:
-                r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-ios.ipa',
+            checksumCommands: const [r'shasum -a 256 "$IPA" > "$IPA.sha256"'],
+            uploadedAsset: r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-ios.ipa',
           ),
           (
             start: '  build-tvos:',
             end: '  build-macos:',
-            checksumCommands: const [
-              r'shasum -a 256 "$IPA" > "$IPA.sha256"',
-            ],
-            uploadedAsset:
-                r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-tvos.ipa',
+            checksumCommands: const [r'shasum -a 256 "$IPA" > "$IPA.sha256"'],
+            uploadedAsset: r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-tvos.ipa',
           ),
           (
             start: '  build-macos:',
             end: '  build-linux:',
-            checksumCommands: const [
-              r'shasum -a 256 "$DMG" > "$DMG.sha256"',
-            ],
-            uploadedAsset:
-                r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-macos.dmg',
+            checksumCommands: const [r'shasum -a 256 "$DMG" > "$DMG.sha256"'],
+            uploadedAsset: r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-macos.dmg',
           ),
           (
             start: '  build-linux:',
             end: '  build-windows:',
             checksumCommands: const [r'sha256sum "$ZIP" > "$ZIP.sha256"'],
-            uploadedAsset:
-                r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-linux.zip',
+            uploadedAsset: r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-linux.zip',
           ),
           (
             start: '  build-windows:',
@@ -305,8 +294,7 @@ void main() {
               r'$Hash = (Get-FileHash -Algorithm SHA256 $Zip).Hash.ToLowerInvariant()',
               r'"$Hash  $Zip" | Set-Content "$Zip.sha256"',
             ],
-            uploadedAsset:
-                r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-windows.zip',
+            uploadedAsset: r'flutter_client/m3u-tv-v${{ needs.validate.outputs.version }}-windows.zip',
           ),
         ]) {
       final section = jobSection(contract.start, contract.end);
@@ -404,20 +392,17 @@ void main() {
       assets: const [
         (
           verified: r'artifacts/ios-ipas/m3u-tv-v${V}-ios.ipa',
-          uploaded:
-              r'artifacts/ios-ipas/m3u-tv-v${{ needs.validate.outputs.version }}-ios.ipa',
+          uploaded: r'artifacts/ios-ipas/m3u-tv-v${{ needs.validate.outputs.version }}-ios.ipa',
           published: true,
         ),
         (
           verified: r'artifacts/tvos-ipas/m3u-tv-v${V}-tvos.ipa',
-          uploaded:
-              r'artifacts/tvos-ipas/m3u-tv-v${{ needs.validate.outputs.version }}-tvos.ipa',
+          uploaded: r'artifacts/tvos-ipas/m3u-tv-v${{ needs.validate.outputs.version }}-tvos.ipa',
           published: true,
         ),
         (
           verified: r'artifacts/macos-dmgs/m3u-tv-v${V}-macos.dmg',
-          uploaded:
-              r'artifacts/macos-dmgs/m3u-tv-v${{ needs.validate.outputs.version }}-macos.dmg',
+          uploaded: r'artifacts/macos-dmgs/m3u-tv-v${{ needs.validate.outputs.version }}-macos.dmg',
           published: true,
         ),
       ],
@@ -461,148 +446,131 @@ void main() {
     );
   });
 
-  test(
-    'apple playback docs keep Apple and tvOS gated outside blocking release scope',
-    () {
-      final releaseMatrix = readFile(releaseMatrixPath);
-      final appleFeasibility = readFile(
-        '../docs/migration/apple-playback-store-feasibility.md',
-      );
+  test('apple playback docs keep Apple and tvOS gated outside blocking release scope', () {
+    final releaseMatrix = readFile(releaseMatrixPath);
+    final appleFeasibility = readFile(
+      '../docs/migration/apple-playback-store-feasibility.md',
+    );
 
-      for (final expected in <String>[
-        'AVKit/AVPlayer as the safe default',
-        'GATED and tvOS is not release-complete',
-        'GPL',
-        'LGPL',
-        'App Store policy',
-        'legal review',
-        'Platform.isIOS vs tvOS',
-        'missing tvOS plugin implementations',
-        'Community/custom embedder proof',
-      ]) {
-        expect(appleFeasibility, contains(expected));
-      }
+    for (final expected in <String>[
+      'AVKit/AVPlayer as the safe default',
+      'GATED and tvOS is not release-complete',
+      'GPL',
+      'LGPL',
+      'App Store policy',
+      'legal review',
+      'Platform.isIOS vs tvOS',
+      'missing tvOS plugin implementations',
+      'Community/custom embedder proof',
+    ]) {
+      expect(appleFeasibility, contains(expected));
+    }
 
-      for (final expected in <String>[
-        'Blocking release targets: Linux desktop, Windows desktop, Android phone/tablet, and Android TV.',
-        'macOS desktop | NON-BLOCKING/GATED',
-        'iOS/iPadOS | NON-BLOCKING/GATED',
-        'tvOS | NON-BLOCKING/GATED',
-        'Apple/tvOS gates do not block the Desktop+Android release track',
-      ]) {
-        expect(releaseMatrix, contains(expected));
-      }
+    for (final expected in <String>[
+      'Blocking release targets: Linux desktop, Windows desktop, Android phone/tablet, and Android TV.',
+      'macOS desktop | NON-BLOCKING/GATED',
+      'iOS/iPadOS | NON-BLOCKING/GATED',
+      'tvOS | NON-BLOCKING/GATED',
+      'Apple/tvOS gates do not block the Desktop+Android release track',
+    ]) {
+      expect(releaseMatrix, contains(expected));
+    }
 
-      expect(releaseMatrix, isNot(contains('tvOS production readiness')));
-      expect(releaseMatrix, isNot(contains('Apple platforms are blocking')));
-      expect(appleFeasibility, isNot(contains('tvOS release-complete')));
-      expect(appleFeasibility, isNot(contains('MPVKit is approved')));
-    },
-  );
+    expect(releaseMatrix, isNot(contains('tvOS production readiness')));
+    expect(releaseMatrix, isNot(contains('Apple platforms are blocking')));
+    expect(appleFeasibility, isNot(contains('tvOS release-complete')));
+    expect(appleFeasibility, isNot(contains('MPVKit is approved')));
+  });
 
-  test(
-    'android release configuration uses production identifiers and signing placeholders',
-    () {
-      final buildGradle = readFile('android/app/build.gradle.kts');
-      final gitignore = readFile('../.gitignore');
+  test('android release configuration uses production identifiers and signing placeholders', () {
+    final buildGradle = readFile('android/app/build.gradle.kts');
+    final gitignore = readFile('../.gitignore');
 
-      expect(buildGradle, contains('namespace = "dev.sparkison.tv"'));
-      expect(buildGradle, contains('applicationId = "dev.sparkison.tv"'));
-      expect(buildGradle, isNot(contains('com.example')));
-      expect(buildGradle, contains('create("release")'));
-      expect(buildGradle, contains('ANDROID_KEYSTORE_PATH'));
-      expect(buildGradle, contains('ANDROID_KEY_ALIAS'));
-      expect(buildGradle, contains('ANDROID_KEYSTORE_PASSWORD'));
-      expect(buildGradle, contains('ANDROID_KEY_PASSWORD'));
-      expect(buildGradle, contains('providers.environmentVariable'));
-      expect(buildGradle, contains('signing.properties'));
-      // Falls back to debug signing when release keys are absent so contributors
-      // can build without credentials; CI supplies keys via env vars.
-      expect(buildGradle, contains('hasReleaseSigningKeys()'));
-      expect(buildGradle, contains('signingConfigs.getByName("debug")'));
+    expect(buildGradle, contains('namespace = "dev.sparkison.tv"'));
+    expect(buildGradle, contains('applicationId = "dev.sparkison.tv"'));
+    expect(buildGradle, isNot(contains('com.example')));
+    expect(buildGradle, contains('create("release")'));
+    expect(buildGradle, contains('ANDROID_KEYSTORE_PATH'));
+    expect(buildGradle, contains('ANDROID_KEY_ALIAS'));
+    expect(buildGradle, contains('ANDROID_KEYSTORE_PASSWORD'));
+    expect(buildGradle, contains('ANDROID_KEY_PASSWORD'));
+    expect(buildGradle, contains('providers.environmentVariable'));
+    expect(buildGradle, contains('signing.properties'));
+    // Falls back to debug signing when release keys are absent so contributors
+    // can build without credentials; CI supplies keys via env vars.
+    expect(buildGradle, contains('hasReleaseSigningKeys()'));
+    expect(buildGradle, contains('signingConfigs.getByName("debug")'));
 
-      for (final ignored in <String>[
-        'flutter_client/android/signing.properties',
-        'flutter_client/android/*.jks',
-        'flutter_client/android/*.keystore',
-        '*.jks',
-        '*.keystore',
-      ]) {
-        expect(gitignore, contains(ignored));
-      }
-    },
-  );
+    for (final ignored in <String>[
+      'flutter_client/android/signing.properties',
+      'flutter_client/android/*.jks',
+      'flutter_client/android/*.keystore',
+      '*.jks',
+      '*.keystore',
+    ]) {
+      expect(gitignore, contains(ignored));
+    }
+  });
 
-  test(
-    'release workflow publishes desktop ZIPs as public release assets alongside workflow artifacts',
-    () {
-      final releaseWorkflow = readFile('../.github/workflows/release.yml');
+  test('release workflow publishes desktop ZIPs as public release assets alongside workflow artifacts', () {
+    final releaseWorkflow = readFile('../.github/workflows/release.yml');
 
-      final releaseStepStart = releaseWorkflow.indexOf('  release:');
-      final releaseStepEnd = releaseWorkflow.indexOf(
-        '  release-apple:',
-        releaseStepStart,
-      );
-      final releaseSection = releaseWorkflow.substring(
-        releaseStepStart,
-        releaseStepEnd,
-      );
+    final releaseStepStart = releaseWorkflow.indexOf('  release:');
+    final releaseStepEnd = releaseWorkflow.indexOf(
+      '  release-apple:',
+      releaseStepStart,
+    );
+    final releaseSection = releaseWorkflow.substring(
+      releaseStepStart,
+      releaseStepEnd,
+    );
 
-      expect(releaseSection, contains('name: Verify non-Apple assets'));
-      expect(releaseSection, contains('artifacts/linux-zips/m3u-tv-v'));
-      expect(releaseSection, contains('artifacts/windows-zips/m3u-tv-v'));
+    expect(releaseSection, contains('name: Verify non-Apple assets'));
+    expect(releaseSection, contains('artifacts/linux-zips/m3u-tv-v'));
+    expect(releaseSection, contains('artifacts/windows-zips/m3u-tv-v'));
 
-      final verifyIndex = releaseSection.indexOf(
-        'name: Verify non-Apple assets',
-      );
-      final releaseStepIndex = releaseSection.indexOf(
-        'name: Create or update release',
-      );
-      final verifierSection = releaseSection.substring(
-        verifyIndex,
-        releaseStepIndex,
-      );
+    final verifyIndex = releaseSection.indexOf('name: Verify non-Apple assets');
+    final releaseStepIndex = releaseSection.indexOf(
+      'name: Create or update release',
+    );
+    final verifierSection = releaseSection.substring(
+      verifyIndex,
+      releaseStepIndex,
+    );
 
-      expect(verifierSection, contains('artifacts/linux-zips/m3u-tv-v'));
-      expect(verifierSection, contains('artifacts/windows-zips/m3u-tv-v'));
+    expect(verifierSection, contains('artifacts/linux-zips/m3u-tv-v'));
+    expect(verifierSection, contains('artifacts/windows-zips/m3u-tv-v'));
 
-      final releaseBody = releaseSection.substring(releaseStepIndex);
-      final assetsStart = releaseBody.indexOf('ASSETS=(');
-      final assetsEnd = releaseBody.indexOf('\n          )', assetsStart);
-      final assetArray = releaseBody.substring(assetsStart, assetsEnd);
+    final releaseBody = releaseSection.substring(releaseStepIndex);
+    final assetsStart = releaseBody.indexOf('ASSETS=(');
+    final assetsEnd = releaseBody.indexOf('\n          )', assetsStart);
+    final assetArray = releaseBody.substring(assetsStart, assetsEnd);
 
-      expect(
-        assetArray,
-        contains('linux-zip'),
-        reason: 'Linux ZIP must be published as a public release asset',
-      );
-      expect(
-        assetArray,
-        contains('windows-zip'),
-        reason: 'Windows ZIP must be published as a public release asset',
-      );
+    expect(
+      assetArray,
+      contains('linux-zip'),
+      reason: 'Linux ZIP must be published as a public release asset',
+    );
+    expect(
+      assetArray,
+      contains('windows-zip'),
+      reason: 'Windows ZIP must be published as a public release asset',
+    );
 
-      expect(
-        assetArray,
-        contains('android-apk'),
-        reason: 'Android APK must remain in public release',
-      );
+    expect(
+      assetArray,
+      contains('android-apk'),
+      reason: 'Android APK must remain in public release',
+    );
 
-      final releaseSummary = releaseSection.substring(
-        releaseSection.indexOf('name: Release summary'),
-      );
-      expect(releaseSummary, contains('Android + Android TV'));
-      expect(releaseSummary, contains('| Linux |'));
-      expect(
-        releaseSummary,
-        contains('| Windows (portable, unsigned) |'),
-      );
-      expect(
-        releaseSummary,
-        contains('| Windows (installer, unsigned) |'),
-      );
-    },
-  );
+    final releaseSummary = releaseSection.substring(
+      releaseSection.indexOf('name: Release summary'),
+    );
+    expect(releaseSummary, contains('Android + Android TV'));
+    expect(releaseSummary, contains('| Linux |'));
+    expect(releaseSummary, contains('| Windows (portable, unsigned) |'));
+    expect(releaseSummary, contains('| Windows (installer, unsigned) |'));
+  });
 
   test('release upload clobbers existing version-bound desktop assets', () {
     final releaseWorkflow = readFile(releaseWorkflowPath);
@@ -768,10 +736,7 @@ void main() {
       runBlockIndex + runBlockMarker.length,
     );
 
-    expect(
-      verifyLinuxRunBlock,
-      contains(r'test -s "$BUNDLE/lib/libmpv.so.2"'),
-    );
+    expect(verifyLinuxRunBlock, contains(r'test -s "$BUNDLE/lib/libmpv.so.2"'));
     expect(verifyLinuxRunBlock, contains(r'readelf -d "$BUNDLE/m3u_tv"'));
     expect(releaseWorkflow, contains('python3 -m zipfile -c'));
     expect(releaseWorkflow, contains('python3 -m zipfile -t'));
@@ -813,10 +778,7 @@ void main() {
 
     expect(ciWorkflow, contains('name: Build Linux runner (verify only)'));
     expect(ciWorkflow, contains('name: Build Windows runner (verify only)'));
-    expect(
-      ciWorkflow,
-      contains("if: needs.changes.outputs.desktop == 'true'"),
-    );
+    expect(ciWorkflow, contains("if: needs.changes.outputs.desktop == 'true'"));
 
     final linuxJobIdx = ciWorkflow.indexOf('build-linux-native:');
     final windowsJobIdx = ciWorkflow.indexOf('build-windows-native:');
@@ -885,9 +847,8 @@ void main() {
 
     for (final density in ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']) {
       expect(
-        File(
-          'android/app/src/main/res/drawable-$density/tv_banner.png',
-        ).existsSync(),
+        File('android/app/src/main/res/drawable-$density/tv_banner.png')
+            .existsSync(),
         isTrue,
         reason: 'TV banner must be committed for drawable-$density',
       );
@@ -940,10 +901,7 @@ void main() {
     expect(mainActivity, contains('WindowInsetsCompat.Type.systemBars()'));
     expect(mainActivity, contains('insetsController.show(systemBars)'));
     expect(mainActivity, contains('insetsController.hide(systemBars)'));
-    expect(
-      mainActivity,
-      contains('BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE'),
-    );
+    expect(mainActivity, contains('BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE'));
   });
 
   test('release matrix documents signing, store, and license gates', () {
@@ -1010,10 +968,7 @@ void main() {
     expect(readme, contains('physical Android TV hardware QA'));
     expect(readme, contains('Emulator logs are supplemental only'));
     expect(readme, contains('Android playback now uses native mpv'));
-    expect(
-      readme,
-      contains('server transcode as the final fallback'),
-    );
+    expect(readme, contains('server transcode as the final fallback'));
     expect(readme, isNot(contains('device or emulator')));
     expect(readme, isNot(contains('MPV fallback second')));
     expect(readme, isNot(contains('Android playback is ExoPlayer first')));

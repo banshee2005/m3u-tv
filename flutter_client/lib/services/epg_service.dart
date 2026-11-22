@@ -206,11 +206,7 @@ class EpgService extends ChangeNotifier {
       return;
     }
     markFetched(channelIds);
-    mergePrograms(
-      programs,
-      channelIds: channelIds,
-      markFresh: false,
-    );
+    mergePrograms(programs, channelIds: channelIds, markFresh: false);
   }
 
   /// Marks [channelIds] as freshly fetched even if the batch returned no
@@ -233,10 +229,7 @@ class EpgService extends ChangeNotifier {
     return _sourceGeneration.current;
   }
 
-  void markFetchFailed(
-    Iterable<String> channelIds, {
-    int? sourceGeneration,
-  }) {
+  void markFetchFailed(Iterable<String> channelIds, {int? sourceGeneration}) {
     if (sourceGeneration != null &&
         _sourceGeneration.isStale(sourceGeneration)) {
       return;
@@ -308,11 +301,10 @@ class EpgService extends ChangeNotifier {
     // (the server's date + next-day reads can return a programme twice).
     final incomingByChannel = <String, Map<(DateTime, DateTime), EpgProgram>>{};
     for (final program in programs) {
-      incomingByChannel.putIfAbsent(program.channelId, () => {})[(
-            program.start,
-            program.end,
-          )] =
-          program;
+      incomingByChannel.putIfAbsent(
+        program.channelId,
+        () => {},
+      )[(program.start, program.end)] = program;
     }
     for (final MapEntry(key: channelId, value: incomingBySlot)
         in incomingByChannel.entries) {
@@ -507,9 +499,9 @@ class EpgService extends ChangeNotifier {
       channel.catchupDays,
     );
     if (retentionDays <= 0) return const <EpgProgram>[];
-    final programs = programsForChannel(
-      channel,
-    ).where((p) => canReplay(retentionDays, p, now)).toList();
+    final programs = programsForChannel(channel)
+        .where((p) => canReplay(retentionDays, p, now))
+        .toList();
     return programs.reversed.toList();
   }
 

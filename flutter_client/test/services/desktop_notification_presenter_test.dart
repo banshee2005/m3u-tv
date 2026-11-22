@@ -319,12 +319,7 @@ class _FakeDesktopNotificationBackend implements DesktopNotificationBackend {
   }) async {
     if (failShow) throw StateError('presentation failed');
     shown.add(
-      _ShownNotification(
-        id: id,
-        title: title,
-        body: body,
-        payload: payload,
-      ),
+      _ShownNotification(id: id, title: title, body: body, payload: payload),
     );
   }
 

@@ -5,8 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:m3u_tv/services/tv_notification_service.dart';
 
-typedef DesktopNotificationActivation =
-    Future<void> Function(String notificationId);
+typedef DesktopNotificationActivation = Future<void> Function(
+  String notificationId,
+);
 
 abstract interface class DesktopNotificationPresenter {
   Future<void> initialize({

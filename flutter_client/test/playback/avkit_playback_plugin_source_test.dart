@@ -4,9 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('AVKit emits explicit nulls only for included track selections', () {
-    final source = File(
-      'ios/Runner/AvKitPlaybackPlugin.swift',
-    ).readAsStringSync();
+    final source = File('ios/Runner/AvKitPlaybackPlugin.swift')
+        .readAsStringSync();
 
     expect(
       source,
@@ -29,9 +28,8 @@ void main() {
   });
 
   test('tvOS AVKit supports track discovery and selection', () {
-    final source = File(
-      'tvos/Runner/AvKitPlaybackPlugin.swift',
-    ).readAsStringSync();
+    final source = File('tvos/Runner/AvKitPlaybackPlugin.swift')
+        .readAsStringSync();
 
     expect(source, contains('case "setAudioTrack":'));
     expect(source, contains('case "setSubtitleTrack":'));
@@ -98,9 +96,8 @@ void main() {
   });
 
   test('tvOS AVKit keys player state by playerId for Multiview', () {
-    final source = File(
-      'tvos/Runner/AvKitPlaybackPlugin.swift',
-    ).readAsStringSync();
+    final source = File('tvos/Runner/AvKitPlaybackPlugin.swift')
+        .readAsStringSync();
 
     // One channel pair, several concurrent AVPlayers — every call after
     // "probe" is routed by a Dart-assigned playerId instead of a single
@@ -132,9 +129,8 @@ void main() {
   });
 
   test('iOS AVKit keys player state by playerId for Multiview', () {
-    final source = File(
-      'ios/Runner/AvKitPlaybackPlugin.swift',
-    ).readAsStringSync();
+    final source = File('ios/Runner/AvKitPlaybackPlugin.swift')
+        .readAsStringSync();
 
     // Was previously a single shared `state: _PlayerState?` field, so
     // opening a second Multiview tile tore down the first tile's player

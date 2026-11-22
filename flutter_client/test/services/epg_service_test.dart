@@ -108,30 +108,27 @@ void main() {
       expect(results.single.start, earliest);
     });
 
-    test(
-      'returns multiple qualifying programs most-recent-first',
-      () {
-        final service = serviceAt(fixedNow);
-        final ch = channel(catchupDays: 7);
-        final older = program(
-          ch.name,
-          title: 'Older',
-          start: fixedNow.subtract(const Duration(days: 3)),
-          end: fixedNow.subtract(const Duration(days: 3, hours: -1)),
-        );
-        final newer = program(
-          ch.name,
-          title: 'Newer',
-          start: fixedNow.subtract(const Duration(days: 1)),
-          end: fixedNow.subtract(const Duration(days: 1, hours: -1)),
-        );
-        // Load out of order to prove sorting/reversal, not insertion order.
-        service.loadPrograms([older, newer]);
+    test('returns multiple qualifying programs most-recent-first', () {
+      final service = serviceAt(fixedNow);
+      final ch = channel(catchupDays: 7);
+      final older = program(
+        ch.name,
+        title: 'Older',
+        start: fixedNow.subtract(const Duration(days: 3)),
+        end: fixedNow.subtract(const Duration(days: 3, hours: -1)),
+      );
+      final newer = program(
+        ch.name,
+        title: 'Newer',
+        start: fixedNow.subtract(const Duration(days: 1)),
+        end: fixedNow.subtract(const Duration(days: 1, hours: -1)),
+      );
+      // Load out of order to prove sorting/reversal, not insertion order.
+      service.loadPrograms([older, newer]);
 
-        final results = service.catchupProgramsForChannel(ch);
-        expect(results.map((p) => p.title).toList(), ['Newer', 'Older']);
-      },
-    );
+      final results = service.catchupProgramsForChannel(ch);
+      expect(results.map((p) => p.title).toList(), ['Newer', 'Older']);
+    });
 
     test('falls back to kCatchupFallbackDays when catchupDays is null', () {
       expect(
@@ -175,9 +172,7 @@ void main() {
     expect(service.hasFreshDataForChannel(channel), isFalse);
     expect(service.shouldFetchDataForChannel(channel), isFalse);
 
-    now = now.add(
-      EpgService.retryBackoff - const Duration(microseconds: 1),
-    );
+    now = now.add(EpgService.retryBackoff - const Duration(microseconds: 1));
     expect(service.shouldFetchDataForChannel(channel), isFalse);
 
     now = now.add(const Duration(microseconds: 1));
@@ -186,9 +181,7 @@ void main() {
     service
       ..markFetchStarted(const <String>['bbc.one'])
       ..markFetchFailed(const <String>['bbc.one']);
-    now = now.add(
-      EpgService.retryBackoff - const Duration(microseconds: 1),
-    );
+    now = now.add(EpgService.retryBackoff - const Duration(microseconds: 1));
     expect(service.shouldFetchDataForChannel(channel), isFalse);
 
     now = now.add(const Duration(microseconds: 1));
@@ -223,9 +216,7 @@ void main() {
       ..markFetchFailed(const <String>['bbc.one']);
     expect(service.shouldFetchData('bbc.one'), isFalse);
 
-    now = now.add(
-      EpgService.retryBackoff - const Duration(microseconds: 1),
-    );
+    now = now.add(EpgService.retryBackoff - const Duration(microseconds: 1));
     expect(service.shouldFetchData('bbc.one'), isFalse);
 
     now = now.add(const Duration(microseconds: 1));

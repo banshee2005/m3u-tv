@@ -60,21 +60,12 @@ void main() {
   });
   group('IntroDbService User-Agent', () {
     test('identifies the app by name and version', () {
-      expect(
-        IntroDbService.userAgentFor('1.2.3'),
-        'm3u-tv/1.2.3',
-      );
+      expect(IntroDbService.userAgentFor('1.2.3'), 'm3u-tv/1.2.3');
     });
 
     test('drops the version when it cannot be resolved', () {
-      expect(
-        IntroDbService.userAgentFor(null),
-        'm3u-tv',
-      );
-      expect(
-        IntroDbService.userAgentFor(''),
-        'm3u-tv',
-      );
+      expect(IntroDbService.userAgentFor(null), 'm3u-tv');
+      expect(IntroDbService.userAgentFor(''), 'm3u-tv');
     });
 
     test('sends the User-Agent on /media requests', () async {

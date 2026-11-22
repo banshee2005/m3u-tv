@@ -477,9 +477,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           titleIcon: Icons.movie,
           emptyLabel: l.searchNoResults,
           posterStyle: true,
-          items: [
-            for (final item in vodItems.take(visible)) _vodItem(item),
-          ],
+          items: [for (final item in vodItems.take(visible)) _vodItem(item)],
           viewAll: _viewAllItem(vodItems.length, _moviesTabIndex),
           useSidebarLayout: useSidebarLayout,
           onSidebarActivate: onSidebarActivate,

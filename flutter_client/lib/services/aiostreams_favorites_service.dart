@@ -182,9 +182,8 @@ class AIOStreamsFavoritesService extends ChangeNotifier {
     required String? scope,
     AIOStreamsMutationOwnership? shouldCommit,
   }) async {
-    final cache = Map<String, AIOStreamsFavoriteItem>.of(
-      await _all(scope),
-    )..remove(itemId);
+    final cache = Map<String, AIOStreamsFavoriteItem>.of(await _all(scope))
+      ..remove(itemId);
     if (!await _persist(cache, scope: scope, shouldCommit: shouldCommit)) {
       return false;
     }

@@ -83,9 +83,7 @@ void main() {
 
         expect(find.byIcon(Icons.schedule), findsNothing);
         expect(find.byIcon(Icons.fiber_manual_record), findsNothing);
-        final l10n = AppLocalizations.of(
-          tester.element(find.byType(Scaffold)),
-        );
+        final l10n = AppLocalizations.of(tester.element(find.byType(Scaffold)));
         expect(
           find.bySemanticsLabel(l10n.epgProgramScheduledToRecord),
           findsNothing,

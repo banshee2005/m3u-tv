@@ -54,10 +54,9 @@ Future<void> main() async {
     // Native decisions worth seeing in an uploaded log (Auto Frame Rate's
     // mode choice, see NativeLogChannel.kt) - debugPrint tees them into the
     // buffer, where android.util.Log output never reaches.
-    const EventChannel('m3u_tv/native_log').receiveBroadcastStream().listen(
-      (line) => debugPrint('$line'),
-      onError: (Object _) {},
-    );
+    const EventChannel('m3u_tv/native_log')
+        .receiveBroadcastStream()
+        .listen((line) => debugPrint('$line'), onError: (Object _) {});
   }
   if (HostPlatform.isTvOS) {
     final dispatcher = WidgetsBinding.instance.platformDispatcher;
@@ -633,9 +632,8 @@ class _MyAppState extends State<MyApp> {
                     );
                     if (scale == 1) return messengerChild;
                     return MediaQuery(
-                      data: MediaQuery.of(
-                        context,
-                      ).copyWith(textScaler: TextScaler.linear(scale)),
+                      data: MediaQuery.of(context)
+                          .copyWith(textScaler: TextScaler.linear(scale)),
                       child: messengerChild,
                     );
                   },

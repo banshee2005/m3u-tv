@@ -72,10 +72,7 @@ class CarCatalog {
   /// playback and the playback settings applied.
   PlaybackSource sourceFor(Channel channel) {
     final args = PlayerArgs.liveChannel(channel);
-    final streamUrl = appState.applyProxyPlayback(
-      args.streamUrl,
-      type: 'live',
-    );
+    final streamUrl = appState.applyProxyPlayback(args.streamUrl, type: 'live');
     // Only seekable when the URL actually carries the opt-in param.
     final seekable = streamUrl.contains('timeshift=1');
     return applyPlayerSourceSettings(
