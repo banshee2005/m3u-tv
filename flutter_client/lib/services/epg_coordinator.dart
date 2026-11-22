@@ -312,7 +312,10 @@ class EpgCoordinator {
         );
       }
     } on Object catch (e) {
-      epgService.markFetchFailed(fetchIds, sourceGeneration: sourceGeneration);
+      epgService.markFetchFailed(
+        fetchIds,
+        sourceGeneration: sourceGeneration,
+      );
       if (generation != _epgRequestGeneration ||
           rangeKey != _activeEpgRangeKey) {
         return;
@@ -452,7 +455,9 @@ class EpgCoordinator {
       await Future<void>.delayed(_epgSweepChunkDelay);
     }
     if (kDebugMode) {
-      debugPrint('[EPG] background sweep complete ($total channels)');
+      debugPrint(
+        '[EPG] background sweep complete ($total channels)',
+      );
     }
     if (!_disposed && sweepGeneration == _epgSweepGeneration) {
       _epgSweepProgressController.add(null);

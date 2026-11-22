@@ -3,7 +3,10 @@ import 'package:m3u_tv/services/domain_models.dart';
 
 void main() {
   Map<String, Object?> vodPayload(Object? castList) => <String, Object?>{
-    'info': <String, Object?>{'tmdb_id': 27205, 'name': 'Inception'},
+    'info': <String, Object?>{
+      'tmdb_id': 27205,
+      'name': 'Inception',
+    },
     'movie_data': <String, Object?>{
       'stream_id': 101,
       'name': 'Inception',

@@ -571,7 +571,10 @@ class _SidebarDestinationItemState extends State<SidebarDestinationItem> {
                         gradient: LinearGradient(
                           begin: Alignment.topRight,
                           end: Alignment.bottomLeft,
-                          colors: [colorScheme.primary, colorScheme.secondary],
+                          colors: [
+                            colorScheme.primary,
+                            colorScheme.secondary,
+                          ],
                         ),
                       ),
                     ),

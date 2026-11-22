@@ -137,7 +137,12 @@ class _AIOStreamsSearchScreenState extends State<AIOStreamsSearchScreen>
     ) {
       final (integration, catalog) = pair;
       return widget.apiService
-          .getCatalog(integration.id, catalog.type, catalog.id, search: query)
+          .getCatalog(
+            integration.id,
+            catalog.type,
+            catalog.id,
+            search: query,
+          )
           .then(
             (items) => items.map(
               (item) =>

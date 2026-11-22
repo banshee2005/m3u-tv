@@ -373,8 +373,9 @@ class IntegrationCardHeader extends StatelessWidget {
         SizedBox(width: 12 * FontSizeScope.scaleOf(context)),
         Text(
           title,
-          style: Theme.of(context).textTheme.headlineSmall
-              ?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );

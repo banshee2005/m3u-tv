@@ -133,7 +133,9 @@ void main() {
       expect(endsAt.right, moreOrLessEquals(clock.right));
     });
 
-    testWidgets('holds the finish minute steady while playing', (tester) async {
+    testWidgets('holds the finish minute steady while playing', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _app(_controls(position: const Duration(minutes: 5, seconds: 1))),
       );

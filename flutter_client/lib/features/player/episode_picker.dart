@@ -199,7 +199,12 @@ class _EpisodePickerSheetState extends State<_EpisodePickerSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(20 * scale, 0, 12 * scale, 4 * scale),
+            padding: EdgeInsets.fromLTRB(
+              20 * scale,
+              0,
+              12 * scale,
+              4 * scale,
+            ),
             child: Row(
               children: [
                 Expanded(

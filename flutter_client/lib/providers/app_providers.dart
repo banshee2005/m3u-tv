@@ -67,7 +67,9 @@ final appStateControllerProvider = ChangeNotifierProvider<_AppStateProxy>((_) {
 /// )
 /// ```
 Override overrideAppState(AppStateController appState) =>
-    appStateControllerProvider.overrideWith((ref) => _AppStateProxy(appState));
+    appStateControllerProvider.overrideWith(
+      (ref) => _AppStateProxy(appState),
+    );
 
 // EpgService is its own ChangeNotifier — this provider subscribes directly to
 // EpgService.notifyListeners(), which fires only when EPG data loads.
@@ -216,11 +218,11 @@ final notificationStoreProvider = Provider<TvNotificationStore>((ref) {
 // Exposes the live notification broadcast stream so screens can subscribe
 // directly in initState — bypasses Riverpod change-detection timing issues
 // with ChangeNotifierProvider when the widget hasn't been built yet.
-final tvNotificationsStreamProvider = Provider<Stream<TvNotificationItem>>((
-  ref,
-) {
-  return ref.read(appStateControllerProvider).appState.tvNotifications;
-});
+final tvNotificationsStreamProvider = Provider<Stream<TvNotificationItem>>(
+  (ref) {
+    return ref.read(appStateControllerProvider).appState.tvNotifications;
+  },
+);
 
 /// Exposes the persisted view settings service so settings and feature screens
 /// can read and update layout preferences without touching credentials.

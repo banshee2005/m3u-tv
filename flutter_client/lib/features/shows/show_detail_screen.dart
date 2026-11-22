@@ -85,7 +85,9 @@ class ShowDetailScreen extends ConsumerStatefulWidget {
   /// `AppStateController.scheduleDvrAirings`. Null means selection mode is
   /// unavailable entirely (no long-press affordance, no action bar), since a
   /// mode with no exit would trap the user.
-  final Future<List<DvrAiringScheduleResult>> Function(List<EpgShowEpisode>)?
+  final Future<List<DvrAiringScheduleResult>> Function(
+    List<EpgShowEpisode>,
+  )?
   onScheduleEpisodes;
 
   /// Wired from AppShell (via `ContentActions.onHandleTopLevelBack`) so the
@@ -305,7 +307,11 @@ class _ShowDetailScreenState extends ConsumerState<ShowDetailScreen> {
     } on Object catch (error) {
       if (!mounted) return;
       messenger.showSnackBar(
-        SnackBar(content: Text(l10n.showRecordSeriesFailed('$error'))),
+        SnackBar(
+          content: Text(
+            l10n.showRecordSeriesFailed('$error'),
+          ),
+        ),
       );
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -347,7 +353,9 @@ class _ShowDetailScreenState extends ConsumerState<ShowDetailScreen> {
     } on Object {
       if (!mounted) return;
       messenger.showSnackBar(
-        SnackBar(content: Text(l10n.dvrDeleteSeriesRuleFailed)),
+        SnackBar(
+          content: Text(l10n.dvrDeleteSeriesRuleFailed),
+        ),
       );
     }
   }
@@ -367,7 +375,9 @@ class _ShowDetailScreenState extends ConsumerState<ShowDetailScreen> {
     final show = widget.show;
     final channelNames = show.channels
         .map((c) => c.channelName)
-        .toList(growable: false);
+        .toList(
+          growable: false,
+        );
     final channelsLabel = channelNames.join(' · ');
     final nextAiring = show.nextAiringAt;
     final nextAiringLabel = nextAiring == null
@@ -413,8 +423,9 @@ class _ShowDetailScreenState extends ConsumerState<ShowDetailScreen> {
               // Hide the Record Series controls while in selection mode so
               // they don't compete for focus with the episode-list action bar.
               hideActions: _selectionMode,
-              onRecordSeries: () =>
-                  _recordSeries(channelId: nextAiringChannelId(widget.show)),
+              onRecordSeries: () => _recordSeries(
+                channelId: nextAiringChannelId(widget.show),
+              ),
               onOpenOptions: _openOptionsScreen,
               onDeleteRule: existingRule == null
                   ? null
@@ -425,7 +436,10 @@ class _ShowDetailScreenState extends ConsumerState<ShowDetailScreen> {
               padding: const EdgeInsets.symmetric(
                 vertical: MediaBrowsingMetrics.chipGap,
               ),
-              child: Text(nextAiringLabel, style: theme.textTheme.bodyLarge),
+              child: Text(
+                nextAiringLabel,
+                style: theme.textTheme.bodyLarge,
+              ),
             ),
             const SizedBox(height: MediaBrowsingMetrics.itemGap),
             if (_selectionMode) ...[
@@ -446,52 +460,54 @@ class _ShowDetailScreenState extends ConsumerState<ShowDetailScreen> {
                 ),
               )
             else
-              ...show.recentEpisodes.map((episode) {
-                final alreadyScheduled = _isAlreadyScheduled(
-                  episode,
-                  recordingIndex,
-                );
-                final episodeKey = _episodeRecordKey(episode);
-                // Matches the single-row `canSchedule` gate in
-                // _EpisodeRowState: an airing that has already ended can't
-                // be recorded, in batch mode any more than single-row mode.
-                final rowSelectable =
-                    !alreadyScheduled &&
-                    episode.endTime.isAfter(DateTime.now());
-                final toggleSelection = _selectionMode && rowSelectable
-                    ? () => _toggleSelection(episode)
-                    : null;
-                return Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: MediaBrowsingMetrics.itemGap,
-                  ),
-                  child: _EpisodeRow(
-                    episode: episode,
-                    localeTag: localized,
-                    alreadyScheduled: alreadyScheduled,
-                    selectionMode: _selectionMode,
-                    selected: _selectedEpisodeKeys.contains(episodeKey),
-                    // Long-press: enter mode (normal mode) or toggle (in
-                    // mode). Only available when selection mode is
-                    // reachable AND this row is selectable.
-                    onLongTap:
-                        (widget.onScheduleEpisodes != null &&
-                            !_selectionMode &&
-                            rowSelectable)
-                        ? () => _enterSelectionMode(episode)
-                        : toggleSelection,
-                    // Tap: only meaningful in selection mode (toggle).
-                    onTap: toggleSelection,
-                    onScheduleEpisode:
-                        !_selectionMode &&
-                            widget.onScheduleEpisode != null &&
-                            rowSelectable
-                        ? _scheduleEpisode
-                        : null,
-                    isScheduling: _submittingEpisodeKeys.contains(episodeKey),
-                  ),
-                );
-              }),
+              ...show.recentEpisodes.map(
+                (episode) {
+                  final alreadyScheduled = _isAlreadyScheduled(
+                    episode,
+                    recordingIndex,
+                  );
+                  final episodeKey = _episodeRecordKey(episode);
+                  // Matches the single-row `canSchedule` gate in
+                  // _EpisodeRowState: an airing that has already ended can't
+                  // be recorded, in batch mode any more than single-row mode.
+                  final rowSelectable =
+                      !alreadyScheduled &&
+                      episode.endTime.isAfter(DateTime.now());
+                  final toggleSelection = _selectionMode && rowSelectable
+                      ? () => _toggleSelection(episode)
+                      : null;
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: MediaBrowsingMetrics.itemGap,
+                    ),
+                    child: _EpisodeRow(
+                      episode: episode,
+                      localeTag: localized,
+                      alreadyScheduled: alreadyScheduled,
+                      selectionMode: _selectionMode,
+                      selected: _selectedEpisodeKeys.contains(episodeKey),
+                      // Long-press: enter mode (normal mode) or toggle (in
+                      // mode). Only available when selection mode is
+                      // reachable AND this row is selectable.
+                      onLongTap:
+                          (widget.onScheduleEpisodes != null &&
+                              !_selectionMode &&
+                              rowSelectable)
+                          ? () => _enterSelectionMode(episode)
+                          : toggleSelection,
+                      // Tap: only meaningful in selection mode (toggle).
+                      onTap: toggleSelection,
+                      onScheduleEpisode:
+                          !_selectionMode &&
+                              widget.onScheduleEpisode != null &&
+                              rowSelectable
+                          ? _scheduleEpisode
+                          : null,
+                      isScheduling: _submittingEpisodeKeys.contains(episodeKey),
+                    ),
+                  );
+                },
+              ),
           ],
         ),
       ),
@@ -739,9 +755,9 @@ class _EpisodeRowState extends State<_EpisodeRow> {
     final isScheduling = widget.isScheduling;
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final timeLabel = DateFormat.yMMMd(localeTag)
-        .add_jm()
-        .format(episode.startTime.toLocal());
+    final timeLabel = DateFormat.yMMMd(
+      localeTag,
+    ).add_jm().format(episode.startTime.toLocal());
     // Don't offer to record an airing that has already ended (same check
     // as the live-tv context menu's `pressedProgram.end.isAfter(now)`).
     final canSchedule =

@@ -370,7 +370,10 @@ buildMultiviewTilePlayer(
         handleAudioFocus: false,
         probe: const AndroidPlaybackProbe(
           hardwareCodecs: <VideoCodec>{VideoCodec.h264},
-          passthroughAudioCodecs: <AudioCodec>{AudioCodec.aac, AudioCodec.mp3},
+          passthroughAudioCodecs: <AudioCodec>{
+            AudioCodec.aac,
+            AudioCodec.mp3,
+          },
           serverTranscodeAvailable: false,
         ),
       );

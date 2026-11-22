@@ -202,7 +202,11 @@ class TrackSelector extends StatelessWidget {
       context,
       title: l.playerTrackSubtitleTitle,
       options: [
-        (id: null, label: l.playerTrackSubtitlesOff, icon: Icons.subtitles_off),
+        (
+          id: null,
+          label: l.playerTrackSubtitlesOff,
+          icon: Icons.subtitles_off,
+        ),
         for (final track in subtitleTracks)
           (id: track.id, label: track.label, icon: Icons.closed_caption),
       ],

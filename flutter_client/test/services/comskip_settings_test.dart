@@ -17,7 +17,9 @@ void main() {
       addTearDown(() => dir.delete(recursive: true));
       final file = File('${dir.path}/store.json');
 
-      final settings = ComskipSettings(store: PersistentJsonStore(file: file));
+      final settings = ComskipSettings(
+        store: PersistentJsonStore(file: file),
+      );
       await settings.load();
 
       expect(settings.autoSkipEnabled, isTrue);

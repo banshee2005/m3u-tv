@@ -221,9 +221,9 @@ class _VodDetailsBody extends StatelessWidget {
           MetaCreditLine(
             label: l.vodRecorded,
             value: [
-              DateFormat.yMMMEd(Localizations.localeOf(context).toLanguageTag())
-                  .add_jm()
-                  .format(recordedAt.toLocal()),
+              DateFormat.yMMMEd(
+                Localizations.localeOf(context).toLanguageTag(),
+              ).add_jm().format(recordedAt.toLocal()),
               ?details.recordedChannelName,
             ].join(' · '),
           ),

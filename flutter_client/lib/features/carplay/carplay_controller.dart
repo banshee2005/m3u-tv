@@ -11,10 +11,8 @@ import 'package:m3u_tv/shared/channel_context.dart';
 
 /// Plays [channel] from a CarPlay list; [context] is the list it was picked
 /// from, for next/previous channel.
-typedef CarPlayChannelHandler = void Function(
-  Channel channel,
-  ChannelContext context,
-);
+typedef CarPlayChannelHandler =
+    void Function(Channel channel, ChannelContext context);
 
 /// The app's CarPlay screens (iPhone): Favorites and Live TV tabs over the
 /// live catalog.
@@ -128,7 +126,10 @@ class CarPlayController {
       CPListSection(
         items: [
           for (final channel in favorites)
-            _channelItem(channel, ListChannelContext(favorites)),
+            _channelItem(
+              channel,
+              ListChannelContext(favorites),
+            ),
         ],
       ),
     ];

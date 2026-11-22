@@ -231,8 +231,9 @@ class PosterStripState<T> extends State<PosterStrip<T>> {
   // real font metrics across locales/devices (and is easy to get wrong once,
   // let alone twice, per caller).
   double _textLineHeight(BuildContext context) {
-    final style = Theme.of(context).textTheme.bodySmall
-        ?.copyWith(fontWeight: FontWeight.w700);
+    final style = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700);
     final painter = TextPainter(
       text: TextSpan(text: 'Mg', style: style),
       textDirection: Directionality.of(context),

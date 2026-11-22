@@ -157,8 +157,9 @@ class PlaybackSeekWindow {
   /// playback position).
   final List<({Duration start, Duration end})> buffered;
 
-  bool contains(Duration position) =>
-      buffered.any((range) => position >= range.start && position <= range.end);
+  bool contains(Duration position) => buffered.any(
+    (range) => position >= range.start && position <= range.end,
+  );
 
   /// Where the buffered range that [playing] is in ends: the range the player
   /// is still reading ahead into. Null when [playing] isn't buffered. A
@@ -676,8 +677,10 @@ class PlaybackException implements Exception {
 /// initialize (e.g. `mpv_create`/`mpv_initialize` failed on the Swift side).
 /// Shared between `MacMpvNativeBackend` and `AppleMpvNativeBackend`.
 class NativeMpvUnavailableException extends PlaybackException {
-  NativeMpvUnavailableException(String message, {required super.backend})
-    : super(message: message, code: unavailableCode, recoverable: true);
+  NativeMpvUnavailableException(
+    String message, {
+    required super.backend,
+  }) : super(message: message, code: unavailableCode, recoverable: true);
 
   static const String unavailableCode = 'backend_unavailable';
 }

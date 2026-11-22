@@ -16,7 +16,11 @@ const SyncOffsets zeroSyncOffsets = (
 /// What an offset is remembered for: the live channel (catch-up included,
 /// it's the same channel's stream), the movie, or the series (every episode
 /// shares one). Null when the content has no id to remember it by.
-String? syncOffsetKeyFor({required String type, int? streamId, int? seriesId}) {
+String? syncOffsetKeyFor({
+  required String type,
+  int? streamId,
+  int? seriesId,
+}) {
   switch (type) {
     case 'live' || 'catchup':
       return streamId == null ? null : 'live:$streamId';

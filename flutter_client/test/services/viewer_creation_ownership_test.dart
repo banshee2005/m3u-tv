@@ -28,43 +28,46 @@ const _accountB = UserCredentials(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('delayed viewer creation cannot publish or persist account A into account B', () async {
-    final transport = _ViewerTransport();
-    final memory = <String, Object?>{};
-    final controller = _controller(transport, memory);
-    addTearDown(controller.dispose);
+  test(
+    'delayed viewer creation cannot publish or persist account A into account B',
+    () async {
+      final transport = _ViewerTransport();
+      final memory = <String, Object?>{};
+      final controller = _controller(transport, memory);
+      addTearDown(controller.dispose);
 
-    expect(await controller.connectXtream(_accountA), isTrue);
-    final staleCreation = controller.createViewer('Account A child');
-    await transport.creationStarted.future;
+      expect(await controller.connectXtream(_accountA), isTrue);
+      final staleCreation = controller.createViewer('Account A child');
+      await transport.creationStarted.future;
 
-    expect(await controller.connectXtream(_accountB), isTrue);
-    await pumpEventQueue();
-    var notifications = 0;
-    controller.addListener(() => notifications += 1);
+      expect(await controller.connectXtream(_accountB), isTrue);
+      await pumpEventQueue();
+      var notifications = 0;
+      controller.addListener(() => notifications += 1);
 
-    transport.releaseCreation.complete();
+      transport.releaseCreation.complete();
 
-    expect(await staleCreation, isNull);
-    await pumpEventQueue();
-    expect(transport.creationCredentials?.username, _accountA.username);
-    expect(controller.viewers.map((viewer) => viewer.ulid), <String>[
-      'viewer-b',
-    ]);
-    expect(controller.activeViewer?.ulid, 'viewer-b');
-    // Account B is the second playlist saved, so its viewer is keyed by its
-    // playlist id; account A keeps the original server+login key.
-    final playlistB = controller.savedPlaylists.find(_accountB);
-    expect(
-      memory['m3ue_tv_active_viewer_playlist_${playlistB!.id}'],
-      'viewer-b',
-    );
-    expect(
-      memory['m3ue_tv_active_viewer_${_accountA.server}|${_accountA.username}'],
-      isNot('viewer-b'),
-    );
-    expect(notifications, 0);
-  });
+      expect(await staleCreation, isNull);
+      await pumpEventQueue();
+      expect(transport.creationCredentials?.username, _accountA.username);
+      expect(controller.viewers.map((viewer) => viewer.ulid), <String>[
+        'viewer-b',
+      ]);
+      expect(controller.activeViewer?.ulid, 'viewer-b');
+      // Account B is the second playlist saved, so its viewer is keyed by its
+      // playlist id; account A keeps the original server+login key.
+      final playlistB = controller.savedPlaylists.find(_accountB);
+      expect(
+        memory['m3ue_tv_active_viewer_playlist_${playlistB!.id}'],
+        'viewer-b',
+      );
+      expect(
+        memory['m3ue_tv_active_viewer_${_accountA.server}|${_accountA.username}'],
+        isNot('viewer-b'),
+      );
+      expect(notifications, 0);
+    },
+  );
 }
 
 AppStateController _controller(
@@ -79,7 +82,10 @@ AppStateController _controller(
   cacheService: CacheService(memory: <String, Object?>{}),
   favoritesService: FavoritesService(memory: memory),
   vodFavoritesService: FavoritesService(memory: memory, namespace: 'vod'),
-  seriesFavoritesService: FavoritesService(memory: memory, namespace: 'series'),
+  seriesFavoritesService: FavoritesService(
+    memory: memory,
+    namespace: 'series',
+  ),
   aioFavoritesService: AIOStreamsFavoritesService(),
   resumeService: ResumeService(memory: memory),
   viewerService: ViewerService(memory: memory),

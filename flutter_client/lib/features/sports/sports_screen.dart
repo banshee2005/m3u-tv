@@ -430,8 +430,9 @@ class _SportsScreenState extends ConsumerState<SportsScreen> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _openFixture(SportsFixture fixture) async {

@@ -572,10 +572,13 @@ class EpisodeStripState extends State<EpisodeStrip>
     parent: _seasonAnim,
     curve: Curves.easeOut,
   );
-  late final Animation<Offset> _seasonSlide = Tween<Offset>(
-    begin: const Offset(0.05, 0),
-    end: Offset.zero,
-  ).animate(CurvedAnimation(parent: _seasonAnim, curve: Curves.easeOutCubic));
+  late final Animation<Offset> _seasonSlide =
+      Tween<Offset>(
+        begin: const Offset(0.05, 0),
+        end: Offset.zero,
+      ).animate(
+        CurvedAnimation(parent: _seasonAnim, curve: Curves.easeOutCubic),
+      );
 
   // TV / desktop only: the whole strip is one focus stop. `_focusedIndex` is
   // the highlighted card; `_hasFocus` mirrors the strip node so the cards
@@ -768,7 +771,10 @@ class EpisodeStripState extends State<EpisodeStrip>
   bool _hasLongPress(Episode episode) =>
       widget.canMarkWatched || _canDelete(episode);
 
-  Future<void> _confirmEpisode(Episode episode, {required bool watched}) async {
+  Future<void> _confirmEpisode(
+    Episode episode, {
+    required bool watched,
+  }) async {
     if (!_hasLongPress(episode)) return;
     final choice = await confirmEpisodeAction(
       context,
@@ -948,8 +954,10 @@ class EpisodeCard extends StatelessWidget {
     context,
     Text(
       text,
-      style: Theme.of(context).textTheme.labelSmall
-          ?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        color: Colors.white,
+        fontWeight: FontWeight.w600,
+      ),
     ),
   );
 
@@ -1063,7 +1071,10 @@ class EpisodeCard extends StatelessWidget {
                                 AppLocalizations.of(context).detailDvrBadge,
                               ),
                             if (episode.rating != null)
-                              _pillText(context, formatRating(episode.rating!)),
+                              _pillText(
+                                context,
+                                formatRating(episode.rating!),
+                              ),
                             if (runtime != null && runtime.isNotEmpty)
                               _pillText(context, runtime),
                           ],
@@ -1122,8 +1133,11 @@ class EpisodeCard extends StatelessWidget {
         ),
       ),
     );
-    body = GradientBorderEffect(borderRadius: radius)
-        .build(context, DpadFocusState(focused: focused, pressed: false), body);
+    body = GradientBorderEffect(borderRadius: radius).build(
+      context,
+      DpadFocusState(focused: focused, pressed: false),
+      body,
+    );
     return SizedBox(width: width, child: body);
   }
 
@@ -1861,8 +1875,11 @@ class SeriesDetailBody extends StatelessWidget {
                 members: richCast,
                 semanticLabel: l.seriesCast,
                 compact: true,
-                onShowAll: () =>
-                    showAllCast(context, richCast!, onTapMember: onTapMember),
+                onShowAll: () => showAllCast(
+                  context,
+                  richCast!,
+                  onTapMember: onTapMember,
+                ),
                 allCastSemanticLabel: l.castShowAll,
               ),
           ],

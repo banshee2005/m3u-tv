@@ -199,7 +199,9 @@ void main() {
 
     testWidgets(
       'keeps the populated list visible during a background refresh',
-      (tester) async {
+      (
+        tester,
+      ) async {
         await tester.pumpWidget(
           _TestApp(
             channels: testChannels,
@@ -363,7 +365,9 @@ void main() {
 
     testWidgets(
       'shows EPG schedule action and calls back with program context',
-      (tester) async {
+      (
+        tester,
+      ) async {
         Channel? scheduledChannel;
         EpgProgram? scheduledProgram;
         final epgService =
@@ -912,11 +916,16 @@ void main() {
               ),
             )
             .where((focus) => focus.focusNode != null);
-        expect(resultsFocus.any((focus) => focus.focusNode!.hasFocus), isTrue);
+        expect(
+          resultsFocus.any((focus) => focus.focusNode!.hasFocus),
+          isTrue,
+        );
       },
     );
 
-    testWidgets('clearing the query restores the channel list', (tester) async {
+    testWidgets('clearing the query restores the channel list', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _TestApp(
           channels: channels,
@@ -937,50 +946,52 @@ void main() {
       expect(find.text('BBC One'), findsOneWidget);
     });
 
-    testWidgets('throwing onSearchShows renders search-failed on the All tab', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _TestApp(
-          channels: channels,
-          categories: categories,
-          onSearchShows: (query) async => throw StateError('boom'),
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'throwing onSearchShows renders search-failed on the All tab',
+      (tester) async {
+        await tester.pumpWidget(
+          _TestApp(
+            channels: channels,
+            categories: categories,
+            onSearchShows: (query) async => throw StateError('boom'),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      await enterQuery(tester, 'bbc');
-      await tester.pump(const Duration(milliseconds: 400));
-      await tester.pumpAndSettle();
+        await enterQuery(tester, 'bbc');
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Search failed'), findsOneWidget);
-      expect(find.text('No shows match your search'), findsNothing);
-    });
+        expect(find.text('Search failed'), findsOneWidget);
+        expect(find.text('No shows match your search'), findsNothing);
+      },
+    );
 
-    testWidgets('synchronously shows loading on first qualifying keystroke', (
-      tester,
-    ) async {
-      final pending = Completer<List<EpgShow>>();
-      await tester.pumpWidget(
-        _TestApp(
-          channels: channels,
-          categories: categories,
-          onSearchShows: (query) => pending.future,
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'synchronously shows loading on first qualifying keystroke',
+      (tester) async {
+        final pending = Completer<List<EpgShow>>();
+        await tester.pumpWidget(
+          _TestApp(
+            channels: channels,
+            categories: categories,
+            onSearchShows: (query) => pending.future,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      await enterQuery(tester, 'bb');
-      // Pump exactly one frame - the debounce hasn't fired yet (350ms),
-      // but the All tab should already render "Searching shows…" instead
-      // of "No shows match your search".
-      await tester.pump();
-      expect(find.text('Searching shows…'), findsOneWidget);
-      expect(find.text('No shows match your search'), findsNothing);
+        await enterQuery(tester, 'bb');
+        // Pump exactly one frame - the debounce hasn't fired yet (350ms),
+        // but the All tab should already render "Searching shows…" instead
+        // of "No shows match your search".
+        await tester.pump();
+        expect(find.text('Searching shows…'), findsOneWidget);
+        expect(find.text('No shows match your search'), findsNothing);
 
-      pending.complete(const <EpgShow>[]);
-      await tester.pumpAndSettle();
-    });
+        pending.complete(const <EpgShow>[]);
+        await tester.pumpAndSettle();
+      },
+    );
 
     group('All tab', () {
       testWidgets('shows On Now first, then Upcoming', (tester) async {
@@ -1286,7 +1297,9 @@ void main() {
 
       testWidgets(
         'subtitle falls back to channel name with no episode subtitle',
-        (tester) async {
+        (
+          tester,
+        ) async {
           await tester.pumpWidget(
             _TestApp(
               channels: channels,
@@ -1575,7 +1588,9 @@ void main() {
         },
       );
 
-      testWidgets('same show on two channels renders two rows', (tester) async {
+      testWidgets('same show on two channels renders two rows', (
+        tester,
+      ) async {
         await tester.pumpWidget(
           _TestApp(
             channels: channels,
@@ -1676,48 +1691,49 @@ void main() {
         expect(soonerPos.dy, lessThan(laterPos.dy));
       });
 
-      testWidgets('renders a day-relative airing time on the row', (
-        tester,
-      ) async {
-        final now = DateTime.now();
-        final laterToday = DateTime(now.year, now.month, now.day, 23).toUtc();
-        await tester.pumpWidget(
-          _TestApp(
-            channels: channels,
-            categories: categories,
-            onSearchShows: staticResults([
-              EpgShow(
-                normalizedTitle: 'local-time',
-                displayTitle: 'Local Time Check',
-                channelCount: 1,
-                channels: const [
-                  EpgShowChannel(channelId: 1, channelName: 'BBC One'),
-                ],
-                episodeCount: 0,
-                recentEpisodes: [
-                  EpgShowEpisode(
-                    channelId: 1,
-                    channelName: 'BBC One',
-                    title: 'Episode Slot',
-                    startTime: laterToday.isAfter(DateTime.now().toUtc())
-                        ? laterToday
-                        : laterToday.add(const Duration(days: 1)),
-                    endTime: laterToday.add(const Duration(hours: 1)),
-                  ),
-                ],
-              ),
-            ]),
-          ),
-        );
-        await tester.pumpAndSettle();
+      testWidgets(
+        'renders a day-relative airing time on the row',
+        (tester) async {
+          final now = DateTime.now();
+          final laterToday = DateTime(now.year, now.month, now.day, 23).toUtc();
+          await tester.pumpWidget(
+            _TestApp(
+              channels: channels,
+              categories: categories,
+              onSearchShows: staticResults([
+                EpgShow(
+                  normalizedTitle: 'local-time',
+                  displayTitle: 'Local Time Check',
+                  channelCount: 1,
+                  channels: const [
+                    EpgShowChannel(channelId: 1, channelName: 'BBC One'),
+                  ],
+                  episodeCount: 0,
+                  recentEpisodes: [
+                    EpgShowEpisode(
+                      channelId: 1,
+                      channelName: 'BBC One',
+                      title: 'Episode Slot',
+                      startTime: laterToday.isAfter(DateTime.now().toUtc())
+                          ? laterToday
+                          : laterToday.add(const Duration(days: 1)),
+                      endTime: laterToday.add(const Duration(hours: 1)),
+                    ),
+                  ],
+                ),
+              ]),
+            ),
+          );
+          await tester.pumpAndSettle();
 
-        await enterQuery(tester, 'loc');
-        await tester.pump(const Duration(milliseconds: 400));
-        await tester.pumpAndSettle();
+          await enterQuery(tester, 'loc');
+          await tester.pump(const Duration(milliseconds: 400));
+          await tester.pumpAndSettle();
 
-        expect(find.text('Local Time Check'), findsOneWidget);
-        expect(find.text('BBC One'), findsOneWidget);
-      });
+          expect(find.text('Local Time Check'), findsOneWidget);
+          expect(find.text('BBC One'), findsOneWidget);
+        },
+      );
 
       testWidgets('tapping a row invokes onShowSelect with the parent show', (
         tester,
@@ -1763,7 +1779,9 @@ void main() {
         expect(tapped!.normalizedTitle, 'nightly-report');
       });
 
-      testWidgets('null onShowSelect is a no-op, not a throw', (tester) async {
+      testWidgets('null onShowSelect is a no-op, not a throw', (
+        tester,
+      ) async {
         await tester.pumpWidget(
           _TestApp(
             channels: channels,
@@ -1800,78 +1818,79 @@ void main() {
       });
     });
 
-    testWidgets('starting a new qualifying search resets the tab back to All', (
-      tester,
-    ) async {
-      // "Nightly Report" is upcoming-only; "Weather" is on-now-only (the
-      // "News" category tab in the fixture categories would otherwise
-      // collide with a show named "News"). If the tab is still on
-      // Upcoming after the reset, Weather stays hidden; if the reset
-      // actually landed back on All, both are visible.
-      final results = staticResults([
-        EpgShow(
-          normalizedTitle: 'nightly-report',
-          displayTitle: 'Nightly Report',
-          channelCount: 1,
-          channels: const [],
-          episodeCount: 0,
-          recentEpisodes: [
-            EpgShowEpisode(
-              channelId: 1,
-              channelName: 'Channel',
-              title: 'Nightly Report Episode',
-              startTime: futureTime,
-              endTime: futureTime.add(const Duration(hours: 1)),
-            ),
-          ],
-        ),
-        EpgShow(
-          normalizedTitle: 'weather',
-          displayTitle: 'Weather',
-          channelCount: 1,
-          channels: const [],
-          episodeCount: 0,
-          recentEpisodes: const [],
-          airingNow: [
-            EpgShowEpisode(
-              channelId: 2,
-              channelName: 'Channel',
-              title: 'Weather Episode',
-              startTime: futureTime.subtract(const Duration(minutes: 10)),
-              endTime: futureTime.add(const Duration(minutes: 50)),
-            ),
-          ],
-        ),
-      ]);
-      await tester.pumpWidget(
-        _TestApp(
-          channels: channels,
-          categories: categories,
-          onSearchShows: results,
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'starting a new qualifying search resets the tab back to All',
+      (tester) async {
+        // "Nightly Report" is upcoming-only; "Weather" is on-now-only (the
+        // "News" category tab in the fixture categories would otherwise
+        // collide with a show named "News"). If the tab is still on
+        // Upcoming after the reset, Weather stays hidden; if the reset
+        // actually landed back on All, both are visible.
+        final results = staticResults([
+          EpgShow(
+            normalizedTitle: 'nightly-report',
+            displayTitle: 'Nightly Report',
+            channelCount: 1,
+            channels: const [],
+            episodeCount: 0,
+            recentEpisodes: [
+              EpgShowEpisode(
+                channelId: 1,
+                channelName: 'Channel',
+                title: 'Nightly Report Episode',
+                startTime: futureTime,
+                endTime: futureTime.add(const Duration(hours: 1)),
+              ),
+            ],
+          ),
+          EpgShow(
+            normalizedTitle: 'weather',
+            displayTitle: 'Weather',
+            channelCount: 1,
+            channels: const [],
+            episodeCount: 0,
+            recentEpisodes: const [],
+            airingNow: [
+              EpgShowEpisode(
+                channelId: 2,
+                channelName: 'Channel',
+                title: 'Weather Episode',
+                startTime: futureTime.subtract(const Duration(minutes: 10)),
+                endTime: futureTime.add(const Duration(minutes: 50)),
+              ),
+            ],
+          ),
+        ]);
+        await tester.pumpWidget(
+          _TestApp(
+            channels: channels,
+            categories: categories,
+            onSearchShows: results,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      await enterQuery(tester, 'ni');
-      await tester.pump(const Duration(milliseconds: 400));
-      await tester.pumpAndSettle();
+        await enterQuery(tester, 'ni');
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
 
-      await tester.tap(upcomingTab);
-      await tester.pumpAndSettle();
-      expect(find.text('Nightly Report'), findsOneWidget);
-      expect(find.text('Weather'), findsNothing);
+        await tester.tap(upcomingTab);
+        await tester.pumpAndSettle();
+        expect(find.text('Nightly Report'), findsOneWidget);
+        expect(find.text('Weather'), findsNothing);
 
-      // Drop below the 2-char threshold, then start a fresh search.
-      await enterQuery(tester, '');
-      await tester.pumpAndSettle();
-      await enterQuery(tester, 'ni');
-      await tester.pump(const Duration(milliseconds: 400));
-      await tester.pumpAndSettle();
+        // Drop below the 2-char threshold, then start a fresh search.
+        await enterQuery(tester, '');
+        await tester.pumpAndSettle();
+        await enterQuery(tester, 'ni');
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
 
-      // Back on the All tab - both rows render again.
-      expect(find.text('Nightly Report'), findsOneWidget);
-      expect(find.text('Weather'), findsOneWidget);
-    });
+        // Back on the All tab - both rows render again.
+        expect(find.text('Nightly Report'), findsOneWidget);
+        expect(find.text('Weather'), findsOneWidget);
+      },
+    );
   });
 
   group('LiveTvScreen favorites first', () {
@@ -2066,8 +2085,9 @@ class _TestApp extends StatelessWidget {
             : (context, child) => FontSizeScope(
                 fontSize: fontSize,
                 child: MediaQuery(
-                  data: MediaQuery.of(context)
-                      .copyWith(textScaler: TextScaler.linear(fontSize.scale)),
+                  data: MediaQuery.of(
+                    context,
+                  ).copyWith(textScaler: TextScaler.linear(fontSize.scale)),
                   child: child!,
                 ),
               ),

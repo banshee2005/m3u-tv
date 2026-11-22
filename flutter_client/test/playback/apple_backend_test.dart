@@ -10,7 +10,9 @@ void main() {
       'declares explicit build and playback gates for each Apple target',
       () {
         expect(
-          AppleBackendFeasibility.targets.map((target) => target.platform),
+          AppleBackendFeasibility.targets.map(
+            (target) => target.platform,
+          ),
           <AppleTargetPlatform>[
             AppleTargetPlatform.ios,
             AppleTargetPlatform.ipados,
@@ -66,8 +68,9 @@ void main() {
         AppleTargetPlatform.tvos,
       ]) {
         expect(
-          AppleBackendFeasibility.forPlatform(platform).backendOrder
-              .map((capabilities) => capabilities.backend),
+          AppleBackendFeasibility.forPlatform(
+            platform,
+          ).backendOrder.map((capabilities) => capabilities.backend),
           contains(PlaybackBackend.appleAvKit),
           reason: '${platform.label} must not block playback on mpv',
         );
@@ -94,7 +97,9 @@ void main() {
 
     test('records App Store gates and license obligations', () {
       expect(
-        AppleBackendFeasibility.appStoreGates.map((gate) => gate.id),
+        AppleBackendFeasibility.appStoreGates.map(
+          (gate) => gate.id,
+        ),
         containsAll(<String>[
           'public-apis',
           'self-contained-bundle',
@@ -128,55 +133,58 @@ void main() {
   });
 
   group('Apple feasibility document', () {
-    test('captures gated matrix, fallback, tvOS decision, and licenses', () {
-      final document = File(
-        '../docs/migration/apple-playback-store-feasibility.md',
-      );
+    test(
+      'captures gated matrix, fallback, tvOS decision, and licenses',
+      () {
+        final document = File(
+          '../docs/migration/apple-playback-store-feasibility.md',
+        );
 
-      expect(document.existsSync(), isTrue);
-      final text = document.readAsStringSync();
+        expect(document.existsSync(), isTrue);
+        final text = document.readAsStringSync();
 
-      expect(
-        text,
-        contains(
-          '| iOS | PASS for Flutter project generation | WORKING -- confirmed via click-testing on iOS Simulator |',
-        ),
-      );
-      expect(
-        text,
-        contains(
-          '| iPadOS | PASS for Flutter project generation | WORKING (shares the iOS target) |',
-        ),
-      );
-      expect(
-        text,
-        contains(
-          '| macOS | PASS for Flutter project generation | WORKING -- confirmed via click-testing |',
-        ),
-      );
-      expect(
-        text,
-        contains(
-          '| tvOS | Builds via a custom Xcode-based runner (no `flutter build tvos` CLI support) | WORKING',
-        ),
-      );
-      expect(text, contains('Apple platforms stay non-blocking'));
-      expect(text, isNot(contains('tvOS release-complete')));
-      expect(text, isNot(contains('MPVKit is approved')));
-      expect(text, contains('AVKit fallback'));
-      expect(text, contains('GCController'));
-      expect(text, contains('custom Flutter tvOS embedder'));
-      expect(text, contains('App Store Review Guideline 2.5.1'));
+        expect(
+          text,
+          contains(
+            '| iOS | PASS for Flutter project generation | WORKING -- confirmed via click-testing on iOS Simulator |',
+          ),
+        );
+        expect(
+          text,
+          contains(
+            '| iPadOS | PASS for Flutter project generation | WORKING (shares the iOS target) |',
+          ),
+        );
+        expect(
+          text,
+          contains(
+            '| macOS | PASS for Flutter project generation | WORKING -- confirmed via click-testing |',
+          ),
+        );
+        expect(
+          text,
+          contains(
+            '| tvOS | Builds via a custom Xcode-based runner (no `flutter build tvos` CLI support) | WORKING',
+          ),
+        );
+        expect(text, contains('Apple platforms stay non-blocking'));
+        expect(text, isNot(contains('tvOS release-complete')));
+        expect(text, isNot(contains('MPVKit is approved')));
+        expect(text, contains('AVKit fallback'));
+        expect(text, contains('GCController'));
+        expect(text, contains('custom Flutter tvOS embedder'));
+        expect(text, contains('App Store Review Guideline 2.5.1'));
 
-      for (final component in <String>[
-        'mpv',
-        'FFmpeg',
-        'MPVKit',
-        'libass',
-        'Plezy reference code',
-      ]) {
-        expect(text, contains(component));
-      }
-    });
+        for (final component in <String>[
+          'mpv',
+          'FFmpeg',
+          'MPVKit',
+          'libass',
+          'Plezy reference code',
+        ]) {
+          expect(text, contains(component));
+        }
+      },
+    );
   });
 }

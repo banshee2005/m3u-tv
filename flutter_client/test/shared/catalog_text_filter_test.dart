@@ -20,10 +20,10 @@ void main() {
         const _Item('Sintel'),
       ];
 
-      expect(filter.filterWhole(items, ' mAtRiX ').map((i) => i.name), [
-        'The Matrix',
-        'Matrix Reloaded',
-      ]);
+      expect(
+        filter.filterWhole(items, ' mAtRiX ').map((i) => i.name),
+        ['The Matrix', 'Matrix Reloaded'],
+      );
     });
 
     test('filterWhole returns an empty list for a blank query', () {

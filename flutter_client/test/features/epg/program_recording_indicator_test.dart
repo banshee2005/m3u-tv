@@ -23,7 +23,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final l10n = AppLocalizations.of(tester.element(find.byType(Scaffold)));
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(Scaffold)),
+      );
 
       expect(find.byIcon(Icons.schedule), findsOneWidget);
       expect(
@@ -43,7 +45,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final l10n = AppLocalizations.of(tester.element(find.byType(Scaffold)));
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(Scaffold)),
+      );
 
       expect(find.byIcon(Icons.fiber_manual_record), findsOneWidget);
       expect(
@@ -59,7 +63,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final l10n = AppLocalizations.of(tester.element(find.byType(Scaffold)));
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(Scaffold)),
+      );
 
       expect(find.byIcon(Icons.schedule), findsNothing);
       expect(find.byIcon(Icons.fiber_manual_record), findsNothing);
@@ -71,7 +77,10 @@ void main() {
         find.bySemanticsLabel(l10n.epgProgramCurrentlyRecording),
         findsNothing,
       );
-      expect(tester.getSize(find.byType(ProgramRecordingIndicator)), Size.zero);
+      expect(
+        tester.getSize(find.byType(ProgramRecordingIndicator)),
+        Size.zero,
+      );
     });
   });
 }

@@ -98,29 +98,30 @@ void main() {
     },
   );
 
-  testWidgets('in selection mode, tapping a row toggles its selection', (
-    tester,
-  ) async {
-    await pumpScreen(
-      tester,
-      show: testShow(episodes: [ep(1), ep(2), ep(3)]),
-      onScheduleEpisodes: (_) async => [],
-    );
+  testWidgets(
+    'in selection mode, tapping a row toggles its selection',
+    (tester) async {
+      await pumpScreen(
+        tester,
+        show: testShow(episodes: [ep(1), ep(2), ep(3)]),
+        onScheduleEpisodes: (_) async => [],
+      );
 
-    await tester.longPress(find.text('Ep 1'));
-    await tester.pumpAndSettle();
-    expect(recordButtonLabel(tester, 1), findsOneWidget);
+      await tester.longPress(find.text('Ep 1'));
+      await tester.pumpAndSettle();
+      expect(recordButtonLabel(tester, 1), findsOneWidget);
 
-    // Tap Ep 2 → 2 selected.
-    await tester.tap(find.text('Ep 2'));
-    await tester.pumpAndSettle();
-    expect(recordButtonLabel(tester, 2), findsOneWidget);
+      // Tap Ep 2 → 2 selected.
+      await tester.tap(find.text('Ep 2'));
+      await tester.pumpAndSettle();
+      expect(recordButtonLabel(tester, 2), findsOneWidget);
 
-    // Tap Ep 1 (the seed row) → 1 selected (only Ep 2 remains).
-    await tester.tap(find.text('Ep 1'));
-    await tester.pumpAndSettle();
-    expect(recordButtonLabel(tester, 1), findsOneWidget);
-  });
+      // Tap Ep 1 (the seed row) → 1 selected (only Ep 2 remains).
+      await tester.tap(find.text('Ep 1'));
+      await tester.pumpAndSettle();
+      expect(recordButtonLabel(tester, 1), findsOneWidget);
+    },
+  );
 
   testWidgets(
     'Record button is disabled when the selection is empty (count = 0)',
@@ -145,25 +146,26 @@ void main() {
     },
   );
 
-  testWidgets('Cancel exits selection mode and clears the action bar', (
-    tester,
-  ) async {
-    await pumpScreen(
-      tester,
-      show: testShow(episodes: [ep(1), ep(2)]),
-      onScheduleEpisodes: (_) async => [],
-    );
+  testWidgets(
+    'Cancel exits selection mode and clears the action bar',
+    (tester) async {
+      await pumpScreen(
+        tester,
+        show: testShow(episodes: [ep(1), ep(2)]),
+        onScheduleEpisodes: (_) async => [],
+      );
 
-    await tester.longPress(find.text('Ep 1'));
-    await tester.pumpAndSettle();
-    expect(cancelButton(tester), findsOneWidget);
+      await tester.longPress(find.text('Ep 1'));
+      await tester.pumpAndSettle();
+      expect(cancelButton(tester), findsOneWidget);
 
-    await tester.tap(cancelButton(tester));
-    await tester.pumpAndSettle();
+      await tester.tap(cancelButton(tester));
+      await tester.pumpAndSettle();
 
-    expect(cancelButton(tester), findsNothing);
-    expect(recordButtonLabel(tester, 0), findsNothing);
-  });
+      expect(cancelButton(tester), findsNothing);
+      expect(recordButtonLabel(tester, 0), findsNothing);
+    },
+  );
 
   testWidgets(
     'null onScheduleEpisodes: long-press does NOT enter selection mode',
@@ -277,36 +279,37 @@ void main() {
     },
   );
 
-  testWidgets('double-tapping Record (N) only fires onScheduleEpisodes once', (
-    tester,
-  ) async {
-    var callCount = 0;
-    final completer = Completer<List<DvrAiringScheduleResult>>();
-    await pumpScreen(
-      tester,
-      show: testShow(episodes: [ep(1)]),
-      onScheduleEpisodes: (eps) {
-        callCount++;
-        return completer.future;
-      },
-    );
+  testWidgets(
+    'double-tapping Record (N) only fires onScheduleEpisodes once',
+    (tester) async {
+      var callCount = 0;
+      final completer = Completer<List<DvrAiringScheduleResult>>();
+      await pumpScreen(
+        tester,
+        show: testShow(episodes: [ep(1)]),
+        onScheduleEpisodes: (eps) {
+          callCount++;
+          return completer.future;
+        },
+      );
 
-    await tester.longPress(find.text('Ep 1'));
-    await tester.pumpAndSettle();
+      await tester.longPress(find.text('Ep 1'));
+      await tester.pumpAndSettle();
 
-    // Tap twice before the handler resolves.
-    await tester.tap(recordButtonLabel(tester, 1));
-    await tester.pump();
-    await tester.tap(recordButtonLabel(tester, 1));
-    await tester.pump();
+      // Tap twice before the handler resolves.
+      await tester.tap(recordButtonLabel(tester, 1));
+      await tester.pump();
+      await tester.tap(recordButtonLabel(tester, 1));
+      await tester.pump();
 
-    expect(callCount, 1);
+      expect(callCount, 1);
 
-    completer.complete([
-      DvrAiringScheduleResult(episode: ep(1), success: true),
-    ]);
-    await tester.pumpAndSettle();
-  });
+      completer.complete([
+        DvrAiringScheduleResult(episode: ep(1), success: true),
+      ]);
+      await tester.pumpAndSettle();
+    },
+  );
 
   testWidgets(
     'tapping Record (N) fires onScheduleEpisodes with the selected episodes '
@@ -342,136 +345,143 @@ void main() {
     },
   );
 
-  testWidgets('all-success batch shows a summary SnackBar ("All succeeded.")', (
-    tester,
-  ) async {
-    await pumpScreen(
-      tester,
-      show: testShow(episodes: [ep(1), ep(2)]),
-      onScheduleEpisodes: (eps) async => [
-        for (final e in eps) DvrAiringScheduleResult(episode: e, success: true),
-      ],
-    );
+  testWidgets(
+    'all-success batch shows a summary SnackBar ("All succeeded.")',
+    (tester) async {
+      await pumpScreen(
+        tester,
+        show: testShow(episodes: [ep(1), ep(2)]),
+        onScheduleEpisodes: (eps) async => [
+          for (final e in eps)
+            DvrAiringScheduleResult(episode: e, success: true),
+        ],
+      );
 
-    await tester.longPress(find.text('Ep 1'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Ep 2'));
-    await tester.pumpAndSettle();
-    await tester.tap(recordButtonLabel(tester, 2));
-    await tester.pumpAndSettle();
-
-    // Summary appears as a SnackBar text. failed == 0 → no failure line.
-    expect(
-      find.text(l10n(tester).showBatchScheduleSummary(2, 0)),
-      findsOneWidget,
-    );
-    expect(
-      find.text(l10n(tester).showBatchScheduleFailures('Ep 1, Ep 2')),
-      findsNothing,
-      reason: 'failed == 0 should suppress the failure-list line',
-    );
-  });
-
-  testWidgets('mixed batch lists per-failure titles inline when failed ≤ 3', (
-    tester,
-  ) async {
-    await pumpScreen(
-      tester,
-      show: testShow(episodes: [ep(1), ep(2), ep(3)]),
-      onScheduleEpisodes: (eps) async => [
-        DvrAiringScheduleResult(episode: eps[0], success: true),
-        DvrAiringScheduleResult(
-          episode: eps[1],
-          success: false,
-          errorMessage: 'limit reached',
-        ),
-        DvrAiringScheduleResult(
-          episode: eps[2],
-          success: false,
-          errorMessage: 'limit reached',
-        ),
-      ],
-    );
-
-    await tester.longPress(find.text('Ep 1'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Ep 2'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Ep 3'));
-    await tester.pumpAndSettle();
-    await tester.tap(recordButtonLabel(tester, 3));
-    await tester.pumpAndSettle();
-
-    // 1 scheduled + 2 failed (≤ 3) → failure titles listed inline.
-    // The SnackBar text is summary + "\n" + failure-line, so use
-    // `find.textContaining`; `find.text` is an exact-match against
-    // the full multi-line string.
-    expect(
-      find.textContaining(l10n(tester).showBatchScheduleFailures('Ep 2, Ep 3')),
-      findsOneWidget,
-      reason: 'failed (2) ≤ 3 → failure-line appended; substring matches',
-    );
-  });
-
-  testWidgets('large-failure batch omits per-failure titles when failed > 3', (
-    tester,
-  ) async {
-    // List.generate is 0-indexed, so shift by 1 to get titles Ep 1..Ep 5.
-    await pumpScreen(
-      tester,
-      show: testShow(episodes: List.generate(5, (i) => ep(i + 1))),
-      onScheduleEpisodes: (eps) async => [
-        DvrAiringScheduleResult(episode: eps[0], success: true),
-        for (final e in eps.skip(1))
-          DvrAiringScheduleResult(
-            episode: e,
-            success: false,
-            errorMessage: 'x',
-          ),
-      ],
-    );
-
-    await tester.longPress(find.text('Ep 1'));
-    await tester.pumpAndSettle();
-    for (var i = 2; i <= 5; i++) {
-      await tester.tap(find.text('Ep $i'));
+      await tester.longPress(find.text('Ep 1'));
       await tester.pumpAndSettle();
-    }
-    await tester.tap(recordButtonLabel(tester, 5));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Ep 2'));
+      await tester.pumpAndSettle();
+      await tester.tap(recordButtonLabel(tester, 2));
+      await tester.pumpAndSettle();
 
-    // 1 scheduled + 4 failed (> 3) → failure list is suppressed.
-    expect(
-      find.text(l10n(tester).showBatchScheduleSummary(1, 4)),
-      findsOneWidget,
-    );
-    expect(
-      find.textContaining('Failed:'),
-      findsNothing,
-      reason: 'failed > 3 should suppress the failure-list line entirely',
-    );
-  });
+      // Summary appears as a SnackBar text. failed == 0 → no failure line.
+      expect(
+        find.text(l10n(tester).showBatchScheduleSummary(2, 0)),
+        findsOneWidget,
+      );
+      expect(
+        find.text(l10n(tester).showBatchScheduleFailures('Ep 1, Ep 2')),
+        findsNothing,
+        reason: 'failed == 0 should suppress the failure-list line',
+      );
+    },
+  );
 
-  testWidgets('wholesale handler failure surfaces appRecordingFailed', (
-    tester,
-  ) async {
-    await pumpScreen(
-      tester,
-      show: testShow(episodes: [ep(1)]),
-      onScheduleEpisodes: (_) async {
-        throw StateError('server down');
-      },
-    );
+  testWidgets(
+    'mixed batch lists per-failure titles inline when failed ≤ 3',
+    (tester) async {
+      await pumpScreen(
+        tester,
+        show: testShow(episodes: [ep(1), ep(2), ep(3)]),
+        onScheduleEpisodes: (eps) async => [
+          DvrAiringScheduleResult(episode: eps[0], success: true),
+          DvrAiringScheduleResult(
+            episode: eps[1],
+            success: false,
+            errorMessage: 'limit reached',
+          ),
+          DvrAiringScheduleResult(
+            episode: eps[2],
+            success: false,
+            errorMessage: 'limit reached',
+          ),
+        ],
+      );
 
-    await tester.longPress(find.text('Ep 1'));
-    await tester.pumpAndSettle();
-    await tester.tap(recordButtonLabel(tester, 1));
-    await tester.pumpAndSettle();
+      await tester.longPress(find.text('Ep 1'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Ep 2'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Ep 3'));
+      await tester.pumpAndSettle();
+      await tester.tap(recordButtonLabel(tester, 3));
+      await tester.pumpAndSettle();
 
-    // Wholesale-fail path uses the existing appRecordingFailed key.
-    expect(
-      find.text(l10n(tester).appRecordingFailed('Bad state: server down')),
-      findsOneWidget,
-    );
-  });
+      // 1 scheduled + 2 failed (≤ 3) → failure titles listed inline.
+      // The SnackBar text is summary + "\n" + failure-line, so use
+      // `find.textContaining`; `find.text` is an exact-match against
+      // the full multi-line string.
+      expect(
+        find.textContaining(
+          l10n(tester).showBatchScheduleFailures('Ep 2, Ep 3'),
+        ),
+        findsOneWidget,
+        reason: 'failed (2) ≤ 3 → failure-line appended; substring matches',
+      );
+    },
+  );
+
+  testWidgets(
+    'large-failure batch omits per-failure titles when failed > 3',
+    (tester) async {
+      // List.generate is 0-indexed, so shift by 1 to get titles Ep 1..Ep 5.
+      await pumpScreen(
+        tester,
+        show: testShow(episodes: List.generate(5, (i) => ep(i + 1))),
+        onScheduleEpisodes: (eps) async => [
+          DvrAiringScheduleResult(episode: eps[0], success: true),
+          for (final e in eps.skip(1))
+            DvrAiringScheduleResult(
+              episode: e,
+              success: false,
+              errorMessage: 'x',
+            ),
+        ],
+      );
+
+      await tester.longPress(find.text('Ep 1'));
+      await tester.pumpAndSettle();
+      for (var i = 2; i <= 5; i++) {
+        await tester.tap(find.text('Ep $i'));
+        await tester.pumpAndSettle();
+      }
+      await tester.tap(recordButtonLabel(tester, 5));
+      await tester.pumpAndSettle();
+
+      // 1 scheduled + 4 failed (> 3) → failure list is suppressed.
+      expect(
+        find.text(l10n(tester).showBatchScheduleSummary(1, 4)),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('Failed:'),
+        findsNothing,
+        reason: 'failed > 3 should suppress the failure-list line entirely',
+      );
+    },
+  );
+
+  testWidgets(
+    'wholesale handler failure surfaces appRecordingFailed',
+    (tester) async {
+      await pumpScreen(
+        tester,
+        show: testShow(episodes: [ep(1)]),
+        onScheduleEpisodes: (_) async {
+          throw StateError('server down');
+        },
+      );
+
+      await tester.longPress(find.text('Ep 1'));
+      await tester.pumpAndSettle();
+      await tester.tap(recordButtonLabel(tester, 1));
+      await tester.pumpAndSettle();
+
+      // Wholesale-fail path uses the existing appRecordingFailed key.
+      expect(
+        find.text(l10n(tester).appRecordingFailed('Bad state: server down')),
+        findsOneWidget,
+      );
+    },
+  );
 }

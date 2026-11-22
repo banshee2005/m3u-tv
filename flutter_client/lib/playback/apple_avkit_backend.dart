@@ -282,22 +282,25 @@ class _MethodChannelAvKitHost implements _AvKitHost {
   });
 
   @override
-  Future<void> setAudioTrack(String? trackId) => _method.invokeMethod<void>(
-    'setAudioTrack',
-    <String, Object?>{'playerId': playerId, 'trackId': trackId},
-  );
+  Future<void> setAudioTrack(String? trackId) =>
+      _method.invokeMethod<void>('setAudioTrack', <String, Object?>{
+        'playerId': playerId,
+        'trackId': trackId,
+      });
 
   @override
-  Future<void> setSubtitleTrack(String? trackId) => _method.invokeMethod<void>(
-    'setSubtitleTrack',
-    <String, Object?>{'playerId': playerId, 'trackId': trackId},
-  );
+  Future<void> setSubtitleTrack(String? trackId) =>
+      _method.invokeMethod<void>('setSubtitleTrack', <String, Object?>{
+        'playerId': playerId,
+        'trackId': trackId,
+      });
 
   @override
-  Future<void> setVolume(double volume) => _method.invokeMethod<void>(
-    'setVolume',
-    <String, Object?>{'playerId': playerId, 'volume': volume},
-  );
+  Future<void> setVolume(double volume) =>
+      _method.invokeMethod<void>('setVolume', <String, Object?>{
+        'playerId': playerId,
+        'volume': volume,
+      });
 
   @override
   Future<void> dispose() async {

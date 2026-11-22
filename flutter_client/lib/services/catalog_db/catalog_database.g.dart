@@ -3833,18 +3833,20 @@ typedef $$EpgProgrammesTableProcessedTableManager =
       EpgProgrammeRow,
       PrefetchHooks Function()
     >;
-typedef $$KvCacheTableCreateCompanionBuilder = KvCacheCompanion Function({
-  required String key,
-  required String value,
-  required int updatedAtMs,
-  Value<int> rowid,
-});
-typedef $$KvCacheTableUpdateCompanionBuilder = KvCacheCompanion Function({
-  Value<String> key,
-  Value<String> value,
-  Value<int> updatedAtMs,
-  Value<int> rowid,
-});
+typedef $$KvCacheTableCreateCompanionBuilder =
+    KvCacheCompanion Function({
+      required String key,
+      required String value,
+      required int updatedAtMs,
+      Value<int> rowid,
+    });
+typedef $$KvCacheTableUpdateCompanionBuilder =
+    KvCacheCompanion Function({
+      Value<String> key,
+      Value<String> value,
+      Value<int> updatedAtMs,
+      Value<int> rowid,
+    });
 
 class $$KvCacheTableFilterComposer
     extends Composer<_$CatalogDatabase, $KvCacheTable> {

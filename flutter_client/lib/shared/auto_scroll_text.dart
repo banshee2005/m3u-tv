@@ -177,8 +177,9 @@ class _AutoScrollTextState extends State<AutoScrollText> {
                   );
                 },
                 child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context)
-                      .copyWith(scrollbars: false, overscroll: false),
+                  behavior: ScrollConfiguration.of(
+                    context,
+                  ).copyWith(scrollbars: false, overscroll: false),
                   child: SingleChildScrollView(
                     controller: _controller,
                     physics: const NeverScrollableScrollPhysics(),

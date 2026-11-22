@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_initializing_formals
 
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:m3u_tv/services/api_client.dart';
 import 'package:m3u_tv/services/async_lifecycle.dart';
@@ -173,7 +172,9 @@ class TraktService extends ChangeNotifier implements WatchHistoryService {
       final interval = (data['interval'] as num?)?.toInt() ?? 5;
       final expiresIn = (data['expires_in'] as num?)?.toInt() ?? 600;
       _pollInterval = Duration(seconds: interval);
-      _deviceCodeExpiresAt = DateTime.now().add(Duration(seconds: expiresIn));
+      _deviceCodeExpiresAt = DateTime.now().add(
+        Duration(seconds: expiresIn),
+      );
       notifyListeners();
       _schedulePoll(attempt);
     } on Object catch (_) {
@@ -220,11 +221,15 @@ class TraktService extends ChangeNotifier implements WatchHistoryService {
     final verifier = _codeVerifier;
     if (code == null || verifier == null) return;
     try {
-      final data = await _post('/oauth/device/token', {
-        'code': code,
-        'client_id': _clientId,
-        'code_verifier': verifier,
-      }, isPollEndpoint: true);
+      final data = await _post(
+        '/oauth/device/token',
+        {
+          'code': code,
+          'client_id': _clientId,
+          'code_verifier': verifier,
+        },
+        isPollEndpoint: true,
+      );
       if (_disposed || attempt != _authAttempt) return;
       await _saveTokens(data, expectedAttempt: attempt);
     } on _TraktPendingException {

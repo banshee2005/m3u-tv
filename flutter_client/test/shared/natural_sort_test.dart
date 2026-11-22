@@ -23,11 +23,9 @@ void main() {
   });
 
   test('encode handles the edge cases compareTo defines', () {
-    int encodedSign(String a, String b) =>
-        NaturalSortKey.of(a)
-            .encode()
-            .compareTo(NaturalSortKey.of(b).encode())
-            .sign;
+    int encodedSign(String a, String b) => NaturalSortKey.of(
+      a,
+    ).encode().compareTo(NaturalSortKey.of(b).encode()).sign;
 
     expect(encodedSign('', '&TV'), -1);
     expect(encodedSign('&TV', '00s'), -1);

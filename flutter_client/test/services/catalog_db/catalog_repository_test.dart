@@ -91,27 +91,30 @@ void main() {
     },
   );
 
-  test('replaceItems keeps every element when stream ids are missing or duplicated', () async {
-    await repo.replaceItems(
-      sourceKey: 's1',
-      kind: kCatalogKindVod,
-      items: [
-        _vod(0, 'No id A'),
-        _vod(0, 'No id B'),
-        _vod(50, 'Real'),
-        _vod(50, 'Dup of real'),
-      ],
-    );
+  test(
+    'replaceItems keeps every element when stream ids are missing or duplicated',
+    () async {
+      await repo.replaceItems(
+        sourceKey: 's1',
+        kind: kCatalogKindVod,
+        items: [
+          _vod(0, 'No id A'),
+          _vod(0, 'No id B'),
+          _vod(50, 'Real'),
+          _vod(50, 'Dup of real'),
+        ],
+      );
 
-    final items = await repo.allItems<VodItem>('s1', kCatalogKindVod);
-    expect(items.map((v) => v.name), [
-      'No id A',
-      'No id B',
-      'Real',
-      'Dup of real',
-    ]);
-    expect(await repo.countItems(sourceKey: 's1', kind: kCatalogKindVod), 4);
-  });
+      final items = await repo.allItems<VodItem>('s1', kCatalogKindVod);
+      expect(items.map((v) => v.name), [
+        'No id A',
+        'No id B',
+        'Real',
+        'Dup of real',
+      ]);
+      expect(await repo.countItems(sourceKey: 's1', kind: kCatalogKindVod), 4);
+    },
+  );
 
   test('replaceItems fully swaps the previous catalog for that kind', () async {
     await repo.replaceItems(
@@ -167,7 +170,10 @@ void main() {
         limit: 10,
       );
       expect(page.map((v) => v.id), List.generate(10, (i) => 20 + i));
-      expect(await repo.countItems(sourceKey: 's1', kind: kCatalogKindVod), 50);
+      expect(
+        await repo.countItems(sourceKey: 's1', kind: kCatalogKindVod),
+        50,
+      );
     },
   );
 
@@ -347,22 +353,25 @@ void main() {
       ]);
     });
 
-    test('favoritesFirst floats favorites above the rest, each group in sort order', () async {
-      final rows = await repo.pageItems<VodItem>(
-        sourceKey: 's1',
-        kind: kCatalogKindVod,
-        sort: CatalogSort.ratingDesc,
-        favoritesFirst: {2, 3, 99},
-        offset: 0,
-        limit: 50,
-      );
-      expect(rows.map((v) => v.name), [
-        'BBBB Mid', // favorite, rated
-        'CCCC Unrated', // favorite, unrated
-        'AAAA Highest',
-        'DDDD Third',
-      ]);
-    });
+    test(
+      'favoritesFirst floats favorites above the rest, each group in sort order',
+      () async {
+        final rows = await repo.pageItems<VodItem>(
+          sourceKey: 's1',
+          kind: kCatalogKindVod,
+          sort: CatalogSort.ratingDesc,
+          favoritesFirst: {2, 3, 99},
+          offset: 0,
+          limit: 50,
+        );
+        expect(rows.map((v) => v.name), [
+          'BBBB Mid', // favorite, rated
+          'CCCC Unrated', // favorite, unrated
+          'AAAA Highest',
+          'DDDD Third',
+        ]);
+      },
+    );
 
     test('favoritesFirst pages consistently across offsets', () async {
       Future<List<String>> page(int offset) async {
@@ -421,7 +430,10 @@ void main() {
       }
 
       expectNaturalOrder(await liveNames(CatalogSort.nameNatural), sign: -1);
-      expectNaturalOrder(await liveNames(CatalogSort.nameNaturalDesc), sign: 1);
+      expectNaturalOrder(
+        await liveNames(CatalogSort.nameNaturalDesc),
+        sign: 1,
+      );
     });
 
     test(
@@ -462,7 +474,10 @@ void main() {
         await repo.countActiveItems(kind: kCatalogKindLive, ids: {1, 3}),
         2,
       );
-      expect(await repo.countActiveItems(kind: kCatalogKindLive, ids: {}), 0);
+      expect(
+        await repo.countActiveItems(kind: kCatalogKindLive, ids: {}),
+        0,
+      );
     });
 
     test(
@@ -766,7 +781,11 @@ void main() {
       await repo.replaceItems(
         sourceKey: CatalogRepository.defaultSource,
         kind: kCatalogKindVod,
-        items: [_vod(1, 'One'), _vod(2, 'Two'), _vod(3, 'Three')],
+        items: [
+          _vod(1, 'One'),
+          _vod(2, 'Two'),
+          _vod(3, 'Three'),
+        ],
       );
     });
 

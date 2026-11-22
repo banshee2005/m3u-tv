@@ -17,8 +17,10 @@ void main() {
             body: ScrollableCategoryBar(
               tabs: List<CategoryTabData>.generate(
                 18,
-                (index) =>
-                    CategoryTabData(id: '$index', name: 'Category $index'),
+                (index) => CategoryTabData(
+                  id: '$index',
+                  name: 'Category $index',
+                ),
               ),
               selectedId: '0',
               onSelected: (_) {},

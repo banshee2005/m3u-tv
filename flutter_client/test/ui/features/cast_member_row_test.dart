@@ -76,7 +76,11 @@ void main() {
     });
 
     testWidgets('omits character text when null', (tester) async {
-      await tester.pumpWidget(_harness(members: [_m(name: 'Solo Actor')]));
+      await tester.pumpWidget(
+        _harness(
+          members: [_m(name: 'Solo Actor')],
+        ),
+      );
       expect(find.text('Solo Actor'), findsOneWidget);
       // No empty character row.
       expect(find.text(''), findsNothing);
@@ -161,7 +165,11 @@ void main() {
     testWidgets('card semantics show only name when character absent', (
       tester,
     ) async {
-      await tester.pumpWidget(_harness(members: [_m(name: 'Bryan Cranston')]));
+      await tester.pumpWidget(
+        _harness(
+          members: [_m(name: 'Bryan Cranston')],
+        ),
+      );
 
       final cardSemantics = find.byWidgetPredicate(
         (w) => w is Semantics && w.properties.label == 'Bryan Cranston',
@@ -216,69 +224,82 @@ void main() {
       // becomes the "+N / show all" tile.
       const fitsThree = 480.0;
 
-      testWidgets('more members than fit → last slot is a "+N" show-all tile', (
-        tester,
-      ) async {
-        final members = [for (var i = 0; i < 5; i++) _m(name: 'Actor $i')];
-        await tester.pumpWidget(
-          _harness(
-            members: members,
-            width: fitsThree,
-            onShowAll: () {},
-            allCastSemanticLabel: 'Show all cast',
-          ),
-        );
+      testWidgets(
+        'more members than fit → last slot is a "+N" show-all tile',
+        (tester) async {
+          final members = [
+            for (var i = 0; i < 5; i++) _m(name: 'Actor $i'),
+          ];
+          await tester.pumpWidget(
+            _harness(
+              members: members,
+              width: fitsThree,
+              onShowAll: () {},
+              allCastSemanticLabel: 'Show all cast',
+            ),
+          );
 
-        // 2 cards + the tile occupy the 3 slots.
-        expect(find.text('Actor 0'), findsOneWidget);
-        expect(find.text('Actor 1'), findsOneWidget);
-        expect(find.text('Actor 2'), findsNothing);
-        expect(find.text('Actor 4'), findsNothing);
-        // Tile shows the hidden-member count and the localized label.
-        expect(find.text('+3'), findsOneWidget);
-        expect(find.text('Show all cast'), findsOneWidget);
-      });
+          // 2 cards + the tile occupy the 3 slots.
+          expect(find.text('Actor 0'), findsOneWidget);
+          expect(find.text('Actor 1'), findsOneWidget);
+          expect(find.text('Actor 2'), findsNothing);
+          expect(find.text('Actor 4'), findsNothing);
+          // Tile shows the hidden-member count and the localized label.
+          expect(find.text('+3'), findsOneWidget);
+          expect(find.text('Show all cast'), findsOneWidget);
+        },
+      );
 
-      testWidgets('tapping the show-all tile fires onShowAll', (tester) async {
-        var tapCount = 0;
-        final members = [for (var i = 0; i < 5; i++) _m(name: 'Actor $i')];
-        await tester.pumpWidget(
-          _harness(
-            members: members,
-            width: fitsThree,
-            onShowAll: () => tapCount++,
-            allCastSemanticLabel: 'Show all cast',
-          ),
-        );
+      testWidgets(
+        'tapping the show-all tile fires onShowAll',
+        (tester) async {
+          var tapCount = 0;
+          final members = [
+            for (var i = 0; i < 5; i++) _m(name: 'Actor $i'),
+          ];
+          await tester.pumpWidget(
+            _harness(
+              members: members,
+              width: fitsThree,
+              onShowAll: () => tapCount++,
+              allCastSemanticLabel: 'Show all cast',
+            ),
+          );
 
-        await tester.tap(find.text('Show all cast'));
-        await tester.pump();
-        expect(tapCount, 1);
-      });
+          await tester.tap(find.text('Show all cast'));
+          await tester.pump();
+          expect(tapCount, 1);
+        },
+      );
 
-      testWidgets('no tile when every member fits the available width', (
-        tester,
-      ) async {
-        final members = [for (var i = 0; i < 3; i++) _m(name: 'Actor $i')];
-        await tester.pumpWidget(
-          _harness(
-            members: members,
-            width: fitsThree,
-            onShowAll: () {},
-            allCastSemanticLabel: 'Show all cast',
-          ),
-        );
+      testWidgets(
+        'no tile when every member fits the available width',
+        (tester) async {
+          final members = [
+            for (var i = 0; i < 3; i++) _m(name: 'Actor $i'),
+          ];
+          await tester.pumpWidget(
+            _harness(
+              members: members,
+              width: fitsThree,
+              onShowAll: () {},
+              allCastSemanticLabel: 'Show all cast',
+            ),
+          );
 
-        expect(find.text('Actor 0'), findsOneWidget);
-        expect(find.text('Actor 2'), findsOneWidget);
-        expect(find.text('Show all cast'), findsNothing);
-        expect(find.textContaining('+'), findsNothing);
-      });
+          expect(find.text('Actor 0'), findsOneWidget);
+          expect(find.text('Actor 2'), findsOneWidget);
+          expect(find.text('Show all cast'), findsNothing);
+          expect(find.textContaining('+'), findsNothing);
+        },
+      );
 
       testWidgets(
         'without onShowAll the row keeps the plain scroll (no tile)',
         (tester) async {
-          final members = [for (var i = 0; i < 5; i++) _m(name: 'Actor $i')];
+          final members = [
+            for (var i = 0; i < 5; i++) _m(name: 'Actor $i'),
+          ];
           await tester.pumpWidget(
             _harness(
               members: members,
@@ -334,7 +355,9 @@ void main() {
       testWidgets(
         'renders a Cast picker button with the localized "Cast" label',
         (tester) async {
-          final members = [for (var i = 0; i < 5; i++) _m(name: 'Actor $i')];
+          final members = [
+            for (var i = 0; i < 5; i++) _m(name: 'Actor $i'),
+          ];
           await tester.pumpWidget(
             _harness(
               members: members,
@@ -356,42 +379,48 @@ void main() {
         },
       );
 
-      testWidgets('shows the cast count in a muted badge', (tester) async {
-        final members = [for (var i = 0; i < 7; i++) _m(name: 'Actor $i')];
-        await tester.pumpWidget(
-          _harness(
-            members: members,
-            compact: true,
-            onShowAll: () {},
-            semanticLabel: 'Cast',
-          ),
-        );
+      testWidgets(
+        'shows the cast count in a muted badge',
+        (tester) async {
+          final members = [
+            for (var i = 0; i < 7; i++) _m(name: 'Actor $i'),
+          ];
+          await tester.pumpWidget(
+            _harness(
+              members: members,
+              compact: true,
+              onShowAll: () {},
+              semanticLabel: 'Cast',
+            ),
+          );
 
-        // Badge text renders the count (7).
-        expect(find.text('7'), findsOneWidget);
-        // The button label still says "Cast".
-        expect(find.text('Cast'), findsOneWidget);
-      });
+          // Badge text renders the count (7).
+          expect(find.text('7'), findsOneWidget);
+          // The button label still says "Cast".
+          expect(find.text('Cast'), findsOneWidget);
+        },
+      );
 
-      testWidgets('fires onShowAll when the picker button is tapped', (
-        tester,
-      ) async {
-        var tapCount = 0;
-        final members = [_m(name: 'Solo'), _m(name: 'Duet')];
-        await tester.pumpWidget(
-          _harness(
-            members: members,
-            compact: true,
-            onShowAll: () => tapCount++,
-            semanticLabel: 'Cast',
-          ),
-        );
+      testWidgets(
+        'fires onShowAll when the picker button is tapped',
+        (tester) async {
+          var tapCount = 0;
+          final members = [_m(name: 'Solo'), _m(name: 'Duet')];
+          await tester.pumpWidget(
+            _harness(
+              members: members,
+              compact: true,
+              onShowAll: () => tapCount++,
+              semanticLabel: 'Cast',
+            ),
+          );
 
-        // Tap via the localized label (the visible button content).
-        await tester.tap(find.text('Cast'));
-        await tester.pump();
-        expect(tapCount, 1);
-      });
+          // Tap via the localized label (the visible button content).
+          await tester.tap(find.text('Cast'));
+          await tester.pump();
+          expect(tapCount, 1);
+        },
+      );
 
       testWidgets(
         'button exposes its label and is discoverable as a tappable',
@@ -417,50 +446,54 @@ void main() {
         },
       );
 
-      testWidgets('renders nothing when onShowAll is null (caller opts out)', (
-        tester,
-      ) async {
-        final members = [for (var i = 0; i < 5; i++) _m(name: 'Actor $i')];
-        await tester.pumpWidget(
-          _harness(
-            members: members,
-            compact: true,
-            // onShowAll intentionally null.
-          ),
-        );
+      testWidgets(
+        'renders nothing when onShowAll is null (caller opts out)',
+        (tester) async {
+          final members = [
+            for (var i = 0; i < 5; i++) _m(name: 'Actor $i'),
+          ];
+          await tester.pumpWidget(
+            _harness(
+              members: members,
+              compact: true,
+              // onShowAll intentionally null.
+            ),
+          );
 
-        // No button label, no chevron, no badge, no member names.
-        expect(find.text('Cast'), findsNothing);
-        expect(find.byIcon(Icons.arrow_drop_down), findsNothing);
-        expect(find.text('Actor 0'), findsNothing);
-      });
+          // No button label, no chevron, no badge, no member names.
+          expect(find.text('Cast'), findsNothing);
+          expect(find.byIcon(Icons.arrow_drop_down), findsNothing);
+          expect(find.text('Actor 0'), findsNothing);
+        },
+      );
 
-      testWidgets('compact button matches the season picker height', (
-        tester,
-      ) async {
-        final members = [_m(name: 'Solo')];
-        await tester.pumpWidget(
-          _harness(
-            members: members,
-            compact: true,
-            onShowAll: () {},
-            semanticLabel: 'Cast',
-          ),
-        );
+      testWidgets(
+        'compact button matches the season picker height',
+        (tester) async {
+          final members = [_m(name: 'Solo')];
+          await tester.pumpWidget(
+            _harness(
+              members: members,
+              compact: true,
+              onShowAll: () {},
+              semanticLabel: 'Cast',
+            ),
+          );
 
-        // The picker shares the AppButton's intrinsic metrics so it
-        // lines up with the play / season-picker buttons in the same
-        // row (mirrors how the season picker comments at line ~1153).
-        final buttonFinder = find.byType(AppButton);
-        expect(buttonFinder, findsOneWidget);
-        expect(
-          tester.getSize(buttonFinder).height,
-          // AppButton's default height - wider tolerance for future
-          // updates as long as the assertion catches 0 / negative
-          // regressions.
-          greaterThan(0),
-        );
-      });
+          // The picker shares the AppButton's intrinsic metrics so it
+          // lines up with the play / season-picker buttons in the same
+          // row (mirrors how the season picker comments at line ~1153).
+          final buttonFinder = find.byType(AppButton);
+          expect(buttonFinder, findsOneWidget);
+          expect(
+            tester.getSize(buttonFinder).height,
+            // AppButton's default height - wider tolerance for future
+            // updates as long as the assertion catches 0 / negative
+            // regressions.
+            greaterThan(0),
+          );
+        },
+      );
 
       testWidgets(
         'wide layout shows full cast up to 15 without a picker button',

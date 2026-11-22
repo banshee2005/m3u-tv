@@ -145,15 +145,23 @@ class ChannelGridTile extends StatelessWidget {
             if (programmeTitle != null) ...[
               Text(
                 programmeTitle,
-                style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: colorScheme.onSurfaceVariant),
+                style:
+                    Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
                 timeLabel ?? '',
-                style: Theme.of(context).textTheme.labelSmall
-                    ?.copyWith(color: colorScheme.onSurfaceVariant),
+                style:
+                    Theme.of(
+                      context,
+                    ).textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),

@@ -153,13 +153,16 @@ void main() {
       },
     );
 
-    test('sort option survives with rememberMediaSort=false (still persisted, ignored at read time)', () async {
-      // Stored independently - toggling rememberMediaSort off doesn't
-      // clear the sort key; the screen just refuses to read it.
-      await service.setRememberMediaSort(false);
-      await service.setVodSortOption(MediaSortOption.ratingDesc);
-      expect(await service.vodSortOption(), MediaSortOption.ratingDesc);
-    });
+    test(
+      'sort option survives with rememberMediaSort=false (still persisted, ignored at read time)',
+      () async {
+        // Stored independently - toggling rememberMediaSort off doesn't
+        // clear the sort key; the screen just refuses to read it.
+        await service.setRememberMediaSort(false);
+        await service.setVodSortOption(MediaSortOption.ratingDesc);
+        expect(await service.vodSortOption(), MediaSortOption.ratingDesc);
+      },
+    );
 
     test(
       'deinterlace defaults off and persists, sync getter included',
@@ -259,13 +262,16 @@ void main() {
       },
     );
 
-    test('persists and restores volume, defaulting to full volume', () async {
-      expect(await service.volume(), 1.0);
-      expect(service.volumeSync, 1.0);
-      await service.setVolume(0.4);
-      expect(await service.volume(), 0.4);
-      expect(service.volumeSync, 0.4);
-    });
+    test(
+      'persists and restores volume, defaulting to full volume',
+      () async {
+        expect(await service.volume(), 1.0);
+        expect(service.volumeSync, 1.0);
+        await service.setVolume(0.4);
+        expect(await service.volume(), 0.4);
+        expect(service.volumeSync, 0.4);
+      },
+    );
 
     test('clamps volume to the 0.0-1.0 range', () async {
       await service.setVolume(1.5);
@@ -373,7 +379,10 @@ void main() {
         }),
         isNull,
       );
-      expect(WindowBounds.fromJson({'x': 0, 'y': 0, 'width': 1024}), isNull);
+      expect(
+        WindowBounds.fromJson({'x': 0, 'y': 0, 'width': 1024}),
+        isNull,
+      );
       expect(WindowBounds.fromJson('not a map'), isNull);
     });
   });

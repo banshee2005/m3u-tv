@@ -154,7 +154,10 @@ class _AndroidTvPlayerOverlayState extends State<AndroidTvPlayerOverlay> {
 
   Widget _buildHiddenOverlay() {
     return SizedBox.expand(
-      child: Semantics(label: 'Playback overlay hidden', focusable: true),
+      child: Semantics(
+        label: 'Playback overlay hidden',
+        focusable: true,
+      ),
     );
   }
 

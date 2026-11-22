@@ -624,7 +624,10 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
     await _settle(tester);
 
-    expect(FocusManager.instance.primaryFocus?.debugLabel, 'sports-now');
+    expect(
+      FocusManager.instance.primaryFocus?.debugLabel,
+      'sports-now',
+    );
 
     await tester.pumpWidget(const SizedBox.shrink());
   });
@@ -846,7 +849,9 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('explains when the editor has Sports turned off', (tester) async {
+  testWidgets('explains when the editor has Sports turned off', (
+    tester,
+  ) async {
     final repo = await _buildRepo(tester);
 
     await _pumpScreen(

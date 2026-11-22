@@ -227,8 +227,9 @@ class _ViewSettingsSectionState extends State<ViewSettingsSection> {
               onTap: () => unawaited(
                 pushSettingsPicker<ChannelColumnLayout>(
                   context,
-                  title: (context) =>
-                      AppLocalizations.of(context).settingsLiveTvChannelColumn,
+                  title: (context) => AppLocalizations.of(
+                    context,
+                  ).settingsLiveTvChannelColumn,
                   onBack: widget.onHandleTopLevelBack,
                   selected: _channelColumnLayout,
                   options: [
@@ -485,13 +486,15 @@ String _epgStartViewLabel(AppLocalizations l, EpgStartView view) =>
       EpgStartView.primeTime => l.settingsEpgStartViewPrimeTime,
     };
 
-String _epgPreviewPlaybackLabel(AppLocalizations l, EpgPreviewPlayback mode) =>
-    switch (mode) {
-      EpgPreviewPlayback.off => l.settingsEpgPreviewPlaybackOff,
-      EpgPreviewPlayback.pauseToPlay => l.settingsEpgPreviewPlaybackPauseToPlay,
-      EpgPreviewPlayback.clickToPreview =>
-        l.settingsEpgPreviewPlaybackClickToPreview,
-    };
+String _epgPreviewPlaybackLabel(
+  AppLocalizations l,
+  EpgPreviewPlayback mode,
+) => switch (mode) {
+  EpgPreviewPlayback.off => l.settingsEpgPreviewPlaybackOff,
+  EpgPreviewPlayback.pauseToPlay => l.settingsEpgPreviewPlaybackPauseToPlay,
+  EpgPreviewPlayback.clickToPreview =>
+    l.settingsEpgPreviewPlaybackClickToPreview,
+};
 
 String _optimizeForLabel(AppLocalizations l, OptimizeFor optimizeFor) =>
     switch (optimizeFor) {

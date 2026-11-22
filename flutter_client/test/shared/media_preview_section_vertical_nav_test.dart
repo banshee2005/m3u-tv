@@ -21,8 +21,10 @@ void main() {
       ..devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final nodes = <String, FocusNode>{};
-    FocusNode node(String id) =>
-        nodes.putIfAbsent(id, () => FocusNode(debugLabel: id));
+    FocusNode node(String id) => nodes.putIfAbsent(
+      id,
+      () => FocusNode(debugLabel: id),
+    );
     addTearDown(() {
       for (final focusNode in nodes.values) {
         focusNode.dispose();

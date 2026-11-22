@@ -330,7 +330,12 @@ class VodInfo {
 /// compatibility for old m3u-tv clients that read `cast` via
 /// `_asNullableString(...)` - see plan `.omo/plans/cast-rich.md`.
 class CastMember {
-  const CastMember({required this.name, this.id, this.character, this.photo});
+  const CastMember({
+    required this.name,
+    this.id,
+    this.character,
+    this.photo,
+  });
 
   final String name;
   final int? id;
@@ -687,7 +692,9 @@ class Season {
         json['cover_big'] ?? json['cover'] ?? json['cover_tmdb'],
       ),
       overview: _asNullableString(json['overview']),
-      releaseDate: _asNullableString(json['releaseDate'] ?? json['air_date']),
+      releaseDate: _asNullableString(
+        json['releaseDate'] ?? json['air_date'],
+      ),
       trailerUrl: _youtubeTrailerUrl(json['youtube_trailer']),
     );
   }
@@ -1277,9 +1284,9 @@ class ContentRequestSearchResult {
         overview: _asNullableString(json['overview']),
         poster: _asNullableString(json['poster']),
         fanart: _asNullableString(json['fanart']),
-        genres: _asList(json['genres'])
-            .map((genre) => '$genre')
-            .toList(growable: false),
+        genres: _asList(
+          json['genres'],
+        ).map((genre) => '$genre').toList(growable: false),
         rating: ContentRequestRating.fromJson(json['rating']),
         runtimeMinutes: _asIntOrNull(json['runtime']),
         certification: _asNullableString(json['certification']),
@@ -1293,9 +1300,9 @@ class ContentRequestSearchResult {
             .map(CastMember.fromXtream)
             .whereType<CastMember>()
             .toList(growable: false),
-        directors: _asList(json['director'])
-            .map((name) => '$name')
-            .toList(growable: false),
+        directors: _asList(
+          json['director'],
+        ).map((name) => '$name').toList(growable: false),
         providers: _asList(json['providers'])
             .whereType<Map<String, dynamic>>()
             .map(
@@ -2101,11 +2108,9 @@ String? _asNullableString(Object? value) {
   return null;
 }
 
-List<String> _asStringList(Object? value) =>
-    _asList(value)
-        .map(_asNullableString)
-        .whereType<String>()
-        .toList(growable: false);
+List<String> _asStringList(Object? value) => _asList(
+  value,
+).map(_asNullableString).whereType<String>().toList(growable: false);
 
 Map<String, Object?> _asMap(Object? value) {
   if (value is Map<String, Object?>) return value;

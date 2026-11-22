@@ -37,7 +37,11 @@ bool scrollFocusedContentPageUp() {
 /// - Hover and D-pad focus show the same background tint (no border effect).
 /// - A mouse click transfers keyboard focus to the clicked tab.
 class DpadTabBar extends StatefulWidget {
-  const DpadTabBar({super.key, required this.controller, required this.tabs});
+  const DpadTabBar({
+    super.key,
+    required this.controller,
+    required this.tabs,
+  });
 
   final TabController controller;
   final List<String> tabs;

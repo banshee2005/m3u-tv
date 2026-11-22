@@ -53,7 +53,9 @@ void main() {
         expect(await service.getLiveCategories(), [
           const Category(id: '10', name: 'Live News'),
         ]);
-        expect(requests.map((uri) => uri.path).toSet(), {'/player_api.php'});
+        expect(requests.map((uri) => uri.path).toSet(), {
+          '/player_api.php',
+        });
         expect(requests.first.queryParameters['username'], 'demo');
         expect(requests.first.queryParameters['password'], 'secret');
         expect(requests.last.queryParameters['action'], 'get_live_categories');
@@ -160,55 +162,62 @@ void main() {
       },
     );
 
-    test('default transport reports unauthorized HTTP failures without credentials', () async {
-      final server = await io.HttpServer.bind(
-        io.InternetAddress.loopbackIPv4,
-        0,
-      );
-      unawaited(
-        server.listen((request) {
-          request.response.statusCode = io.HttpStatus.unauthorized;
-          request.response.reasonPhrase = 'Unauthorized';
-          request.response.headers.contentType = io.ContentType.json;
-          request.response.write(
-            jsonEncode(<String, Object?>{'error': 'Unauthorized'}),
-          );
-          unawaited(request.response.close());
-        }).asFuture<void>(),
-      );
-      addTearDown(() => server.close(force: true));
+    test(
+      'default transport reports unauthorized HTTP failures without credentials',
+      () async {
+        final server = await io.HttpServer.bind(
+          io.InternetAddress.loopbackIPv4,
+          0,
+        );
+        unawaited(
+          server.listen((request) {
+            request.response.statusCode = io.HttpStatus.unauthorized;
+            request.response.reasonPhrase = 'Unauthorized';
+            request.response.headers.contentType = io.ContentType.json;
+            request.response.write(
+              jsonEncode(<String, Object?>{'error': 'Unauthorized'}),
+            );
+            unawaited(request.response.close());
+          }).asFuture<void>(),
+        );
+        addTearDown(() => server.close(force: true));
 
-      final service = XtreamService();
+        final service = XtreamService();
 
-      await expectLater(
-        service.authenticate(
-          UserCredentials(
-            server: 'http://${server.address.host}:${server.port}',
-            username: 'demo-user',
-            password: 'playlist-secret',
+        await expectLater(
+          service.authenticate(
+            UserCredentials(
+              server: 'http://${server.address.host}:${server.port}',
+              username: 'demo-user',
+              password: 'playlist-secret',
+            ),
           ),
-        ),
-        throwsA(
-          isA<XtreamHttpException>()
-              .having((error) => error.statusCode, 'statusCode', 401)
-              .having(
-                (error) => '$error',
-                'message',
-                contains('player_api.php'),
-              )
-              .having(
-                (error) => '$error',
-                'message',
-                isNot(contains('demo-user')),
-              )
-              .having(
-                (error) => '$error',
-                'message',
-                isNot(contains('playlist-secret')),
-              ),
-        ),
-      );
-    });
+          throwsA(
+            isA<XtreamHttpException>()
+                .having(
+                  (error) => error.statusCode,
+                  'statusCode',
+                  401,
+                )
+                .having(
+                  (error) => '$error',
+                  'message',
+                  contains('player_api.php'),
+                )
+                .having(
+                  (error) => '$error',
+                  'message',
+                  isNot(contains('demo-user')),
+                )
+                .having(
+                  (error) => '$error',
+                  'message',
+                  isNot(contains('playlist-secret')),
+                ),
+          ),
+        );
+      },
+    );
 
     test(
       'default transport reports plaintext server failures cleanly',
@@ -493,30 +502,33 @@ void main() {
       },
     );
 
-    test('schedule DVR throws when response shape is unrecognised', () async {
-      final transport = FakeXtreamTransport({
-        'auth': xtreamAuth(auth: 1),
-        'schedule_dvr': <String, Object?>{'unexpected': 'value'},
-      });
-      final service = XtreamService(transport: transport.call);
-      await service.authenticate(
-        const UserCredentials(
-          server: 'https://xtream.example/',
-          username: 'demo',
-          password: 'secret',
-        ),
-      );
+    test(
+      'schedule DVR throws when response shape is unrecognised',
+      () async {
+        final transport = FakeXtreamTransport({
+          'auth': xtreamAuth(auth: 1),
+          'schedule_dvr': <String, Object?>{'unexpected': 'value'},
+        });
+        final service = XtreamService(transport: transport.call);
+        await service.authenticate(
+          const UserCredentials(
+            server: 'https://xtream.example/',
+            username: 'demo',
+            password: 'secret',
+          ),
+        );
 
-      await expectLater(
-        service.scheduleDvr(
-          channelId: 101,
-          title: 'Late Show',
-          startTime: DateTime.utc(2026, 6, 25, 21, 30),
-          endTime: DateTime.utc(2026, 6, 25, 22, 15),
-        ),
-        throwsA(isA<XtreamDvrScheduleException>()),
-      );
-    });
+        await expectLater(
+          service.scheduleDvr(
+            channelId: 101,
+            title: 'Late Show',
+            startTime: DateTime.utc(2026, 6, 25, 21, 30),
+            endTime: DateTime.utc(2026, 6, 25, 22, 15),
+          ),
+          throwsA(isA<XtreamDvrScheduleException>()),
+        );
+      },
+    );
 
     test(
       'schedule DVR normalizes offset EPG dates to UTC request dates',
@@ -582,33 +594,36 @@ void main() {
       },
     );
 
-    test('cancel DVR recording surfaces server error message', () async {
-      final transport = FakeXtreamTransport({
-        'auth': xtreamAuth(auth: 1),
-        'cancel_dvr_recording': <String, Object?>{
-          'error': 'Recording not found',
-        },
-      });
-      final service = XtreamService(transport: transport.call);
-      await service.authenticate(
-        const UserCredentials(
-          server: 'https://xtream.example/',
-          username: 'demo',
-          password: 'secret',
-        ),
-      );
-
-      await expectLater(
-        service.cancelDvrRecording('rec-missing'),
-        throwsA(
-          isA<XtreamDvrScheduleException>().having(
-            (e) => e.message,
-            'message',
-            'Recording not found',
+    test(
+      'cancel DVR recording surfaces server error message',
+      () async {
+        final transport = FakeXtreamTransport({
+          'auth': xtreamAuth(auth: 1),
+          'cancel_dvr_recording': <String, Object?>{
+            'error': 'Recording not found',
+          },
+        });
+        final service = XtreamService(transport: transport.call);
+        await service.authenticate(
+          const UserCredentials(
+            server: 'https://xtream.example/',
+            username: 'demo',
+            password: 'secret',
           ),
-        ),
-      );
-    });
+        );
+
+        await expectLater(
+          service.cancelDvrRecording('rec-missing'),
+          throwsA(
+            isA<XtreamDvrScheduleException>().having(
+              (e) => e.message,
+              'message',
+              'Recording not found',
+            ),
+          ),
+        );
+      },
+    );
 
     test(
       'delete DVR recording posts recording_id and resolves on success',
@@ -635,33 +650,36 @@ void main() {
       },
     );
 
-    test('delete DVR recording surfaces server error message', () async {
-      final transport = FakeXtreamTransport({
-        'auth': xtreamAuth(auth: 1),
-        'delete_dvr_recording': <String, Object?>{
-          'error': 'Recording is still active',
-        },
-      });
-      final service = XtreamService(transport: transport.call);
-      await service.authenticate(
-        const UserCredentials(
-          server: 'https://xtream.example/',
-          username: 'demo',
-          password: 'secret',
-        ),
-      );
-
-      await expectLater(
-        service.deleteDvrRecording('rec-busy'),
-        throwsA(
-          isA<XtreamDvrScheduleException>().having(
-            (e) => e.message,
-            'message',
-            'Recording is still active',
+    test(
+      'delete DVR recording surfaces server error message',
+      () async {
+        final transport = FakeXtreamTransport({
+          'auth': xtreamAuth(auth: 1),
+          'delete_dvr_recording': <String, Object?>{
+            'error': 'Recording is still active',
+          },
+        });
+        final service = XtreamService(transport: transport.call);
+        await service.authenticate(
+          const UserCredentials(
+            server: 'https://xtream.example/',
+            username: 'demo',
+            password: 'secret',
           ),
-        ),
-      );
-    });
+        );
+
+        await expectLater(
+          service.deleteDvrRecording('rec-busy'),
+          throwsA(
+            isA<XtreamDvrScheduleException>().having(
+              (e) => e.message,
+              'message',
+              'Recording is still active',
+            ),
+          ),
+        );
+      },
+    );
 
     test(
       'loads DVR recordings list and detail through m3u-editor actions',
@@ -725,30 +743,33 @@ void main() {
       },
     );
 
-    test('requests a status-filtered, limited DVR recordings list for the live badge poll', () async {
-      final transport = FakeXtreamTransport({
-        'auth': xtreamAuth(auth: 1),
-        'get_dvr_recordings': [recordingDvrRecording()],
-      });
-      final service = XtreamService(transport: transport.call);
-      await service.authenticate(
-        const UserCredentials(
-          server: 'https://xtream.example/',
-          username: 'demo',
-          password: 'secret',
-        ),
-      );
+    test(
+      'requests a status-filtered, limited DVR recordings list for the live badge poll',
+      () async {
+        final transport = FakeXtreamTransport({
+          'auth': xtreamAuth(auth: 1),
+          'get_dvr_recordings': [recordingDvrRecording()],
+        });
+        final service = XtreamService(transport: transport.call);
+        await service.authenticate(
+          const UserCredentials(
+            server: 'https://xtream.example/',
+            username: 'demo',
+            password: 'secret',
+          ),
+        );
 
-      final recordings = await service.getDvrRecordings(
-        status: DvrRecordingStatus.recording,
-        limit: 200,
-      );
+        final recordings = await service.getDvrRecordings(
+          status: DvrRecordingStatus.recording,
+          limit: 200,
+        );
 
-      expect(recordings, hasLength(1));
-      expect(recordings.single.status, DvrRecordingStatus.recording);
-      expect(transport.requests.last.params['status'], 'recording');
-      expect(transport.requests.last.params['limit'], '200');
-    });
+        expect(recordings, hasLength(1));
+        expect(recordings.single.status, DvrRecordingStatus.recording);
+        expect(transport.requests.last.params['status'], 'recording');
+        expect(transport.requests.last.params['limit'], '200');
+      },
+    );
 
     test(
       'sends the post_processing wire name and pages the whole library',
@@ -781,38 +802,44 @@ void main() {
       },
     );
 
-    test('updateDvrSeriesRule sends only present keys and omits an unchanged channel', () async {
-      final transport = FakeXtreamTransport({
-        'auth': xtreamAuth(auth: 1),
-        'update_dvr_series_rule': <String, Object?>{'success': true},
-      });
-      final service = XtreamService(transport: transport.call);
-      await service.authenticate(
-        const UserCredentials(
-          server: 'https://xtream.example/',
-          username: 'demo',
-          password: 'secret',
-        ),
-      );
+    test(
+      'updateDvrSeriesRule sends only present keys and omits an unchanged channel',
+      () async {
+        final transport = FakeXtreamTransport({
+          'auth': xtreamAuth(auth: 1),
+          'update_dvr_series_rule': <String, Object?>{'success': true},
+        });
+        final service = XtreamService(transport: transport.call);
+        await service.authenticate(
+          const UserCredentials(
+            server: 'https://xtream.example/',
+            username: 'demo',
+            password: 'secret',
+          ),
+        );
 
-      await service.updateDvrSeriesRule(
-        ruleId: 37,
-        matchMode: DvrMatchMode.exact,
-        seriesMode: DvrSeriesMode.newFlag,
-      );
+        await service.updateDvrSeriesRule(
+          ruleId: 37,
+          matchMode: DvrMatchMode.exact,
+          seriesMode: DvrSeriesMode.newFlag,
+        );
 
-      final request = transport.requests.last;
-      expect(request.action, 'update_dvr_series_rule');
-      // No channel change: channel_id omitted, so the server keeps it.
-      expect(request.params.containsKey('channel_id'), isFalse);
-      expect(request.params['match_mode'], 'exact');
-      expect(request.params['series_mode'], 'new_flag');
-      // Absent (unspecified) fields are NOT sent.
-      expect(request.params.containsKey('keep_last'), isFalse);
-      expect(request.params.containsKey('priority'), isFalse);
-      expect(request.params.containsKey('start_early_seconds'), isFalse);
-      expect(request.params.containsKey('end_late_seconds'), isFalse);
-    });
+        final request = transport.requests.last;
+        expect(request.action, 'update_dvr_series_rule');
+        // No channel change: channel_id omitted, so the server keeps it.
+        expect(request.params.containsKey('channel_id'), isFalse);
+        expect(request.params['match_mode'], 'exact');
+        expect(request.params['series_mode'], 'new_flag');
+        // Absent (unspecified) fields are NOT sent.
+        expect(request.params.containsKey('keep_last'), isFalse);
+        expect(request.params.containsKey('priority'), isFalse);
+        expect(
+          request.params.containsKey('start_early_seconds'),
+          isFalse,
+        );
+        expect(request.params.containsKey('end_late_seconds'), isFalse);
+      },
+    );
 
     test(
       'updateDvrSeriesRule sends a pinned channel id when non-null',
@@ -1441,117 +1468,127 @@ void main() {
       },
     );
 
-    test('EPG programs with absent or blank subtitle parse as null', () async {
-      final now = DateTime.utc(2026, 1, 1, 12);
-      final service = XtreamService(
-        transport: FakeXtreamTransport({
-          'auth': xtreamAuth(auth: 1),
-          'get_epg_batch': <String, Object?>{
-            '200': <Map<String, Object?>>[
-              <String, Object?>{
-                'stream_id': 200,
-                'channel_id': 'channel-key',
-                'title': 'Plain Title 1',
-                'subtitle': null,
-                'description': 'Plain desc',
-                'start': now.toIso8601String(),
-                'end': now.add(const Duration(minutes: 30)).toIso8601String(),
-              },
-              <String, Object?>{
-                'stream_id': 201,
-                'channel_id': 'channel-key',
-                'title': 'Plain Title 2',
-                'subtitle': '',
-                'description': 'Plain desc',
-                'start': now.toIso8601String(),
-                'end': now.add(const Duration(minutes: 30)).toIso8601String(),
-              },
-              <String, Object?>{
-                'stream_id': 202,
-                'channel_id': 'channel-key',
-                'title': 'Plain Title 3',
-                'subtitle': '   ',
-                'description': 'Plain desc',
-                'start': now.toIso8601String(),
-                'end': now.add(const Duration(minutes: 30)).toIso8601String(),
-              },
-              <String, Object?>{
-                'stream_id': 203,
-                'channel_id': 'channel-key',
-                'title': 'Plain Title 4',
-                'subtitle': 'Real Episode',
-                'description': 'Plain desc',
-                'start': now.toIso8601String(),
-                'end': now.add(const Duration(minutes: 30)).toIso8601String(),
-              },
-            ],
-          },
-        }).call,
-      );
-      await service.authenticate(
-        const UserCredentials(
-          server: 'https://xtream.example',
-          username: 'demo',
-          password: 'secret',
-        ),
-      );
+    test(
+      'EPG programs with absent or blank subtitle parse as null',
+      () async {
+        final now = DateTime.utc(2026, 1, 1, 12);
+        final service = XtreamService(
+          transport: FakeXtreamTransport({
+            'auth': xtreamAuth(auth: 1),
+            'get_epg_batch': <String, Object?>{
+              '200': <Map<String, Object?>>[
+                <String, Object?>{
+                  'stream_id': 200,
+                  'channel_id': 'channel-key',
+                  'title': 'Plain Title 1',
+                  'subtitle': null,
+                  'description': 'Plain desc',
+                  'start': now.toIso8601String(),
+                  'end': now.add(const Duration(minutes: 30)).toIso8601String(),
+                },
+                <String, Object?>{
+                  'stream_id': 201,
+                  'channel_id': 'channel-key',
+                  'title': 'Plain Title 2',
+                  'subtitle': '',
+                  'description': 'Plain desc',
+                  'start': now.toIso8601String(),
+                  'end': now.add(const Duration(minutes: 30)).toIso8601String(),
+                },
+                <String, Object?>{
+                  'stream_id': 202,
+                  'channel_id': 'channel-key',
+                  'title': 'Plain Title 3',
+                  'subtitle': '   ',
+                  'description': 'Plain desc',
+                  'start': now.toIso8601String(),
+                  'end': now.add(const Duration(minutes: 30)).toIso8601String(),
+                },
+                <String, Object?>{
+                  'stream_id': 203,
+                  'channel_id': 'channel-key',
+                  'title': 'Plain Title 4',
+                  'subtitle': 'Real Episode',
+                  'description': 'Plain desc',
+                  'start': now.toIso8601String(),
+                  'end': now.add(const Duration(minutes: 30)).toIso8601String(),
+                },
+              ],
+            },
+          }).call,
+        );
+        await service.authenticate(
+          const UserCredentials(
+            server: 'https://xtream.example',
+            username: 'demo',
+            password: 'secret',
+          ),
+        );
 
-      final programs = await service.getEpgBatch(const <Channel>[
-        Channel(
-          id: 200,
-          name: 'Channel',
-          streamUrl: 'https://example/live/200.m3u8',
-          epgChannelId: 'channel-key',
-        ),
-      ]);
+        final programs = await service.getEpgBatch(const <Channel>[
+          Channel(
+            id: 200,
+            name: 'Channel',
+            streamUrl: 'https://example/live/200.m3u8',
+            epgChannelId: 'channel-key',
+          ),
+        ]);
 
-      expect(programs, hasLength(4));
-      expect(programs[0].subtitle, isNull, reason: 'null value');
-      expect(programs[1].subtitle, isNull, reason: 'empty string placeholder');
-      expect(programs[2].subtitle, isNull, reason: 'whitespace-only');
-      expect(programs[3].subtitle, 'Real Episode');
-    });
+        expect(programs, hasLength(4));
+        expect(programs[0].subtitle, isNull, reason: 'null value');
+        expect(
+          programs[1].subtitle,
+          isNull,
+          reason: 'empty string placeholder',
+        );
+        expect(programs[2].subtitle, isNull, reason: 'whitespace-only');
+        expect(programs[3].subtitle, 'Real Episode');
+      },
+    );
 
-    test('plain-text subtitle that coincidentally looks like base64 is not '
-        'corrupted by the base64 decode heuristic', () async {
-      final now = DateTime.utc(2026, 1, 1, 12);
-      final service = XtreamService(
-        transport: FakeXtreamTransport({
-          'auth': xtreamAuth(auth: 1),
-          'get_epg_batch': <String, Object?>{
-            '300': <Map<String, Object?>>[
-              <String, Object?>{
-                'stream_id': 300,
-                'channel_id': 'channel-key',
-                'title': 'Plain Title',
-                'subtitle': 'GAME',
-                'description': 'Plain desc',
-                'start': now.toIso8601String(),
-                'end': now.add(const Duration(minutes: 30)).toIso8601String(),
-              },
-            ],
-          },
-        }).call,
-      );
-      await service.authenticate(
-        const UserCredentials(
-          server: 'https://xtream.example',
-          username: 'demo',
-          password: 'secret',
-        ),
-      );
+    test(
+      'plain-text subtitle that coincidentally looks like base64 is not '
+      'corrupted by the base64 decode heuristic',
+      () async {
+        final now = DateTime.utc(2026, 1, 1, 12);
+        final service = XtreamService(
+          transport: FakeXtreamTransport({
+            'auth': xtreamAuth(auth: 1),
+            'get_epg_batch': <String, Object?>{
+              '300': <Map<String, Object?>>[
+                <String, Object?>{
+                  'stream_id': 300,
+                  'channel_id': 'channel-key',
+                  'title': 'Plain Title',
+                  'subtitle': 'GAME',
+                  'description': 'Plain desc',
+                  'start': now.toIso8601String(),
+                  'end': now.add(const Duration(minutes: 30)).toIso8601String(),
+                },
+              ],
+            },
+          }).call,
+        );
+        await service.authenticate(
+          const UserCredentials(
+            server: 'https://xtream.example',
+            username: 'demo',
+            password: 'secret',
+          ),
+        );
 
-      final programs = await service.getEpgBatch(const <Channel>[
-        Channel(
-          id: 300,
-          name: 'Channel',
-          streamUrl: 'https://example/live/300.m3u8',
-          epgChannelId: 'channel-key',
-        ),
-      ]);
+        final programs = await service.getEpgBatch(const <Channel>[
+          Channel(
+            id: 300,
+            name: 'Channel',
+            streamUrl: 'https://example/live/300.m3u8',
+            epgChannelId: 'channel-key',
+          ),
+        ]);
 
-      expect(programs.single.subtitle, 'GAME');
-    });
+        expect(programs.single.subtitle, 'GAME');
+      },
+    );
   });
 
   group('Local state services', () {
@@ -1574,7 +1611,10 @@ void main() {
 
       expect(
         await PersistentJsonStore(file: file).snapshot(),
-        <String, Object?>{'keep': 'value', 'cache-c': 'new-c'},
+        <String, Object?>{
+          'keep': 'value',
+          'cache-c': 'new-c',
+        },
       );
     });
 
@@ -1611,7 +1651,10 @@ void main() {
         await backup.rename(directory.path);
         expect(
           await PersistentJsonStore(file: file).snapshot(),
-          <String, Object?>{'keep': 'value', 'cache-a': 'old-a'},
+          <String, Object?>{
+            'keep': 'value',
+            'cache-a': 'old-a',
+          },
         );
       },
     );
@@ -1717,7 +1760,10 @@ Map<String, Object?> xtreamAuth({
     'port': '443',
     'server_protocol': 'https',
   },
-  'm3u_editor': {'version': '0.10.0', 'features': features},
+  'm3u_editor': {
+    'version': '0.10.0',
+    'features': features,
+  },
 };
 
 Map<String, Object?> category(String id, String name) => {

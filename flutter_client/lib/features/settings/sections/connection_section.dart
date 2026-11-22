@@ -139,9 +139,9 @@ class _ConnectionFormBodyState extends State<ConnectionFormBody>
 
     if (server.isEmpty || username.isEmpty || password.isEmpty) {
       setState(
-        () =>
-            _validationError = AppLocalizations.of(context)
-                .settingsFillAllFields,
+        () => _validationError = AppLocalizations.of(
+          context,
+        ).settingsFillAllFields,
       );
       return;
     }
@@ -157,9 +157,9 @@ class _ConnectionFormBodyState extends State<ConnectionFormBody>
     final server = _serverController.text.trim();
     if (server.isEmpty) {
       setState(
-        () =>
-            _validationError = AppLocalizations.of(context)
-                .pairingEnterServerFirst,
+        () => _validationError = AppLocalizations.of(
+          context,
+        ).pairingEnterServerFirst,
       );
       return;
     }
@@ -595,7 +595,11 @@ class _DevicePairingWide extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            AppButton(autofocus: true, label: l.cancel, onPressed: onCancel),
+            AppButton(
+              autofocus: true,
+              label: l.cancel,
+              onPressed: onCancel,
+            ),
           ],
         ),
       ],

@@ -380,30 +380,31 @@ void main() {
       },
     );
 
-    testWidgets('shows credential guidance on disconnected TV-sized viewport', (
-      tester,
-    ) async {
-      addTearDown(tester.view.resetPhysicalSize);
-      tester.view.physicalSize = const Size(1920, 1080);
-      tester.view.devicePixelRatio = 1.0;
+    testWidgets(
+      'shows credential guidance on disconnected TV-sized viewport',
+      (tester) async {
+        addTearDown(tester.view.resetPhysicalSize);
+        tester.view.physicalSize = const Size(1920, 1080);
+        tester.view.devicePixelRatio = 1.0;
 
-      final notifier = AuthNotifier(
-        xtreamService: XtreamService(transport: _FakeTransport({}).call),
-        secureStorage: InMemorySecureStorage(),
-      );
+        final notifier = AuthNotifier(
+          xtreamService: XtreamService(transport: _FakeTransport({}).call),
+          secureStorage: InMemorySecureStorage(),
+        );
 
-      await tester.pumpWidget(_settingsApp(notifier));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(_settingsApp(notifier));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Server URL'), findsOneWidget);
-      expect(
-        find.textContaining('playlist Xtream connection details'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('server URL'), findsOneWidget);
-      expect(find.textContaining('Xtream username'), findsOneWidget);
-      expect(find.textContaining('Xtream password'), findsOneWidget);
-    });
+        expect(find.text('Server URL'), findsOneWidget);
+        expect(
+          find.textContaining('playlist Xtream connection details'),
+          findsOneWidget,
+        );
+        expect(find.textContaining('server URL'), findsOneWidget);
+        expect(find.textContaining('Xtream username'), findsOneWidget);
+        expect(find.textContaining('Xtream password'), findsOneWidget);
+      },
+    );
 
     testWidgets(
       'shows credential guidance on disconnected Settings sign-in tab',
@@ -476,26 +477,26 @@ void main() {
       expect(find.text('Server URL'), findsOneWidget);
     });
 
-    testWidgets(
-      'shows source error on connection form when content load fails',
-      (tester) async {
-        final notifier = AuthNotifier(
-          xtreamService: XtreamService(transport: _FakeTransport({}).call),
-          secureStorage: InMemorySecureStorage(),
-        );
+    testWidgets('shows source error on connection form when content load fails', (
+      tester,
+    ) async {
+      final notifier = AuthNotifier(
+        xtreamService: XtreamService(transport: _FakeTransport({}).call),
+        secureStorage: InMemorySecureStorage(),
+      );
 
-        await tester.pumpWidget(
-          _settingsApp(
-            notifier,
-            sourceError: 'Xtream HTTP 401 Unauthorized for GET http://server.test/player_api.php: Unauthorized',
-          ),
-        );
-        await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        _settingsApp(
+          notifier,
+          sourceError:
+              'Xtream HTTP 401 Unauthorized for GET http://server.test/player_api.php: Unauthorized',
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        expect(find.text('Server URL'), findsOneWidget);
-        expect(find.textContaining('Xtream HTTP 401'), findsOneWidget);
-      },
-    );
+      expect(find.text('Server URL'), findsOneWidget);
+      expect(find.textContaining('Xtream HTTP 401'), findsOneWidget);
+    });
 
     testWidgets('shows connection status when configured', (tester) async {
       final storage = InMemorySecureStorage();
@@ -962,7 +963,11 @@ void main() {
     AppLogBuffer bufferWith(List<String> lines) {
       final buffer = AppLogBuffer();
       for (final (i, line) in lines.indexed) {
-        buffer.add(AppLogLevel.info, line, at: DateTime(2026, 10, 1, 12, 0, i));
+        buffer.add(
+          AppLogLevel.info,
+          line,
+          at: DateTime(2026, 10, 1, 12, 0, i),
+        );
       }
       return buffer;
     }

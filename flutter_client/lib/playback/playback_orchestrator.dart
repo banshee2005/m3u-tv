@@ -543,8 +543,9 @@ class PlaybackOrchestrator {
       // platform view never mounts and load() times out waiting for a
       // native side that was never given the chance to attach.
       _addState(
-        PlaybackState.idle(backend: backend)
-            .copyWith(status: PlaybackStatus.loading, source: source),
+        PlaybackState.idle(
+          backend: backend,
+        ).copyWith(status: PlaybackStatus.loading, source: source),
       );
     }
     var streamUnavailableAttempt = 0;
@@ -1031,10 +1032,9 @@ class PlaybackOrchestrator {
     final isAudioTiming = looksLikeAudioTimingFailure(error.code);
     final remainingBackends = source == null
         ? const <PlaybackBackend>[]
-        : _nativeBackends(source)
-              .skipWhile((candidate) => candidate != backend)
-              .skip(1)
-              .toList();
+        : _nativeBackends(
+            source,
+          ).skipWhile((candidate) => candidate != backend).skip(1).toList();
     // Nothing to move to: leave it playing rather than turn a player that is
     // still trying into an error.
     if (isAudioTiming && remainingBackends.isEmpty) {

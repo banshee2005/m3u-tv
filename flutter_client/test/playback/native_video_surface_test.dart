@@ -31,7 +31,9 @@ void main() {
     ]) {
       testWidgets(
         'planeDrawsLetterbox $drawsLetterbox reports $expectedWidth wide',
-        (tester) async {
+        (
+          tester,
+        ) async {
           tester.view
             ..physicalSize = const Size(1600, 900)
             ..devicePixelRatio = 1;

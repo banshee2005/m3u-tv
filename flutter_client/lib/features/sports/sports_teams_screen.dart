@@ -233,7 +233,9 @@ class _SportsTeamsScreenState extends ConsumerState<SportsTeamsScreen> {
                 }
               },
               child: ScrollbarGridView(
-                padding: const EdgeInsets.all(MediaBrowsingMetrics.pagePadding),
+                padding: const EdgeInsets.all(
+                  MediaBrowsingMetrics.pagePadding,
+                ),
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 200 * scale,
                   mainAxisExtent: 150 * scale,

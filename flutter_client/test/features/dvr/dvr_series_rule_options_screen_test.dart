@@ -115,7 +115,9 @@ void main() {
   group('Test 3 — Screen omit-to-inherit defaults', () {
     testWidgets(
       'Save without touching any control returns correct omit/default values',
-      (tester) async {
+      (
+        tester,
+      ) async {
         // Show with 2 channels but NO episode matching nextAiringAt → channelId=null (any).
         final testShow = buildShowNoMatchingNextAiring();
 
@@ -245,7 +247,9 @@ void main() {
 
     testWidgets(
       'channelId defaults to the next-airing episode channel when matched',
-      (tester) async {
+      (
+        tester,
+      ) async {
         // Show: 2 channels, one episode with startTime == nextAiringAt on channel 2.
         final testShow = buildShowWithNextAiring();
 

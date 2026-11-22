@@ -76,25 +76,33 @@ void main() {
       },
     );
 
-    test('logout rejects a token refresh queued behind unsubscribe', () async {
-      final fixture = _Fixture();
-      addTearDown(fixture.controller.dispose);
-      expect(await fixture.controller.connectXtream(_firstCredentials), isTrue);
-      await fixture.controller.initPushNotifications();
-      await fixture.controller.setPushToken('old-token');
-      fixture.push.events.clear();
-      final unregisterStarted = fixture.push.delayNextUnregister();
+    test(
+      'logout rejects a token refresh queued behind unsubscribe',
+      () async {
+        final fixture = _Fixture();
+        addTearDown(fixture.controller.dispose);
+        expect(
+          await fixture.controller.connectXtream(_firstCredentials),
+          isTrue,
+        );
+        await fixture.controller.initPushNotifications();
+        await fixture.controller.setPushToken('old-token');
+        fixture.push.events.clear();
+        final unregisterStarted = fixture.push.delayNextUnregister();
 
-      final disconnect = fixture.controller.disconnect();
-      await unregisterStarted;
-      fixture.push.emitTokenRefresh('new-token');
-      fixture.push.releaseUnregister();
-      await disconnect;
-      await fixture.controller.setPushToken('after-logout-token');
+        final disconnect = fixture.controller.disconnect();
+        await unregisterStarted;
+        fixture.push.emitTokenRefresh('new-token');
+        fixture.push.releaseUnregister();
+        await disconnect;
+        await fixture.controller.setPushToken('after-logout-token');
 
-      expect(fixture.push.events, <String>['unsubscribe:first:old-token:true']);
-      expect(fixture.auth.credentials, isNull);
-    });
+        expect(fixture.push.events, <String>[
+          'unsubscribe:first:old-token:true',
+        ]);
+        expect(fixture.auth.credentials, isNull);
+      },
+    );
 
     test('credential replacement unsubscribes prior requester first', () async {
       final fixture = _Fixture();
@@ -166,7 +174,9 @@ void main() {
             );
             addTearDown(subscription.cancel);
             var controllerNotifications = 0;
-            fixture.controller.addListener(() => controllerNotifications += 1);
+            fixture.controller.addListener(
+              () => controllerNotifications += 1,
+            );
             var persistenceCallbacks = 0;
             void onPersistenceCommit() => persistenceCallbacks += 1;
             notificationPersistence
@@ -468,9 +478,10 @@ void main() {
           ),
           <String>['general'],
         );
-        expect(presented.map((notification) => notification.title), <String>[
-          'Account B public',
-        ]);
+        expect(
+          presented.map((notification) => notification.title),
+          <String>['Account B public'],
+        );
 
         expect(
           await fixture.controller.connectXtream(_firstCredentials),
@@ -504,7 +515,10 @@ void main() {
           expect(key, isNot(contains(_secondCredentials.password)));
         }
         expect(persisted.containsKey('m3ue_tv_notifications'), isFalse);
-        expect(persisted.containsKey('m3ue_tv_notification_channels'), isFalse);
+        expect(
+          persisted.containsKey('m3ue_tv_notification_channels'),
+          isFalse,
+        );
 
         final restartedApi = _AccountNotificationService();
         final restarted = _Fixture(
@@ -532,7 +546,10 @@ void main() {
       final api = _AccountNotificationService();
       final fixture = _Fixture(notificationApi: api);
       addTearDown(fixture.controller.dispose);
-      expect(await fixture.controller.connectXtream(_firstCredentials), isTrue);
+      expect(
+        await fixture.controller.connectXtream(_firstCredentials),
+        isTrue,
+      );
       await _waitForNotificationTitle(fixture.controller, 'Account A private');
       await fixture.controller.setNotificationChannels(<String>{'dvr'});
 
@@ -596,7 +613,10 @@ void main() {
         reverbService: reverb,
       );
       addTearDown(fixture.controller.dispose);
-      expect(await fixture.controller.connectXtream(_firstCredentials), isTrue);
+      expect(
+        await fixture.controller.connectXtream(_firstCredentials),
+        isTrue,
+      );
       await reverb.firstConnected.future;
 
       reverb.emitDvrStatus('first', _dvrStatusPing);
@@ -676,12 +696,14 @@ void main() {
       expect(await firstConnect, isFalse);
       await Future<void>.delayed(Duration.zero);
 
-      final persistedCredentials = jsonDecode(
-        (await fixture.storage.read('m3ue_tv_credentials'))!,
-      ) as Map<String, Object?>;
-      final persistedSource = jsonDecode(
-        (await fixture.storage.read('m3ue_tv_source'))!,
-      ) as Map<String, Object?>;
+      final persistedCredentials =
+          jsonDecode(
+                (await fixture.storage.read('m3ue_tv_credentials'))!,
+              )
+              as Map<String, Object?>;
+      final persistedSource =
+          jsonDecode((await fixture.storage.read('m3ue_tv_source'))!)
+              as Map<String, Object?>;
       expect(fixture.auth.credentials, _secondCredentials);
       expect(fixture.xtream.credentials?.server, _secondCredentials.server);
       expect(fixture.xtream.credentials?.username, _secondCredentials.username);
@@ -712,17 +734,15 @@ void main() {
       expect(reverb.connectedUsers, <String>['second']);
       expect(fixture.push.events, <String>['register:second:device-token']);
       expect(
-        (await fixture.cache.get<List<Category>>('liveCategories'))
-            ?.data
-            .single
-            .name,
+        (await fixture.cache.get<List<Category>>(
+          'liveCategories',
+        ))?.data.single.name,
         'Server B Live',
       );
       expect(
-        (await fixture.cache.get<List<Channel>>('liveStreams'))
-            ?.data
-            .single
-            .name,
+        (await fixture.cache.get<List<Channel>>(
+          'liveStreams',
+        ))?.data.single.name,
         'Server B Channel',
       );
     });
@@ -823,9 +843,11 @@ void main() {
         fixture.controller.error,
         'Bad state: catalog unavailable for [redacted]: [redacted]',
       );
-      final persistedCredentials = jsonDecode(
-        (await fixture.storage.read('m3ue_tv_credentials'))!,
-      ) as Map<String, Object?>;
+      final persistedCredentials =
+          jsonDecode(
+                (await fixture.storage.read('m3ue_tv_credentials'))!,
+              )
+              as Map<String, Object?>;
       expect(fixture.auth.credentials, _firstCredentials);
       expect(persistedCredentials, <String, Object?>{
         'server': _firstCredentials.server,
@@ -850,45 +872,39 @@ void main() {
         'Server A guide',
       );
       expect(
-        (await fixture.cache.get<List<Category>>('liveCategories'))
-            ?.data
-            .single
-            .name,
+        (await fixture.cache.get<List<Category>>(
+          'liveCategories',
+        ))?.data.single.name,
         'Server A Live',
       );
       expect(
-        (await fixture.cache.get<List<Category>>('vodCategories'))
-            ?.data
-            .single
-            .name,
+        (await fixture.cache.get<List<Category>>(
+          'vodCategories',
+        ))?.data.single.name,
         'Server A Movies',
       );
       expect(
-        (await fixture.cache.get<List<Category>>('seriesCategories'))
-            ?.data
-            .single
-            .name,
+        (await fixture.cache.get<List<Category>>(
+          'seriesCategories',
+        ))?.data.single.name,
         'Server A Series',
       );
       expect(
-        (await fixture.cache.get<List<Channel>>('liveStreams'))
-            ?.data
-            .single
-            .name,
+        (await fixture.cache.get<List<Channel>>(
+          'liveStreams',
+        ))?.data.single.name,
         'Server A Channel',
       );
       expect(
-        (await fixture.cache.get<List<VodItem>>('vodStreams'))
-            ?.data
-            .single
-            .name,
+        (await fixture.cache.get<List<VodItem>>(
+          'vodStreams',
+        ))?.data.single.name,
         'Server A Movie',
       );
       expect(
-        (await fixture.cache.get<List<Series>>('seriesStreams'))
-            ?.data
-            .single
-            .name,
+        (await fixture.cache.get<List<Series>>(
+          'seriesStreams',
+        ))?.data.single.name,
         'Server A Show',
       );
     });
@@ -982,12 +998,14 @@ void main() {
         );
         expect(persisted, isNot(contains('Server B')));
         expect(persisted, isNot(contains('/second/')));
-        final persistedCredentials = jsonDecode(
-          (await fixture.storage.read('m3ue_tv_credentials'))!,
-        ) as Map<String, Object?>;
-        final persistedSource = jsonDecode(
-          (await fixture.storage.read('m3ue_tv_source'))!,
-        ) as Map<String, Object?>;
+        final persistedCredentials =
+            jsonDecode(
+                  (await fixture.storage.read('m3ue_tv_credentials'))!,
+                )
+                as Map<String, Object?>;
+        final persistedSource =
+            jsonDecode((await fixture.storage.read('m3ue_tv_source'))!)
+                as Map<String, Object?>;
         expect(persistedCredentials['username'], 'first');
         expect(persistedSource['type'], 'xtream');
 
@@ -1068,10 +1086,9 @@ void main() {
           'Server B Channel',
         );
         expect(
-          (await fixture.cache.get<List<Channel>>('liveStreams'))
-              ?.data
-              .single
-              .name,
+          (await fixture.cache.get<List<Channel>>(
+            'liveStreams',
+          ))?.data.single.name,
           'Server B Channel',
         );
         expect(transport.secondSourcePostCommitEvents, isNotEmpty);
@@ -1082,9 +1099,9 @@ void main() {
         // The catalog is durable in SQLite (asserted above via cache.get);
         // the JSON store still carries the second source's credentials.
         final persisted = await PersistentJsonStore(file: stateFile).snapshot();
-        final persistedCredentials = jsonDecode(
-          persisted['m3ue_tv_credentials']! as String,
-        ) as Map<String, Object?>;
+        final persistedCredentials =
+            jsonDecode(persisted['m3ue_tv_credentials']! as String)
+                as Map<String, Object?>;
         expect(persistedCredentials['username'], 'second');
       },
     );
@@ -1152,10 +1169,9 @@ void main() {
           isTrue,
         );
         expect(
-          (await fixture.cache.get<List<Channel>>('liveStreams'))
-              ?.data
-              .single
-              .name,
+          (await fixture.cache.get<List<Channel>>(
+            'liveStreams',
+          ))?.data.single.name,
           'Server A Channel',
         );
 
@@ -1164,12 +1180,12 @@ void main() {
         final persisted = await PersistentJsonStore(file: stateFile).snapshot();
         final persistedText = jsonEncode(persisted);
         expect(persistedText, contains('viewer-server-a'));
-        final persistedCredentials = jsonDecode(
-          persisted['m3ue_tv_credentials']! as String,
-        ) as Map<String, Object?>;
-        final persistedSource = jsonDecode(
-          persisted['m3ue_tv_source']! as String,
-        ) as Map<String, Object?>;
+        final persistedCredentials =
+            jsonDecode(persisted['m3ue_tv_credentials']! as String)
+                as Map<String, Object?>;
+        final persistedSource =
+            jsonDecode(persisted['m3ue_tv_source']! as String)
+                as Map<String, Object?>;
         expect(persistedCredentials['username'], 'first');
         expect(persistedSource['type'], 'xtream');
 
@@ -1252,8 +1268,9 @@ void main() {
               'm3ue_tv_credentials',
             ),
             'source persisted': persisted.containsKey('m3ue_tv_source'),
-            'cache source': (await fixture.cache.get<String>('sourceType'))
-                ?.data,
+            'cache source': (await fixture.cache.get<String>(
+              'sourceType',
+            ))?.data,
             'channels': (await _liveChannels(fixture.controller)).length,
             'active viewer': fixture.controller.activeViewer?.ulid,
             'push events': fixture.push.events,
@@ -1270,7 +1287,9 @@ void main() {
             'cache source': null,
             'channels': 0,
             'active viewer': null,
-            'push events': <String>['unsubscribe:first:device-token:true'],
+            'push events': <String>[
+              'unsubscribe:first:device-token:true',
+            ],
             'reverb user': null,
             'restart auth': null,
             'restart source': AppSourceType.none,
@@ -1338,10 +1357,9 @@ void main() {
         );
         expect(observedSources, isNot(contains('Server B Live')));
         expect(
-          (await fixture.cache.get<List<Channel>>('liveStreams'))
-              ?.data
-              .single
-              .name,
+          (await fixture.cache.get<List<Channel>>(
+            'liveStreams',
+          ))?.data.single.name,
           'Server C Channel',
         );
 
@@ -1350,12 +1368,12 @@ void main() {
         final persisted = await PersistentJsonStore(file: stateFile).snapshot();
         final persistedText = jsonEncode(persisted);
         expect(persistedText, contains('viewer-server-c'));
-        final persistedCredentials = jsonDecode(
-          persisted['m3ue_tv_credentials']! as String,
-        ) as Map<String, Object?>;
-        final persistedSource = jsonDecode(
-          persisted['m3ue_tv_source']! as String,
-        ) as Map<String, Object?>;
+        final persistedCredentials =
+            jsonDecode(persisted['m3ue_tv_credentials']! as String)
+                as Map<String, Object?>;
+        final persistedSource =
+            jsonDecode(persisted['m3ue_tv_source']! as String)
+                as Map<String, Object?>;
         expect(persistedCredentials['username'], 'third');
         expect(persistedSource['type'], 'xtream');
 
@@ -1438,57 +1456,69 @@ void main() {
       },
     );
 
-    test('late post-commit progress cannot replace a newer source', () async {
-      final transport = _PostCommitOwnershipTransport(
-        blockSecondProgressRefresh: true,
-      );
-      final fixture = _Fixture(transport: transport.call);
-      addTearDown(fixture.controller.dispose);
+    test(
+      'late post-commit progress cannot replace a newer source',
+      () async {
+        final transport = _PostCommitOwnershipTransport(
+          blockSecondProgressRefresh: true,
+        );
+        final fixture = _Fixture(transport: transport.call);
+        addTearDown(fixture.controller.dispose);
 
-      expect(await fixture.controller.connectXtream(_firstCredentials), isTrue);
-      await pumpEventQueue();
-      expect(
-        await fixture.controller.connectXtream(_secondCredentials),
-        isTrue,
-      );
-      await transport.secondProgressRefreshStarted.future;
+        expect(
+          await fixture.controller.connectXtream(_firstCredentials),
+          isTrue,
+        );
+        await pumpEventQueue();
+        expect(
+          await fixture.controller.connectXtream(_secondCredentials),
+          isTrue,
+        );
+        await transport.secondProgressRefreshStarted.future;
 
-      expect(await fixture.controller.connectXtream(_thirdCredentials), isTrue);
-      await _waitForProgress(fixture.controller, 'Server C Progress');
-      var stalePublications = 0;
-      fixture.controller.addListener(() {
-        if (fixture.controller.progressList.any(
-          (progress) => progress.title == 'Server B delayed progress',
-        )) {
-          stalePublications += 1;
-        }
-      });
+        expect(
+          await fixture.controller.connectXtream(_thirdCredentials),
+          isTrue,
+        );
+        await _waitForProgress(fixture.controller, 'Server C Progress');
+        var stalePublications = 0;
+        fixture.controller.addListener(() {
+          if (fixture.controller.progressList.any(
+            (progress) => progress.title == 'Server B delayed progress',
+          )) {
+            stalePublications += 1;
+          }
+        });
 
-      transport.releaseSecondProgressRefresh.complete();
-      await pumpEventQueue();
+        transport.releaseSecondProgressRefresh.complete();
+        await pumpEventQueue();
 
-      expect(fixture.auth.credentials, _thirdCredentials);
-      expect(fixture.controller.activeViewer?.ulid, 'viewer-server-c');
-      expect(
-        (await _liveChannels(fixture.controller)).single.name,
-        'Server C Channel',
-      );
-      expect(fixture.controller.progressList.single.title, 'Server C Progress');
-      expect(stalePublications, 0);
-      expect(
-        jsonEncode(await fixture.store.snapshot()),
-        isNot(contains('Server B delayed progress')),
-      );
-      expect(
-        transport.requests.where(
-          (request) =>
-              request.action == 'update_progress' &&
-              request.username == 'third' &&
-              request.viewerId == 'viewer-server-b',
-        ),
-        isEmpty,
-      );
-    });
+        expect(fixture.auth.credentials, _thirdCredentials);
+        expect(fixture.controller.activeViewer?.ulid, 'viewer-server-c');
+        expect(
+          (await _liveChannels(fixture.controller)).single.name,
+          'Server C Channel',
+        );
+        expect(
+          fixture.controller.progressList.single.title,
+          'Server C Progress',
+        );
+        expect(stalePublications, 0);
+        expect(
+          jsonEncode(await fixture.store.snapshot()),
+          isNot(contains('Server B delayed progress')),
+        );
+        expect(
+          transport.requests.where(
+            (request) =>
+                request.action == 'update_progress' &&
+                request.username == 'third' &&
+                request.viewerId == 'viewer-server-b',
+          ),
+          isEmpty,
+        );
+      },
+    );
 
     test(
       'resume persistence entered by a stale source cannot commit',
@@ -1648,47 +1678,55 @@ void main() {
       },
     );
 
-    test('late favorites pull cannot replace a newer source', () async {
-      final storage = InMemorySecureStorage();
-      final transport = _PostCommitOwnershipTransport(
-        blockSecondFavoritesPull: true,
-      );
-      final fixture = _Fixture(
-        transport: transport.call,
-        secureStorage: storage,
-      );
-      addTearDown(fixture.controller.dispose);
+    test(
+      'late favorites pull cannot replace a newer source',
+      () async {
+        final storage = InMemorySecureStorage();
+        final transport = _PostCommitOwnershipTransport(
+          blockSecondFavoritesPull: true,
+        );
+        final fixture = _Fixture(
+          transport: transport.call,
+          secureStorage: storage,
+        );
+        addTearDown(fixture.controller.dispose);
 
-      expect(await fixture.controller.connectXtream(_firstCredentials), isTrue);
-      await pumpEventQueue();
-      await storage.write(
-        'm3ue_tv_favorites_migrated_viewers',
-        jsonEncode(<String>['viewer-server-b']),
-      );
+        expect(
+          await fixture.controller.connectXtream(_firstCredentials),
+          isTrue,
+        );
+        await pumpEventQueue();
+        await storage.write(
+          'm3ue_tv_favorites_migrated_viewers',
+          jsonEncode(<String>['viewer-server-b']),
+        );
 
-      final secondConnect = fixture.controller.connectXtream(
-        _secondCredentials,
-      );
-      await transport.secondFavoritesPullStarted.future;
-      final thirdConnect = fixture.controller.connectXtream(_thirdCredentials);
+        final secondConnect = fixture.controller.connectXtream(
+          _secondCredentials,
+        );
+        await transport.secondFavoritesPullStarted.future;
+        final thirdConnect = fixture.controller.connectXtream(
+          _thirdCredentials,
+        );
 
-      transport.releaseSecondFavoritesPull.complete();
-      expect(await secondConnect, isFalse);
-      expect(await thirdConnect, isTrue);
-      await _waitForFavorite(fixture.controller, 103);
-      await pumpEventQueue();
+        transport.releaseSecondFavoritesPull.complete();
+        expect(await secondConnect, isFalse);
+        expect(await thirdConnect, isTrue);
+        await _waitForFavorite(fixture.controller, 103);
+        await pumpEventQueue();
 
-      expect(await fixture.controller.favoritesService.all(), <int>{103});
-      expect(
-        transport.requests.where(
-          (request) =>
-              request.isFavorites &&
-              request.viewerId !=
-                  'viewer-server-${request.source.toLowerCase()}',
-        ),
-        isEmpty,
-      );
-    });
+        expect(await fixture.controller.favoritesService.all(), <int>{103});
+        expect(
+          transport.requests.where(
+            (request) =>
+                request.isFavorites &&
+                request.viewerId !=
+                    'viewer-server-${request.source.toLowerCase()}',
+          ),
+          isEmpty,
+        );
+      },
+    );
 
     test(
       'favorites persistence entered by a stale source cannot commit',
@@ -1762,9 +1800,10 @@ void main() {
         // Each playlist keeps its own favorites: the first one's are untouched.
         expect(await store.read(firstKey), <int>[101]);
         final third = fixture.controller.savedPlaylists.find(_thirdCredentials);
-        expect(await store.read('m3ue_favorites_playlist_${third!.id}'), <int>[
-          103,
-        ]);
+        expect(
+          await store.read('m3ue_favorites_playlist_${third!.id}'),
+          <int>[103],
+        );
         expect(currentNotifications, 1);
         expect(
           transport.requests.where(
@@ -1810,9 +1849,13 @@ void main() {
         await _waitForFavorite(fixture.controller, 103);
         await pumpEventQueue();
 
-        final migrated = jsonDecode(
-          (await storage.read('m3ue_tv_favorites_migrated_viewers'))!,
-        ) as List<Object?>;
+        final migrated =
+            jsonDecode(
+                  (await storage.read(
+                    'm3ue_tv_favorites_migrated_viewers',
+                  ))!,
+                )
+                as List<Object?>;
         expect(migrated, contains('viewer-server-c'));
         expect(migrated, isNot(contains('viewer-server-b')));
         expect(await fixture.controller.favoritesService.all(), <int>{103});
@@ -1835,61 +1878,69 @@ void main() {
       },
     );
 
-    test('migration marker entered by a stale source cannot commit', () async {
-      final storage = _BlockingFavoritesMigrationWriteStorage();
-      final transport = _PostCommitOwnershipTransport();
-      final fixture = _Fixture(
-        transport: transport.call,
-        secureStorage: storage,
-      );
-      addTearDown(fixture.controller.dispose);
+    test(
+      'migration marker entered by a stale source cannot commit',
+      () async {
+        final storage = _BlockingFavoritesMigrationWriteStorage();
+        final transport = _PostCommitOwnershipTransport();
+        final fixture = _Fixture(
+          transport: transport.call,
+          secureStorage: storage,
+        );
+        addTearDown(fixture.controller.dispose);
 
-      expect(await fixture.controller.connectXtream(_firstCredentials), isTrue);
-      await _waitForMigratedViewer(storage, 'viewer-server-a');
-      storage.blockViewer('viewer-server-b');
+        expect(
+          await fixture.controller.connectXtream(_firstCredentials),
+          isTrue,
+        );
+        await _waitForMigratedViewer(storage, 'viewer-server-a');
+        storage.blockViewer('viewer-server-b');
 
-      final secondConnect = fixture.controller.connectXtream(
-        _secondCredentials,
-      );
-      await storage.blockedWriteStarted.future;
-      final thirdConnect = fixture.controller.connectXtream(_thirdCredentials);
+        final secondConnect = fixture.controller.connectXtream(
+          _secondCredentials,
+        );
+        await storage.blockedWriteStarted.future;
+        final thirdConnect = fixture.controller.connectXtream(
+          _thirdCredentials,
+        );
 
-      storage.releaseBlockedWrite.complete();
-      await storage.blockedWriteCompleted.future;
-      expect(await secondConnect, isFalse);
-      expect(await thirdConnect, isTrue);
-      await _waitForMigratedViewer(storage, 'viewer-server-c');
-      await pumpEventQueue();
+        storage.releaseBlockedWrite.complete();
+        await storage.blockedWriteCompleted.future;
+        expect(await secondConnect, isFalse);
+        expect(await thirdConnect, isTrue);
+        await _waitForMigratedViewer(storage, 'viewer-server-c');
+        await pumpEventQueue();
 
-      final migratedAfterRelease = await _migratedViewers(storage);
-      expect(migratedAfterRelease, contains('viewer-server-a'));
-      expect(migratedAfterRelease, contains('viewer-server-c'));
-      expect(migratedAfterRelease, isNot(contains('viewer-server-b')));
+        final migratedAfterRelease = await _migratedViewers(storage);
+        expect(migratedAfterRelease, contains('viewer-server-a'));
+        expect(migratedAfterRelease, contains('viewer-server-c'));
+        expect(migratedAfterRelease, isNot(contains('viewer-server-b')));
 
-      expect(
-        await fixture.controller.connectXtream(_secondCredentials),
-        isTrue,
-      );
-      await _waitForMigratedViewer(storage, 'viewer-server-b');
+        expect(
+          await fixture.controller.connectXtream(_secondCredentials),
+          isTrue,
+        );
+        await _waitForMigratedViewer(storage, 'viewer-server-b');
 
-      expect(
-        transport.requests.where(
-          (request) =>
-              request.action == 'get_favorites' &&
-              request.viewerId == 'viewer-server-b',
-        ),
-        hasLength(2),
-      );
-      expect(
-        transport.requests.where(
-          (request) =>
-              request.isFavorites &&
-              request.viewerId !=
-                  'viewer-server-${request.source.toLowerCase()}',
-        ),
-        isEmpty,
-      );
-    });
+        expect(
+          transport.requests.where(
+            (request) =>
+                request.action == 'get_favorites' &&
+                request.viewerId == 'viewer-server-b',
+          ),
+          hasLength(2),
+        );
+        expect(
+          transport.requests.where(
+            (request) =>
+                request.isFavorites &&
+                request.viewerId !=
+                    'viewer-server-${request.source.toLowerCase()}',
+          ),
+          isEmpty,
+        );
+      },
+    );
 
     test(
       'failed authentication restores the prior notification session',
@@ -1975,39 +2026,45 @@ void main() {
   });
 
   group('remote device revocation', () {
-    test('a device_revoked notifications response signs the app out', () async {
-      final fixture = _Fixture(
-        notificationApi: _RevokedTvNotificationService(),
-        reverbService: _RecordingReverbService(),
-      );
-      addTearDown(fixture.controller.dispose);
+    test(
+      'a device_revoked notifications response signs the app out',
+      () async {
+        final fixture = _Fixture(
+          notificationApi: _RevokedTvNotificationService(),
+          reverbService: _RecordingReverbService(),
+        );
+        addTearDown(fixture.controller.dispose);
 
-      expect(await fixture.controller.connectXtream(_firstCredentials), isTrue);
+        expect(
+          await fixture.controller.connectXtream(_firstCredentials),
+          isTrue,
+        );
 
-      // The revoked flag fires an unawaited disconnect(). Credentials are
-      // nulled partway through it, so asserting on them alone let the test
-      // end while disconnect() was still clearing the catalog - tearDown
-      // then closed the database underneath it ("Can't re-open a database
-      // after closing it", reported as failed after test completion).
-      // Wait for disconnect() to reach its final step (source reset) so
-      // nothing is still in flight when the fixture is disposed.
-      final disconnected = Completer<void>();
-      void onChange() {
-        if (fixture.controller.sourceType == AppSourceType.none &&
-            !disconnected.isCompleted) {
-          disconnected.complete();
+        // The revoked flag fires an unawaited disconnect(). Credentials are
+        // nulled partway through it, so asserting on them alone let the test
+        // end while disconnect() was still clearing the catalog - tearDown
+        // then closed the database underneath it ("Can't re-open a database
+        // after closing it", reported as failed after test completion).
+        // Wait for disconnect() to reach its final step (source reset) so
+        // nothing is still in flight when the fixture is disposed.
+        final disconnected = Completer<void>();
+        void onChange() {
+          if (fixture.controller.sourceType == AppSourceType.none &&
+              !disconnected.isCompleted) {
+            disconnected.complete();
+          }
         }
-      }
 
-      fixture.controller.addListener(onChange);
-      addTearDown(() => fixture.controller.removeListener(onChange));
+        fixture.controller.addListener(onChange);
+        addTearDown(() => fixture.controller.removeListener(onChange));
 
-      await fixture.controller.reconcileNotifications();
-      onChange();
-      await disconnected.future.timeout(const Duration(seconds: 5));
+        await fixture.controller.reconcileNotifications();
+        onChange();
+        await disconnected.future.timeout(const Duration(seconds: 5));
 
-      expect(fixture.auth.credentials, isNull);
-    });
+        expect(fixture.auth.credentials, isNull);
+      },
+    );
   });
 }
 
@@ -2104,7 +2161,10 @@ class _Fixture {
       transport: transport ?? _FakeXtreamTransport().call,
       cache: cache,
     );
-    auth = AuthNotifier(xtreamService: xtream, secureStorage: storage);
+    auth = AuthNotifier(
+      xtreamService: xtream,
+      secureStorage: storage,
+    );
     push = _FakePushNotificationService(
       credentialsArePresent: (credentials) =>
           identical(auth.credentials, credentials),
@@ -3053,7 +3113,10 @@ class _ThreeSourceXtreamTransport {
       case 'get_favorites':
       case 'sync_favorites':
         return <Map<String, Object?>>[
-          <String, Object?>{'content_type': 'live', 'stream_id': 101 + offset},
+          <String, Object?>{
+            'content_type': 'live',
+            'stream_id': 101 + offset,
+          },
         ];
       case 'toggle_favorite':
         return <String, Object?>{'favorited': request.body['favorited']};
@@ -3137,7 +3200,11 @@ class _PostCommitOwnershipTransport {
     final viewerId =
         request.body['viewer_id']?.toString() ?? request.params['viewer_id'];
     requests.add(
-      _SourceRequest(action: action, username: username, viewerId: viewerId),
+      _SourceRequest(
+        action: action,
+        username: username,
+        viewerId: viewerId,
+      ),
     );
     switch (action) {
       case 'auth':
@@ -3224,7 +3291,10 @@ class _PostCommitOwnershipTransport {
           await releaseThirdFavoritesPull.future;
         }
         return <Map<String, Object?>>[
-          <String, Object?>{'content_type': 'live', 'stream_id': 101 + offset},
+          <String, Object?>{
+            'content_type': 'live',
+            'stream_id': 101 + offset,
+          },
         ];
       case 'sync_favorites':
         final requestedViewer = request.body['viewer_id']?.toString() ?? '';

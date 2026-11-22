@@ -69,11 +69,12 @@ void main() {
             streamSessionGatewayProvider.overrideWith(
               (_) => EditorStreamSessionGateway(
                 serverBase: () => null,
-                stopPlayerStream: ({
-                  required type,
-                  required streamId,
-                  required clientId,
-                }) async {},
+                stopPlayerStream:
+                    ({
+                      required type,
+                      required streamId,
+                      required clientId,
+                    }) async {},
               ),
             ),
             multiviewChannelsProvider.overrideWith(
@@ -104,7 +105,10 @@ void main() {
         isTrue,
       );
       final clippedTile = find
-          .ancestor(of: surface, matching: find.byType(ClipRRect))
+          .ancestor(
+            of: surface,
+            matching: find.byType(ClipRRect),
+          )
           .first;
 
       List<RecordedInvocation> recordedTilePaint() {

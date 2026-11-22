@@ -24,34 +24,37 @@ final _airingEnd = DateTime.utc(2026, 8, 20, 19, 45);
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('scheduleDvrAiring posts channel/title/window to schedule_dvr and '
-      'returns the refreshed matching recording', () async {
-    final transport = _AiringTransport();
-    final controller = _controller(transport);
-    addTearDown(controller.dispose);
+  test(
+    'scheduleDvrAiring posts channel/title/window to schedule_dvr and '
+    'returns the refreshed matching recording',
+    () async {
+      final transport = _AiringTransport();
+      final controller = _controller(transport);
+      addTearDown(controller.dispose);
 
-    expect(await controller.connectXtream(_credentials), isTrue);
+      expect(await controller.connectXtream(_credentials), isTrue);
 
-    final recording = await controller.scheduleDvrAiring(
-      channelId: 101,
-      title: 'Evening News',
-      startTime: _airingStart,
-      endTime: _airingEnd,
-    );
+      final recording = await controller.scheduleDvrAiring(
+        channelId: 101,
+        title: 'Evening News',
+        startTime: _airingStart,
+        endTime: _airingEnd,
+      );
 
-    expect(transport.scheduleBodies, hasLength(1));
-    final body = transport.scheduleBodies.single;
-    expect(body['channel_id'], '101');
-    expect(body['title'], 'Evening News');
-    expect(body['start_time'], _airingStart.toIso8601String());
-    expect(body['end_time'], _airingEnd.toIso8601String());
+      expect(transport.scheduleBodies, hasLength(1));
+      final body = transport.scheduleBodies.single;
+      expect(body['channel_id'], '101');
+      expect(body['title'], 'Evening News');
+      expect(body['start_time'], _airingStart.toIso8601String());
+      expect(body['end_time'], _airingEnd.toIso8601String());
 
-    expect(recording, isNotNull);
-    expect(recording!.channelId, 101);
-    expect(recording.title, 'Evening News');
-    // The refreshed list is what the controller now serves.
-    expect(controller.dvrRecordings.single.title, 'Evening News');
-  });
+      expect(recording, isNotNull);
+      expect(recording!.channelId, 101);
+      expect(recording.title, 'Evening News');
+      // The refreshed list is what the controller now serves.
+      expect(controller.dvrRecordings.single.title, 'Evening News');
+    },
+  );
 
   test('scheduleDvrAiring propagates schedule_dvr failure', () async {
     final transport = _AiringTransport()..failSchedule = true;

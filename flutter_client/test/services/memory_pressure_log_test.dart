@@ -94,7 +94,10 @@ void main() {
   });
 
   test('a failed RSS read drops its field, not the dispatch', () {
-    build(currentRss: () => throw StateError('nope')).handle(cache, dispatch);
+    build(currentRss: () => throw StateError('nope')).handle(
+      cache,
+      dispatch,
+    );
 
     expect(dispatches, 1);
     expect(lines.single, startsWith('[MemoryPressure] maxRss=900MB '));

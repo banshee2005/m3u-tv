@@ -170,7 +170,9 @@ class DialogActionTile extends StatelessWidget {
             ? const EdgeInsets.symmetric(horizontal: 12)
             : null,
         horizontalTitleGap: compact ? 12 : null,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
         onTap: onTap,
       ),
     );

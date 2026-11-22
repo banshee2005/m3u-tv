@@ -177,7 +177,11 @@ class DvrCoordinator {
     // notification (unread badge, history, subscription filter all for free).
     if (!ownsWork()) return;
     unawaited(
-      _refreshDvrRecordingDetail(recording.uuid, credentials, ownsWork),
+      _refreshDvrRecordingDetail(
+        recording.uuid,
+        credentials,
+        ownsWork,
+      ),
     );
   }
 

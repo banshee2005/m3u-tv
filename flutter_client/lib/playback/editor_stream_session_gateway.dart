@@ -4,11 +4,12 @@ import 'package:m3u_tv/playback/playback_orchestrator.dart';
 import 'package:m3u_tv/playback/player_adapter.dart';
 
 /// Signature of the editor call that stops one player session's proxy stream.
-typedef StopPlayerStream = Future<void> Function({
-  required String type,
-  required int streamId,
-  required String clientId,
-});
+typedef StopPlayerStream =
+    Future<void> Function({
+      required String type,
+      required int streamId,
+      required String clientId,
+    });
 
 /// [PlaybackStreamSessionGateway] for streams played through the connected
 /// m3u-editor's Xtream routes. Each session's URL carries a `client_id`,

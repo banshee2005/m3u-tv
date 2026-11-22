@@ -274,18 +274,22 @@ abstract class MpvNativeBackendBase
   }
 
   @override
-  Future<void> setAudioDelay(Duration delay) =>
-      _invokeControl('setSyncOffset', <String, Object?>{
-        'property': 'audio-delay',
-        'milliseconds': delay.inMilliseconds,
-      });
+  Future<void> setAudioDelay(Duration delay) => _invokeControl(
+    'setSyncOffset',
+    <String, Object?>{
+      'property': 'audio-delay',
+      'milliseconds': delay.inMilliseconds,
+    },
+  );
 
   @override
-  Future<void> setSubtitleDelay(Duration delay) =>
-      _invokeControl('setSyncOffset', <String, Object?>{
-        'property': 'sub-delay',
-        'milliseconds': delay.inMilliseconds,
-      });
+  Future<void> setSubtitleDelay(Duration delay) => _invokeControl(
+    'setSyncOffset',
+    <String, Object?>{
+      'property': 'sub-delay',
+      'milliseconds': delay.inMilliseconds,
+    },
+  );
 
   /// Tears down the native mpv core without closing [onState]/[onError], so
   /// this adapter is still safe to [load] again later. See

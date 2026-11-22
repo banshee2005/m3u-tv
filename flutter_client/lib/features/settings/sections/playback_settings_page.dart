@@ -414,9 +414,9 @@ class PlayerSettingsGroup extends StatelessWidget {
                         onTap: () => unawaited(
                           pushSettingsPicker<String>(
                             pageContext,
-                            title: (context) =>
-                                AppLocalizations.of(context)
-                                    .settingsCaptionsPosition,
+                            title: (context) => AppLocalizations.of(
+                              context,
+                            ).settingsCaptionsPosition,
                             onBack: onHandleTopLevelBack,
                             selected: service.captionPositionSync,
                             options: [
@@ -445,9 +445,9 @@ class PlayerSettingsGroup extends StatelessWidget {
                         onTap: () => unawaited(
                           pushSettingsPicker<String>(
                             pageContext,
-                            title: (context) =>
-                                AppLocalizations.of(context)
-                                    .settingsCaptionsTextColor,
+                            title: (context) => AppLocalizations.of(
+                              context,
+                            ).settingsCaptionsTextColor,
                             onBack: onHandleTopLevelBack,
                             selected: service.captionTextColorSync,
                             options: [
@@ -475,9 +475,9 @@ class PlayerSettingsGroup extends StatelessWidget {
                         onTap: () => unawaited(
                           pushSettingsPicker<String>(
                             pageContext,
-                            title: (context) =>
-                                AppLocalizations.of(context)
-                                    .settingsCaptionsBgColor,
+                            title: (context) => AppLocalizations.of(
+                              context,
+                            ).settingsCaptionsBgColor,
                             onBack: onHandleTopLevelBack,
                             selected: service.captionBackgroundColorSync,
                             options: [
@@ -506,11 +506,13 @@ class PlayerSettingsGroup extends StatelessWidget {
   }
 }
 
-String _vodPlayerLabel(AppLocalizations l, VodPlayerPreference preference) =>
-    switch (preference) {
-      VodPlayerPreference.exoPlayerFirst => l.settingsVodPlayerExoPlayerFirst,
-      VodPlayerPreference.mpv => l.settingsVodPlayerMpv,
-    };
+String _vodPlayerLabel(
+  AppLocalizations l,
+  VodPlayerPreference preference,
+) => switch (preference) {
+  VodPlayerPreference.exoPlayerFirst => l.settingsVodPlayerExoPlayerFirst,
+  VodPlayerPreference.mpv => l.settingsVodPlayerMpv,
+};
 
 /// Glanceable summary of all four caption settings for the Captions row:
 /// `On (Bottom · Yellow/Black)`.

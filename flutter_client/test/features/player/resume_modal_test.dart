@@ -22,7 +22,10 @@ Future<ResumeModalResult? Function()> _host(
             child: ElevatedButton(
               onPressed: () async {
                 captured = upNext
-                    ? await showUpNextModal(context, title: 'Murderbot - S1E5')
+                    ? await showUpNextModal(
+                        context,
+                        title: 'Murderbot - S1E5',
+                      )
                     : await showResumeModal(
                         context,
                         title: 'Murderbot - S1E4',
@@ -45,7 +48,9 @@ Future<ResumeModalResult? Function()> _host(
 void main() {
   testWidgets(
     'offers Clear progress and Mark watched when managing is enabled',
-    (tester) async {
+    (
+      tester,
+    ) async {
       await _host(tester, showManageActions: true);
 
       expect(find.text('Resume Watching'), findsOneWidget);
@@ -119,7 +124,9 @@ void main() {
     expect(result()?.startPositionSeconds, 0);
   });
 
-  testWidgets('up next Mark watched resolves with markWatched', (tester) async {
+  testWidgets('up next Mark watched resolves with markWatched', (
+    tester,
+  ) async {
     final result = await _host(tester, showManageActions: true, upNext: true);
 
     await tester.tap(find.text('Mark watched'));

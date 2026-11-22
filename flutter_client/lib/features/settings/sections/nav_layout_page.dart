@@ -455,7 +455,9 @@ class _NavLayoutPageState extends ConsumerState<NavLayoutPage> {
     if (onChanged == null) {
       return SizedBox(
         width: _switchColumnWidth * scale,
-        child: Center(child: AppSwitch(value: value, onChanged: null)),
+        child: Center(
+          child: AppSwitch(value: value, onChanged: null),
+        ),
       );
     }
     return DpadInkWell(

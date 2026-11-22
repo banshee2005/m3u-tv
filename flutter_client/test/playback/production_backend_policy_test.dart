@@ -104,65 +104,70 @@ void main() {
       },
     );
 
-    test('desktop policy reports libmpv failure when no server transcode player is registered', () async {
-      final desktopLibmpv = _PolicyPlayerAdapter(
-        capabilities: PlaybackCapabilities.desktopLibmpv,
-        loadFailure: BackendUnavailableException(
+    test(
+      'desktop policy reports libmpv failure when no server transcode player is registered',
+      () async {
+        final desktopLibmpv = _PolicyPlayerAdapter(
+          capabilities: PlaybackCapabilities.desktopLibmpv,
+          loadFailure: BackendUnavailableException(
+            'libmpv shared library not found; tried libmpv.so.2',
+          ),
+        );
+        final gateway = _PolicyTranscodeGateway();
+        final orchestrator = PlaybackOrchestrator(
+          platform: PlaybackPlatform.desktop,
+          adapters: <PlaybackBackend, PlayerAdapter>{
+            PlaybackBackend.desktopLibmpv: desktopLibmpv,
+          },
+          transcodeGateway: gateway,
+        );
+        addTearDown(orchestrator.dispose);
+        final errors = <PlaybackError>[];
+        final subscription = orchestrator.onError.listen(errors.add);
+        addTearDown(subscription.cancel);
+
+        await orchestrator.open(
+          const PlaybackSource(
+            uri: 'https://provider.example/vod/movie.mkv',
+            videoCodec: 'hevc',
+            audioCodec: 'dts',
+          ),
+        );
+
+        expect(desktopLibmpv.commands, <String>[
+          'load:https://provider.example/vod/movie.mkv',
+        ]);
+        expect(gateway.startedServerRequests, isEmpty);
+        expect(orchestrator.activeBackend, isNull);
+        expect(errors, hasLength(1));
+        expect(errors.single.backend, PlaybackBackend.desktopLibmpv);
+        expect(errors.single.code, BackendUnavailableException.unavailableCode);
+        expect(
+          errors.single.message,
           'libmpv shared library not found; tried libmpv.so.2',
-        ),
-      );
-      final gateway = _PolicyTranscodeGateway();
-      final orchestrator = PlaybackOrchestrator(
-        platform: PlaybackPlatform.desktop,
-        adapters: <PlaybackBackend, PlayerAdapter>{
-          PlaybackBackend.desktopLibmpv: desktopLibmpv,
-        },
-        transcodeGateway: gateway,
-      );
-      addTearDown(orchestrator.dispose);
-      final errors = <PlaybackError>[];
-      final subscription = orchestrator.onError.listen(errors.add);
-      addTearDown(subscription.cancel);
-
-      await orchestrator.open(
-        const PlaybackSource(
-          uri: 'https://provider.example/vod/movie.mkv',
-          videoCodec: 'hevc',
-          audioCodec: 'dts',
-        ),
-      );
-
-      expect(desktopLibmpv.commands, <String>[
-        'load:https://provider.example/vod/movie.mkv',
-      ]);
-      expect(gateway.startedServerRequests, isEmpty);
-      expect(orchestrator.activeBackend, isNull);
-      expect(errors, hasLength(1));
-      expect(errors.single.backend, PlaybackBackend.desktopLibmpv);
-      expect(errors.single.code, BackendUnavailableException.unavailableCode);
-      expect(
-        errors.single.message,
-        'libmpv shared library not found; tried libmpv.so.2',
-      );
-      expect(
-        orchestrator.diagnostics,
-        contains(
-          'load-failed:desktopLibmpv:backend_unavailable:libmpv shared library not found; tried libmpv.so.2',
-        ),
-      );
-      expect(
-        orchestrator.diagnostics,
-        contains(
-          'error:backend_unavailable:libmpv shared library not found; tried libmpv.so.2',
-        ),
-      );
-    });
+        );
+        expect(
+          orchestrator.diagnostics,
+          contains(
+            'load-failed:desktopLibmpv:backend_unavailable:libmpv shared library not found; tried libmpv.so.2',
+          ),
+        );
+        expect(
+          orchestrator.diagnostics,
+          contains(
+            'error:backend_unavailable:libmpv shared library not found; tried libmpv.so.2',
+          ),
+        );
+      },
+    );
 
     test("Windows loader resolves this project's own fetched libmpv DLL", () {
-      final windowsBackend = File('windows/runner/desktop_libmpv_backend.cpp')
-          .readAsStringSync();
-      final releaseWorkflow = File('../.github/workflows/release.yml')
-          .readAsStringSync();
+      final windowsBackend = File(
+        'windows/runner/desktop_libmpv_backend.cpp',
+      ).readAsStringSync();
+      final releaseWorkflow = File(
+        '../.github/workflows/release.yml',
+      ).readAsStringSync();
 
       final fetchedNameIndex = windowsBackend.indexOf('L"libmpv-gpu-2.dll"');
       final bundledNameIndex = windowsBackend.indexOf('L"libmpv-2.dll"');
@@ -190,10 +195,12 @@ void main() {
     test(
       'desktop software texture render paths use Flutter RGBA pixel buffers',
       () {
-        final linuxBackend = File('linux/desktop_libmpv_backend.cc')
-            .readAsStringSync();
-        final windowsBackend = File('windows/runner/desktop_libmpv_backend.cpp')
-            .readAsStringSync();
+        final linuxBackend = File(
+          'linux/desktop_libmpv_backend.cc',
+        ).readAsStringSync();
+        final windowsBackend = File(
+          'windows/runner/desktop_libmpv_backend.cpp',
+        ).readAsStringSync();
 
         expect(linuxBackend, contains('char format[] = "rgba";'));
         expect(windowsBackend, contains('char format[] = "rgba";'));
@@ -207,14 +214,18 @@ void main() {
     );
 
     test('desktop libmpv delegates aspect correction to Flutter', () {
-      final linuxBackend = File('linux/desktop_libmpv_backend.cc')
-          .readAsStringSync();
-      final windowsBackend = File('windows/runner/desktop_libmpv_backend.cpp')
-          .readAsStringSync();
-      final playerScreen = File('lib/features/player/player_screen.dart')
-          .readAsStringSync();
-      final nativeVideoSurface = File('lib/playback/native_video_surface.dart')
-          .readAsStringSync();
+      final linuxBackend = File(
+        'linux/desktop_libmpv_backend.cc',
+      ).readAsStringSync();
+      final windowsBackend = File(
+        'windows/runner/desktop_libmpv_backend.cpp',
+      ).readAsStringSync();
+      final playerScreen = File(
+        'lib/features/player/player_screen.dart',
+      ).readAsStringSync();
+      final nativeVideoSurface = File(
+        'lib/playback/native_video_surface.dart',
+      ).readAsStringSync();
       const keepAspectOption =
           'api.set_option_string(handle, "keepaspect", "no");';
 
@@ -234,10 +245,12 @@ void main() {
     });
 
     test('desktop libmpv load applies resume start position', () {
-      final linuxBackend = File('linux/desktop_libmpv_backend.cc')
-          .readAsStringSync();
-      final windowsBackend = File('windows/runner/desktop_libmpv_backend.cpp')
-          .readAsStringSync();
+      final linuxBackend = File(
+        'linux/desktop_libmpv_backend.cc',
+      ).readAsStringSync();
+      final windowsBackend = File(
+        'windows/runner/desktop_libmpv_backend.cpp',
+      ).readAsStringSync();
 
       expect(linuxBackend, contains('startPositionMs'));
       expect(linuxBackend, contains('start='));
@@ -246,10 +259,12 @@ void main() {
     });
 
     test('desktop native event transport shares the libmpv channel ABI', () {
-      final linuxBackend = File('linux/desktop_libmpv_backend.cc')
-          .readAsStringSync();
-      final windowsBackend = File('windows/runner/desktop_libmpv_backend.cpp')
-          .readAsStringSync();
+      final linuxBackend = File(
+        'linux/desktop_libmpv_backend.cc',
+      ).readAsStringSync();
+      final windowsBackend = File(
+        'windows/runner/desktop_libmpv_backend.cpp',
+      ).readAsStringSync();
 
       for (final backend in <String>[linuxBackend, windowsBackend]) {
         expect(
@@ -343,7 +358,10 @@ void main() {
         windowsEventValueStart,
         windowsEventValueEnd,
       );
-      for (final eventValue in <String>[linuxEventValue, windowsEventValue]) {
+      for (final eventValue in <String>[
+        linuxEventValue,
+        windowsEventValue,
+      ]) {
         expect(eventValue, contains('if (snapshot.duration > 0.0)'));
         expect(eventValue, contains('"durationMs"'));
       }
@@ -436,105 +454,120 @@ void main() {
       expect(linuxBackend, contains('event_dispatch_state->Deactivate()'));
     });
 
-    test('desktop software renderers keep frame callbacks without advanced control', () {
-      final linuxBackend = File('linux/desktop_libmpv_backend.cc')
-          .readAsStringSync();
-      final windowsBackend = File('windows/runner/desktop_libmpv_backend.cpp')
-          .readAsStringSync();
+    test(
+      'desktop software renderers keep frame callbacks without advanced control',
+      () {
+        final linuxBackend = File(
+          'linux/desktop_libmpv_backend.cc',
+        ).readAsStringSync();
+        final windowsBackend = File(
+          'windows/runner/desktop_libmpv_backend.cpp',
+        ).readAsStringSync();
 
-      for (final backend in <String>[linuxBackend, windowsBackend]) {
-        expect(backend, isNot(contains('MPV_RENDER_PARAM_ADVANCED_CONTROL')));
-        expect(backend, isNot(contains('advanced_control')));
-        expect(backend, contains('render_context_set_update_callback'));
-        expect(backend, contains('render_context_render('));
-      }
-      expect(
-        windowsBackend,
-        contains(
-          'player->copy_context->SetUpdateCallback(RenderUpdate, player->texture_state.get())',
-        ),
-      );
-      final platformDispatcherStart = windowsBackend.indexOf(
-        'class PlatformDispatcher',
-      );
-      final platformDispatcherEnd = windowsBackend.indexOf(
-        'class EventSinkState',
-        platformDispatcherStart,
-      );
-      expect(platformDispatcherStart, isNonNegative);
-      expect(platformDispatcherEnd, greaterThan(platformDispatcherStart));
-      final platformDispatcher = windowsBackend.substring(
-        platformDispatcherStart,
-        platformDispatcherEnd,
-      );
-      expect(
-        platformDispatcher,
-        contains('bool Post(std::function<void()> callback)'),
-      );
-      expect(
-        platformDispatcher,
-        contains('PostMessageW(hwnd_, kDesktopLibmpvPlatformDispatchMessage'),
-      );
+        for (final backend in <String>[linuxBackend, windowsBackend]) {
+          expect(
+            backend,
+            isNot(contains('MPV_RENDER_PARAM_ADVANCED_CONTROL')),
+          );
+          expect(backend, isNot(contains('advanced_control')));
+          expect(backend, contains('render_context_set_update_callback'));
+          expect(backend, contains('render_context_render('));
+        }
+        expect(
+          windowsBackend,
+          contains(
+            'player->copy_context->SetUpdateCallback(RenderUpdate, player->texture_state.get())',
+          ),
+        );
+        final platformDispatcherStart = windowsBackend.indexOf(
+          'class PlatformDispatcher',
+        );
+        final platformDispatcherEnd = windowsBackend.indexOf(
+          'class EventSinkState',
+          platformDispatcherStart,
+        );
+        expect(platformDispatcherStart, isNonNegative);
+        expect(platformDispatcherEnd, greaterThan(platformDispatcherStart));
+        final platformDispatcher = windowsBackend.substring(
+          platformDispatcherStart,
+          platformDispatcherEnd,
+        );
+        expect(
+          platformDispatcher,
+          contains('bool Post(std::function<void()> callback)'),
+        );
+        expect(
+          platformDispatcher,
+          contains('PostMessageW(hwnd_, kDesktopLibmpvPlatformDispatchMessage'),
+        );
 
-      final textureStateStart = windowsBackend.indexOf('struct TextureState');
-      final textureStateEnd = windowsBackend.indexOf(
-        'struct PlayerInstance',
-        textureStateStart,
-      );
-      expect(textureStateStart, isNonNegative);
-      expect(textureStateEnd, greaterThan(textureStateStart));
-      final textureState = windowsBackend.substring(
-        textureStateStart,
-        textureStateEnd,
-      );
-      expect(textureState, contains('void QueueFrame()'));
-      expect(
-        textureState,
-        contains('std::weak_ptr<PlatformDispatcher> dispatcher'),
-      );
-      expect(
-        textureState,
-        contains('std::weak_ptr<TextureState> weak = shared_from_this()'),
-      );
-      expect(textureState, contains('platform_dispatcher->Post([weak]()'));
-      expect(textureState, contains('auto state = weak.lock()'));
-      expect(
-        textureState,
-        contains(
-          'state->registrar->MarkTextureFrameAvailable(state->texture_id)',
-        ),
-      );
-      expect(
-        textureState.indexOf('platform_dispatcher->Post([weak]()'),
-        lessThan(
-          textureState.indexOf(
+        final textureStateStart = windowsBackend.indexOf('struct TextureState');
+        final textureStateEnd = windowsBackend.indexOf(
+          'struct PlayerInstance',
+          textureStateStart,
+        );
+        expect(textureStateStart, isNonNegative);
+        expect(textureStateEnd, greaterThan(textureStateStart));
+        final textureState = windowsBackend.substring(
+          textureStateStart,
+          textureStateEnd,
+        );
+        expect(textureState, contains('void QueueFrame()'));
+        expect(
+          textureState,
+          contains('std::weak_ptr<PlatformDispatcher> dispatcher'),
+        );
+        expect(
+          textureState,
+          contains('std::weak_ptr<TextureState> weak = shared_from_this()'),
+        );
+        expect(textureState, contains('platform_dispatcher->Post([weak]()'));
+        expect(textureState, contains('auto state = weak.lock()'));
+        expect(
+          textureState,
+          contains(
             'state->registrar->MarkTextureFrameAvailable(state->texture_id)',
           ),
-        ),
-      );
+        );
+        expect(
+          textureState.indexOf('platform_dispatcher->Post([weak]()'),
+          lessThan(
+            textureState.indexOf(
+              'state->registrar->MarkTextureFrameAvailable(state->texture_id)',
+            ),
+          ),
+        );
 
-      final renderUpdateStart = windowsBackend.indexOf('void RenderUpdate');
-      final renderUpdateEnd = windowsBackend.indexOf(
-        'ProbeMap Load',
-        renderUpdateStart,
-      );
-      expect(renderUpdateStart, isNonNegative);
-      expect(renderUpdateEnd, greaterThan(renderUpdateStart));
-      final renderUpdate = windowsBackend.substring(
-        renderUpdateStart,
-        renderUpdateEnd,
-      );
-      expect(renderUpdate, contains('texture_state->QueueFrame()'));
-    });
+        final renderUpdateStart = windowsBackend.indexOf('void RenderUpdate');
+        final renderUpdateEnd = windowsBackend.indexOf(
+          'ProbeMap Load',
+          renderUpdateStart,
+        );
+        expect(renderUpdateStart, isNonNegative);
+        expect(renderUpdateEnd, greaterThan(renderUpdateStart));
+        final renderUpdate = windowsBackend.substring(
+          renderUpdateStart,
+          renderUpdateEnd,
+        );
+        expect(renderUpdate, contains('texture_state->QueueFrame()'));
+      },
+    );
 
     test(
       'Linux attaches non-inline dispatch to a retained GTK main context',
       () {
-        final linuxBackend = File('linux/desktop_libmpv_backend.cc')
-            .readAsStringSync();
+        final linuxBackend = File(
+          'linux/desktop_libmpv_backend.cc',
+        ).readAsStringSync();
 
-        expect(linuxBackend, contains('g_main_context_default()'));
-        expect(linuxBackend, isNot(contains('g_main_context_invoke')));
+        expect(
+          linuxBackend,
+          contains('g_main_context_default()'),
+        );
+        expect(
+          linuxBackend,
+          isNot(contains('g_main_context_invoke')),
+        );
         expect(
           linuxBackend,
           contains('g_main_context_ref(g_gtk_main_context)'),
@@ -544,7 +577,9 @@ void main() {
           contains('g_main_context_unref(g_gtk_main_context)'),
         );
 
-        final dispatchStart = linuxBackend.indexOf('bool DispatchOnGtkMain');
+        final dispatchStart = linuxBackend.indexOf(
+          'bool DispatchOnGtkMain',
+        );
         final dispatchEnd = linuxBackend.indexOf(
           'struct EventSnapshot',
           dispatchStart,
@@ -569,7 +604,10 @@ void main() {
         expect(callbackIndex, greaterThan(idleSourceIndex));
         expect(attachIndex, greaterThan(callbackIndex));
         expect(unrefIndex, greaterThan(attachIndex));
-        expect(dispatch, isNot(contains('g_main_context_invoke')));
+        expect(
+          dispatch,
+          isNot(contains('g_main_context_invoke')),
+        );
 
         final textureStateStart = linuxBackend.indexOf(
           'struct TextureDispatchState',
@@ -593,8 +631,14 @@ void main() {
         expect(textureState, contains('void Release()'));
         expect(textureState, contains('void QueueFrame()'));
         expect(textureState, contains('void Deactivate()'));
-        expect(textureState, isNot(contains('g_main_context_invoke')));
-        expect(textureState, contains('DispatchOnGtkMain('));
+        expect(
+          textureState,
+          isNot(contains('g_main_context_invoke')),
+        );
+        expect(
+          textureState,
+          contains('DispatchOnGtkMain('),
+        );
         expect(
           textureState,
           contains('fl_texture_registrar_mark_texture_frame_available'),
@@ -621,8 +665,14 @@ void main() {
           eventDispatchStart,
           eventDispatchEnd,
         );
-        expect(eventDispatch, isNot(contains('g_main_context_invoke')));
-        expect(eventDispatch, contains('DispatchOnGtkMain('));
+        expect(
+          eventDispatch,
+          isNot(contains('g_main_context_invoke')),
+        );
+        expect(
+          eventDispatch,
+          contains('DispatchOnGtkMain('),
+        );
 
         final renderUpdateStart = linuxBackend.indexOf('void RenderUpdate');
         final renderUpdateEnd = linuxBackend.indexOf(
@@ -702,13 +752,23 @@ void main() {
     test(
       'Windows retains raster resources until async unregister completion',
       () {
-        final windowsBackend = File('windows/runner/desktop_libmpv_backend.cpp')
-            .readAsStringSync();
+        final windowsBackend = File(
+          'windows/runner/desktop_libmpv_backend.cpp',
+        ).readAsStringSync();
 
-        expect(windowsBackend, isNot(contains('raw_player = player.get()')));
+        expect(
+          windowsBackend,
+          isNot(contains('raw_player = player.get()')),
+        );
 
-        expect(windowsBackend, contains('std::shared_ptr<CopyPixelsContext>'));
-        expect(windowsBackend, contains('[ctx = player->copy_context]'));
+        expect(
+          windowsBackend,
+          contains('std::shared_ptr<CopyPixelsContext>'),
+        );
+        expect(
+          windowsBackend,
+          contains('[ctx = player->copy_context]'),
+        );
         expect(windowsBackend, contains('struct TextureReleaseContext'));
 
         final destructorStart = windowsBackend.indexOf('~PlayerInstance()');
@@ -735,7 +795,10 @@ void main() {
           destructor,
           contains('UnregisterTexture(texture_id, [release_context]()'),
         );
-        expect(destructor, isNot(contains('UnregisterTexture(texture_id);')));
+        expect(
+          destructor,
+          isNot(contains('UnregisterTexture(texture_id);')),
+        );
         expect(destructor, isNot(contains('api->render_context_free')));
         expect(destructor, isNot(contains('api->terminate_destroy')));
 
@@ -785,10 +848,12 @@ void main() {
     test(
       'desktop render callback changes share the retained render-state lock',
       () {
-        final linuxBackend = File('linux/desktop_libmpv_backend.cc')
-            .readAsStringSync();
-        final windowsBackend = File('windows/runner/desktop_libmpv_backend.cpp')
-            .readAsStringSync();
+        final linuxBackend = File(
+          'linux/desktop_libmpv_backend.cc',
+        ).readAsStringSync();
+        final windowsBackend = File(
+          'windows/runner/desktop_libmpv_backend.cpp',
+        ).readAsStringSync();
 
         final linuxContextStart = linuxBackend.indexOf(
           'struct CopyPixelsContext {',
@@ -1025,8 +1090,9 @@ void main() {
     );
 
     test('Linux serializes raster callbacks with native teardown', () {
-      final linuxBackend = File('linux/desktop_libmpv_backend.cc')
-          .readAsStringSync();
+      final linuxBackend = File(
+        'linux/desktop_libmpv_backend.cc',
+      ).readAsStringSync();
 
       final contextStart = linuxBackend.indexOf('struct CopyPixelsContext {');
       expect(contextStart, isNonNegative);
@@ -1080,7 +1146,10 @@ void main() {
       expect(callback, contains('context->CopyPixels('));
       expect(callback, contains('context->Release()'));
       expect(callback, isNot(contains('PlayerInstance')));
-      expect(linuxBackend, contains('texture->copy_context = copy_context;'));
+      expect(
+        linuxBackend,
+        contains('texture->copy_context = copy_context;'),
+      );
       expect(
         linuxBackend,
         contains('G_OBJECT_CLASS(klass)->finalize = mpv_texture_finalize;'),
@@ -1159,7 +1228,9 @@ void main() {
         expect(mapping, contains('case MPV_END_FILE_REASON_REDIRECT:'));
         expect(
           mapping,
-          contains(RegExp(r'case MPV_END_FILE_REASON_REDIRECT:\s+continue;')),
+          contains(
+            RegExp(r'case MPV_END_FILE_REASON_REDIRECT:\s+continue;'),
+          ),
         );
         expect(
           mapping,
@@ -1173,8 +1244,9 @@ void main() {
     });
 
     test('linux libmpv emits safely refreshed normalized track lists', () {
-      final backend = File('linux/desktop_libmpv_backend.cc')
-          .readAsStringSync();
+      final backend = File(
+        'linux/desktop_libmpv_backend.cc',
+      ).readAsStringSync();
 
       expect(backend, contains('using mpv_free_node_contents_fn'));
       expect(
@@ -1272,8 +1344,9 @@ void main() {
     });
 
     test('windows libmpv emits safely refreshed normalized track lists', () {
-      final backend = File('windows/runner/desktop_libmpv_backend.cpp')
-          .readAsStringSync();
+      final backend = File(
+        'windows/runner/desktop_libmpv_backend.cpp',
+      ).readAsStringSync();
 
       expect(backend, contains('using mpv_free_node_contents_fn'));
       expect(
@@ -1312,7 +1385,10 @@ void main() {
       expect(normalizer, contains('return NormalizeTrackString'));
 
       final eventStart = backend.indexOf('class EventSinkState');
-      final eventEnd = backend.indexOf('class EventStreamHandler', eventStart);
+      final eventEnd = backend.indexOf(
+        'class EventStreamHandler',
+        eventStart,
+      );
       final event = backend.substring(eventStart, eventEnd);
       expect(event, contains('flutter::EncodableValue(2)'));
       expect(event, contains('"audioTracks"'));
@@ -1400,128 +1476,136 @@ void main() {
       expect(validationClass, contains('!speed.isFinite() || speed <= 0f'));
     });
 
-    test('failure diagnostics cover decoder failure, dead stream, and stalled transcode', () async {
-      final decoderFailure = await _openWithFailure(
-        PlaybackPlatform.android,
-        PlaybackCapabilities.androidExoPlayer,
-        const PlaybackException(
-          message: 'Media3 decoder failed during init',
-          backend: PlaybackBackend.androidExoPlayer,
-          code: 'decoder_failure',
-          recoverable: true,
-        ),
-      );
-      expect(decoderFailure.errors, isEmpty);
-      expect(
-        decoderFailure.orchestrator.diagnostics,
-        contains(
-          'fallback-reason:decoder_failure:Media3 decoder failed during init',
-        ),
-      );
-      await decoderFailure.dispose();
+    test(
+      'failure diagnostics cover decoder failure, dead stream, and stalled transcode',
+      () async {
+        final decoderFailure = await _openWithFailure(
+          PlaybackPlatform.android,
+          PlaybackCapabilities.androidExoPlayer,
+          const PlaybackException(
+            message: 'Media3 decoder failed during init',
+            backend: PlaybackBackend.androidExoPlayer,
+            code: 'decoder_failure',
+            recoverable: true,
+          ),
+        );
+        expect(decoderFailure.errors, isEmpty);
+        expect(
+          decoderFailure.orchestrator.diagnostics,
+          contains(
+            'fallback-reason:decoder_failure:Media3 decoder failed during init',
+          ),
+        );
+        await decoderFailure.dispose();
 
-      final deadStream = await _openWithFailure(
-        PlaybackPlatform.android,
-        PlaybackCapabilities.androidExoPlayer,
-        const PlaybackException(
-          message: 'Fixture stream not found',
-          backend: PlaybackBackend.androidExoPlayer,
-          code: 'stream_not_found',
-        ),
-      );
-      expect(deadStream.errors.single.code, 'stream_not_found');
-      expect(deadStream.gateway.startedServerRequests, isEmpty);
-      expect(
-        deadStream.orchestrator.diagnostics,
-        contains(
-          'load-failed:androidExoPlayer:stream_not_found:Fixture stream not found',
-        ),
-      );
-      await deadStream.dispose();
+        final deadStream = await _openWithFailure(
+          PlaybackPlatform.android,
+          PlaybackCapabilities.androidExoPlayer,
+          const PlaybackException(
+            message: 'Fixture stream not found',
+            backend: PlaybackBackend.androidExoPlayer,
+            code: 'stream_not_found',
+          ),
+        );
+        expect(deadStream.errors.single.code, 'stream_not_found');
+        expect(deadStream.gateway.startedServerRequests, isEmpty);
+        expect(
+          deadStream.orchestrator.diagnostics,
+          contains(
+            'load-failed:androidExoPlayer:stream_not_found:Fixture stream not found',
+          ),
+        );
+        await deadStream.dispose();
 
-      final stalledGateway = _PolicyTranscodeGateway(
-        serverResponse: const TranscodeResponse(
-          streamId: 'stalled-stream',
-          streamUrl: 'https://m3u-editor.example/hls/stalled-stream/index.m3u8',
-          mode: TranscodeMode.server,
-          status: 'stalled',
-          sessionId: 'stalled-session',
-          errorCode: 'transcode_stalled',
-          message: 'No HLS segments arrived',
-        ),
-      );
-      final stalled = await _openWithFailure(
-        PlaybackPlatform.android,
-        PlaybackCapabilities.androidExoPlayer,
-        const PlaybackException.unsupported(
-          'Unsupported codec vp9/opus',
-          backend: PlaybackBackend.androidExoPlayer,
-        ),
-        gateway: stalledGateway,
-      );
-      expect(stalled.errors.single.code, 'transcode_stalled');
-      expect(stalled.gateway.stoppedServerTranscodes, <String>[
-        'stalled-stream:stalled-session',
-      ]);
-      expect(
-        stalled.orchestrator.diagnostics,
-        contains(
-          'cleanup:server-transcode:stopped:stalled-stream:stalled-session',
-        ),
-      );
-      await stalled.dispose();
-    });
+        final stalledGateway = _PolicyTranscodeGateway(
+          serverResponse: const TranscodeResponse(
+            streamId: 'stalled-stream',
+            streamUrl:
+                'https://m3u-editor.example/hls/stalled-stream/index.m3u8',
+            mode: TranscodeMode.server,
+            status: 'stalled',
+            sessionId: 'stalled-session',
+            errorCode: 'transcode_stalled',
+            message: 'No HLS segments arrived',
+          ),
+        );
+        final stalled = await _openWithFailure(
+          PlaybackPlatform.android,
+          PlaybackCapabilities.androidExoPlayer,
+          const PlaybackException.unsupported(
+            'Unsupported codec vp9/opus',
+            backend: PlaybackBackend.androidExoPlayer,
+          ),
+          gateway: stalledGateway,
+        );
+        expect(stalled.errors.single.code, 'transcode_stalled');
+        expect(stalled.gateway.stoppedServerTranscodes, <String>[
+          'stalled-stream:stalled-session',
+        ]);
+        expect(
+          stalled.orchestrator.diagnostics,
+          contains(
+            'cleanup:server-transcode:stopped:stalled-stream:stalled-session',
+          ),
+        );
+        await stalled.dispose();
+      },
+    );
 
-    test('cleanup_idempotent: stop and dispose clean backend and transcode session once', () async {
-      final direct = _PolicyPlayerAdapter(
-        capabilities: PlaybackCapabilities.desktopLibmpv,
-        loadFailure: BackendUnavailableException('mpv-2.dll not found'),
-      );
-      final serverPlayer = _PolicyPlayerAdapter(
-        capabilities: PlaybackCapabilities.serverTranscode,
-      );
-      final gateway = _PolicyTranscodeGateway(
-        serverResponse: const TranscodeResponse(
-          streamId: 'cleanup-stream',
-          streamUrl: 'https://m3u-editor.example/hls/cleanup-stream/index.m3u8',
-          mode: TranscodeMode.server,
-          status: 'running',
-          sessionId: 'cleanup-session',
-        ),
-      );
-      final orchestrator = PlaybackOrchestrator(
-        platform: PlaybackPlatform.desktop,
-        adapters: <PlaybackBackend, PlayerAdapter>{
-          PlaybackBackend.desktopLibmpv: direct,
-          PlaybackBackend.serverTranscode: serverPlayer,
-        },
-        transcodeGateway: gateway,
-      );
+    test(
+      'cleanup_idempotent: stop and dispose clean backend and transcode session once',
+      () async {
+        final direct = _PolicyPlayerAdapter(
+          capabilities: PlaybackCapabilities.desktopLibmpv,
+          loadFailure: BackendUnavailableException('mpv-2.dll not found'),
+        );
+        final serverPlayer = _PolicyPlayerAdapter(
+          capabilities: PlaybackCapabilities.serverTranscode,
+        );
+        final gateway = _PolicyTranscodeGateway(
+          serverResponse: const TranscodeResponse(
+            streamId: 'cleanup-stream',
+            streamUrl:
+                'https://m3u-editor.example/hls/cleanup-stream/index.m3u8',
+            mode: TranscodeMode.server,
+            status: 'running',
+            sessionId: 'cleanup-session',
+          ),
+        );
+        final orchestrator = PlaybackOrchestrator(
+          platform: PlaybackPlatform.desktop,
+          adapters: <PlaybackBackend, PlayerAdapter>{
+            PlaybackBackend.desktopLibmpv: direct,
+            PlaybackBackend.serverTranscode: serverPlayer,
+          },
+          transcodeGateway: gateway,
+        );
 
-      await orchestrator.open(
-        const PlaybackSource(uri: 'https://provider.example/live/news.ts'),
-      );
-      await orchestrator.stop();
-      await orchestrator.stop();
-      await orchestrator.dispose();
-      await orchestrator.dispose();
+        await orchestrator.open(
+          const PlaybackSource(uri: 'https://provider.example/live/news.ts'),
+        );
+        await orchestrator.stop();
+        await orchestrator.stop();
+        await orchestrator.dispose();
+        await orchestrator.dispose();
 
-      expect(
-        serverPlayer.commands.where((command) => command == 'stop'),
-        hasLength(1),
-      );
-      expect(gateway.stoppedServerTranscodes, <String>[
-        'cleanup-stream:cleanup-session',
-      ]);
-      expect(
-        orchestrator.diagnostics.where(
-          (item) =>
-              item ==
-              'cleanup:server-transcode:stopped:cleanup-stream:cleanup-session',
-        ),
-        hasLength(1),
-      );
-    });
+        expect(
+          serverPlayer.commands.where((command) => command == 'stop'),
+          hasLength(1),
+        );
+        expect(gateway.stoppedServerTranscodes, <String>[
+          'cleanup-stream:cleanup-session',
+        ]);
+        expect(
+          orchestrator.diagnostics.where(
+            (item) =>
+                item ==
+                'cleanup:server-transcode:stopped:cleanup-stream:cleanup-session',
+          ),
+          hasLength(1),
+        );
+      },
+    );
 
     test(
       'network_loss: buffering timeout retries once then cleans up',

@@ -137,7 +137,10 @@ void main() {
       expect(programs[0].end, start.add(const Duration(minutes: 30)));
       expect(programs[0].subtitle, 'Lunchtime edition');
       expect(programs[0].iconUrl, 'https://images.example/noon.jpg');
-      expect(programs[0].posterUrl, 'https://images.example/noon-poster.jpg');
+      expect(
+        programs[0].posterUrl,
+        'https://images.example/noon-poster.jpg',
+      );
       expect(
         programs[0].backdropUrl,
         'https://images.example/noon-backdrop.jpg',
@@ -174,15 +177,18 @@ void main() {
   );
 
   test('catalogKeys lists only the SQLite-backed blobs, not the scalars', () {
-    expect(CacheService.catalogKeys.toSet(), <String>{
-      'liveStreams',
-      'vodStreams',
-      'seriesStreams',
-      'liveCategories',
-      'vodCategories',
-      'seriesCategories',
-      'epgGuide',
-    });
+    expect(
+      CacheService.catalogKeys.toSet(),
+      <String>{
+        'liveStreams',
+        'vodStreams',
+        'seriesStreams',
+        'liveCategories',
+        'vodCategories',
+        'seriesCategories',
+        'epgGuide',
+      },
+    );
     // `sourceType` lives in the JSON store, and a `viewers` list stored there
     // before each playlist kept its own is adopted at boot; `main`'s legacy
     // purge keys off this list, so they must not appear here.
@@ -231,14 +237,20 @@ void main() {
         final snapshot = await store.snapshot();
         expect(snapshot.containsKey('m3ue_cache_vodStreams'), isFalse);
         expect(snapshot.containsKey('m3ue_cache_sourceType'), isTrue);
-        expect((await fresh.get<String>('sourceType'))!.data, 'xtream');
+        expect(
+          (await fresh.get<String>('sourceType'))!.data,
+          'xtream',
+        );
       },
     );
 
     test('staleness is derived from the stored write timestamp', () async {
       final store = await newStore('m3u-tv-cache-repo-stale-');
       final repo = newRepo();
-      final cache = CacheService(store: store, catalogRepository: repo);
+      final cache = CacheService(
+        store: store,
+        catalogRepository: repo,
+      );
 
       await cache.set<List<VodItem>>('vodStreams', const <VodItem>[]);
       expect((await cache.get<List<VodItem>>('vodStreams'))!.isStale, isFalse);

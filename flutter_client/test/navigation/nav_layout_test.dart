@@ -62,7 +62,11 @@ void main() {
 
     test('unavailable destinations are skipped, and keep their slot', () {
       final available = everything.where((r) => r != RouteNames.sports);
-      final layout = NavLayout.defaults.moved(RouteNames.liveTv, 1, available);
+      final layout = NavLayout.defaults.moved(
+        RouteNames.liveTv,
+        1,
+        available,
+      );
 
       // One visible step past Movies, with Sports still second.
       expect(layout.order.take(3), [

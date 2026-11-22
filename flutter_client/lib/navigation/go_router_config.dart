@@ -259,7 +259,9 @@ class _AsyncVodDetails extends StatelessWidget {
         ),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Scaffold(body: Center(child: AppLoadingIndicator()));
+            return const Scaffold(
+              body: Center(child: AppLoadingIndicator()),
+            );
           }
           final item = snapshot.data;
           if (item == null) {
@@ -316,7 +318,9 @@ class _AsyncSeriesDetails extends StatelessWidget {
         ),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Scaffold(body: Center(child: AppLoadingIndicator()));
+            return const Scaffold(
+              body: Center(child: AppLoadingIndicator()),
+            );
           }
           final series = snapshot.data;
           if (series == null) {

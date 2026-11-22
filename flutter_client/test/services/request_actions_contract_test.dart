@@ -283,7 +283,10 @@ void main() {
       transport.respond(
         'request_search',
         null,
-        error: {'code': 'rate_limited', 'message': 'Slow down'},
+        error: {
+          'code': 'rate_limited',
+          'message': 'Slow down',
+        },
       );
 
       await expectLater(
@@ -483,8 +486,9 @@ class _ContractTransport {
   void failRaw(String action, {required int status, required String body}) {
     _handlers[action] = (request) => handleXtreamResponse(
       request: request,
-      uri: Uri.parse('${request.credentials.server}/player_api.php')
-          .replace(queryParameters: {'action': action}),
+      uri: Uri.parse(
+        '${request.credentials.server}/player_api.php',
+      ).replace(queryParameters: {'action': action}),
       statusCode: status,
       reasonPhrase: null,
       bytes: Uint8List.fromList(utf8.encode(body)),

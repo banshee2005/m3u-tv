@@ -136,7 +136,11 @@ class _PendingNarrow extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _PendingInstructions(url: url, userCode: userCode, tapUrl: qrUrl),
+        _PendingInstructions(
+          url: url,
+          userCode: userCode,
+          tapUrl: qrUrl,
+        ),
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,

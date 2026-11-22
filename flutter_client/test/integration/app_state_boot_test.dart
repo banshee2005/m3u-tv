@@ -43,82 +43,85 @@ void main() {
       }
     }
 
-    test('applies the editor config, skips an unchanged revision, refetches on a push and drops it when no longer advertised', () async {
-      var advertise = true;
-      var revision = 'rev-1';
-      var startPage = 'movies';
-      var fetches = 0;
-      final fixtures = _FakeXtreamTransport.success();
-      Future<Object?> transport(XtreamRequest request) async {
-        switch (request.action ?? 'auth') {
-          case 'auth':
-            return <String, Object?>{
-              'user_info': <String, Object?>{'auth': 1, 'status': 'Active'},
-              'm3u_editor': <String, Object?>{
-                'version': '0.14.0',
-                if (advertise)
-                  'client_config': <String, Object?>{
-                    'api_version': 1,
-                    'revision': revision,
-                    'action': 'get_client_config',
-                  },
-              },
-            };
-          case 'get_client_config':
-            fetches += 1;
-            return <String, Object?>{
-              'revision': revision,
-              'profile': 'Kids',
-              'settings': <String, Object?>{
-                'default_start_page': <String, Object?>{
-                  'mode': 'enforced',
-                  'value': startPage,
+    test(
+      'applies the editor config, skips an unchanged revision, refetches on a push and drops it when no longer advertised',
+      () async {
+        var advertise = true;
+        var revision = 'rev-1';
+        var startPage = 'movies';
+        var fetches = 0;
+        final fixtures = _FakeXtreamTransport.success();
+        Future<Object?> transport(XtreamRequest request) async {
+          switch (request.action ?? 'auth') {
+            case 'auth':
+              return <String, Object?>{
+                'user_info': <String, Object?>{'auth': 1, 'status': 'Active'},
+                'm3u_editor': <String, Object?>{
+                  'version': '0.14.0',
+                  if (advertise)
+                    'client_config': <String, Object?>{
+                      'api_version': 1,
+                      'revision': revision,
+                      'action': 'get_client_config',
+                    },
                 },
-              },
-            };
+              };
+            case 'get_client_config':
+              fetches += 1;
+              return <String, Object?>{
+                'revision': revision,
+                'profile': 'Kids',
+                'settings': <String, Object?>{
+                  'default_start_page': <String, Object?>{
+                    'mode': 'enforced',
+                    'value': startPage,
+                  },
+                },
+              };
+          }
+          return fixtures.call(request);
         }
-        return fixtures.call(request);
-      }
 
-      final reverb = ReverbService();
-      final controller = _controller(
-        storage: InMemorySecureStorage(),
-        transport: transport,
-        reverbService: reverb,
-      );
-      addTearDown(controller.dispose);
-      final settings = controller.viewSettingsService;
-      bool startPageIs(DefaultStartPage page) =>
-          settings.defaultStartPageSync == page;
+        final reverb = ReverbService();
+        final controller = _controller(
+          storage: InMemorySecureStorage(),
+          transport: transport,
+          reverbService: reverb,
+        );
+        addTearDown(controller.dispose);
+        final settings = controller.viewSettingsService;
+        bool startPageIs(DefaultStartPage page) =>
+            settings.defaultStartPageSync == page;
 
-      expect(await controller.connectXtream(credentials), isTrue);
-      await until(() => startPageIs(DefaultStartPage.movies));
-      expect(fetches, 1);
-      expect(
-        settings.isEnforced(ViewSettingsService.defaultStartPageKey),
-        isTrue,
-      );
-      expect(settings.managedProfileName, 'Kids');
+        expect(await controller.connectXtream(credentials), isTrue);
+        await until(() => startPageIs(DefaultStartPage.movies));
+        expect(fetches, 1);
+        expect(
+          settings.isEnforced(ViewSettingsService.defaultStartPageKey),
+          isTrue,
+        );
+        expect(settings.managedProfileName, 'Kids');
 
-      expect(await controller.connectXtream(credentials), isTrue);
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      expect(fetches, 1, reason: 'same revision: the stored config stands');
+        expect(await controller.connectXtream(credentials), isTrue);
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        expect(fetches, 1, reason: 'same revision: the stored config stands');
 
-      revision = 'rev-2';
-      startPage = 'liveTv';
-      reverb.onClientConfigUpdated!();
-      await until(() => startPageIs(DefaultStartPage.liveTv));
-      expect(fetches, 2);
+        revision = 'rev-2';
+        startPage = 'liveTv';
+        reverb.onClientConfigUpdated!();
+        await until(() => startPageIs(DefaultStartPage.liveTv));
+        expect(fetches, 2);
 
-      advertise = false;
-      expect(await controller.connectXtream(credentials), isTrue);
-      await until(() => settings.managedProfileName == null);
-      expect(
-        settings.isEnforced(ViewSettingsService.defaultStartPageKey),
-        isFalse,
-      );
-      expect(settings.defaultStartPageSync, DefaultStartPage.home);
-    });
+        advertise = false;
+        expect(await controller.connectXtream(credentials), isTrue);
+        await until(() => settings.managedProfileName == null);
+        expect(
+          settings.isEnforced(ViewSettingsService.defaultStartPageKey),
+          isFalse,
+        );
+        expect(settings.defaultStartPageSync, DefaultStartPage.home);
+      },
+    );
   });
 
   group('app state boot', () {
@@ -316,8 +319,9 @@ void main() {
         expect(epgService.lookup('bbc.one')?.current.title, 'Fresh BBC guide');
         expect(epgService.lookup('cnn'), isNull);
         expect(
-          (await _liveChannels(controller))
-              .every(epgService.hasFreshDataForChannel),
+          (await _liveChannels(
+            controller,
+          )).every(epgService.hasFreshDataForChannel),
           isTrue,
         );
         controller.ensureEpgForChannels(await _liveChannels(controller));
@@ -554,9 +558,11 @@ void main() {
         controller.ensureEpgForChannels(await _liveChannels(controller));
         await Future<void>.delayed(const Duration(milliseconds: 300));
 
-        final persistedCredentials = jsonDecode(
-          (await storage.read('m3ue_tv_credentials'))!,
-        ) as Map<String, Object?>;
+        final persistedCredentials =
+            jsonDecode(
+                  (await storage.read('m3ue_tv_credentials'))!,
+                )
+                as Map<String, Object?>;
         expect(serverBEpgRequests, 0);
         expect(serverAEpgRequests, 2);
         expect(controller.authNotifier.credentials, serverACredentials);
@@ -763,7 +769,11 @@ void main() {
         final counts = <String, int>{};
         final fixtures = _FakeXtreamTransport.success();
         Future<Object?> transport(XtreamRequest request) async {
-          counts.update(request.action ?? '', (n) => n + 1, ifAbsent: () => 1);
+          counts.update(
+            request.action ?? '',
+            (n) => n + 1,
+            ifAbsent: () => 1,
+          );
           if (request.action == 'get_epg_batch') {
             return epgResponse(counts['get_epg_batch']!);
           }
@@ -957,84 +967,87 @@ void main() {
       },
     );
 
-    test('cached Xtream boot refreshes remote progress before catalog refresh finishes', () async {
-      final storage = InMemorySecureStorage();
-      final cacheMemory = <String, Object?>{};
-      final catalogGate = Completer<Object?>();
-      final recentlyWatchedGate = Completer<Object?>();
-      await storage.write(
-        'm3ue_tv_credentials',
-        jsonEncode(<String, String>{
-          'server': 'https://fixture.example',
-          'username': 'fixture-user',
-          'password': 'fixture-password',
-        }),
-      );
-      await storage.write(
-        'm3ue_tv_source',
-        jsonEncode(<String, String>{'type': 'xtream'}),
-      );
+    test(
+      'cached Xtream boot refreshes remote progress before catalog refresh finishes',
+      () async {
+        final storage = InMemorySecureStorage();
+        final cacheMemory = <String, Object?>{};
+        final catalogGate = Completer<Object?>();
+        final recentlyWatchedGate = Completer<Object?>();
+        await storage.write(
+          'm3ue_tv_credentials',
+          jsonEncode(<String, String>{
+            'server': 'https://fixture.example',
+            'username': 'fixture-user',
+            'password': 'fixture-password',
+          }),
+        );
+        await storage.write(
+          'm3ue_tv_source',
+          jsonEncode(<String, String>{'type': 'xtream'}),
+        );
 
-      final catalogRepository = CatalogRepository(CatalogDatabase.memory());
-      addTearDown(catalogRepository.close);
-      final cache = CacheService(
-        memory: cacheMemory,
-        catalogRepository: catalogRepository,
-      );
-      await cache.set('sourceType', 'xtream');
-      await cache.set('liveStreams', const <Channel>[
-        Channel(id: 901, name: 'Cached BBC', streamUrl: 'cached-live-url'),
-      ]);
-      await cache.set('vodStreams', const <VodItem>[
-        VodItem(
-          id: 902,
-          name: 'Cached Movie',
-          streamUrl: 'cached-vod-url',
-          containerExtension: 'mp4',
-        ),
-      ]);
-      await cache.set('viewers', const <Viewer>[
-        Viewer(id: 1, ulid: 'viewer-admin', name: 'Admin', isAdmin: true),
-      ]);
+        final catalogRepository = CatalogRepository(CatalogDatabase.memory());
+        addTearDown(catalogRepository.close);
+        final cache = CacheService(
+          memory: cacheMemory,
+          catalogRepository: catalogRepository,
+        );
+        await cache.set('sourceType', 'xtream');
+        await cache.set('liveStreams', const <Channel>[
+          Channel(id: 901, name: 'Cached BBC', streamUrl: 'cached-live-url'),
+        ]);
+        await cache.set('vodStreams', const <VodItem>[
+          VodItem(
+            id: 902,
+            name: 'Cached Movie',
+            streamUrl: 'cached-vod-url',
+            containerExtension: 'mp4',
+          ),
+        ]);
+        await cache.set('viewers', const <Viewer>[
+          Viewer(id: 1, ulid: 'viewer-admin', name: 'Admin', isAdmin: true),
+        ]);
 
-      final controller = _controller(
-        storage: storage,
-        cacheMemory: cacheMemory,
-        catalogRepository: catalogRepository,
-        transport: _FakeXtreamTransport.success()
-            .withResponse('get_live_categories', catalogGate.future)
-            .withResponse('get_recently_watched', recentlyWatchedGate.future)
-            .call,
-      );
+        final controller = _controller(
+          storage: storage,
+          cacheMemory: cacheMemory,
+          catalogRepository: catalogRepository,
+          transport: _FakeXtreamTransport.success()
+              .withResponse('get_live_categories', catalogGate.future)
+              .withResponse('get_recently_watched', recentlyWatchedGate.future)
+              .call,
+        );
 
-      final boot = controller.boot();
-      await Future<void>.delayed(Duration.zero);
-      await Future<void>.delayed(Duration.zero);
-      expect((await _liveChannels(controller)).single.name, 'Cached BBC');
-      expect(controller.progressList, isEmpty);
-
-      recentlyWatchedGate.complete(<Map<String, Object?>>[
-        <String, Object?>{
-          'content_type': 'vod',
-          'stream_id': 902,
-          'position_seconds': 121,
-          'duration_seconds': 600,
-          'title': 'Remote Cached Movie',
-        },
-      ]);
-      for (var pumpCount = 0; pumpCount < 5; pumpCount += 1) {
+        final boot = controller.boot();
         await Future<void>.delayed(Duration.zero);
-      }
+        await Future<void>.delayed(Duration.zero);
+        expect((await _liveChannels(controller)).single.name, 'Cached BBC');
+        expect(controller.progressList, isEmpty);
 
-      expect(controller.progressList.single.streamId, 902);
-      expect(controller.progressList.single.title, 'Remote Cached Movie');
-      expect((await _liveChannels(controller)).single.name, 'Cached BBC');
+        recentlyWatchedGate.complete(<Map<String, Object?>>[
+          <String, Object?>{
+            'content_type': 'vod',
+            'stream_id': 902,
+            'position_seconds': 121,
+            'duration_seconds': 600,
+            'title': 'Remote Cached Movie',
+          },
+        ]);
+        for (var pumpCount = 0; pumpCount < 5; pumpCount += 1) {
+          await Future<void>.delayed(Duration.zero);
+        }
 
-      await boot;
-      catalogGate.complete(
-        _FakeXtreamTransport.success().responses['get_live_categories'],
-      );
-    });
+        expect(controller.progressList.single.streamId, 902);
+        expect(controller.progressList.single.title, 'Remote Cached Movie');
+        expect((await _liveChannels(controller)).single.name, 'Cached BBC');
+
+        await boot;
+        catalogGate.complete(
+          _FakeXtreamTransport.success().responses['get_live_categories'],
+        );
+      },
+    );
 
     test('Xtream progress is visible before EPG refresh finishes', () async {
       final storage = InMemorySecureStorage();
@@ -1341,10 +1354,9 @@ void main() {
         expect(restarted.activeViewer?.ulid, 'viewer-admin');
         expect(restarted.progressList.single.positionSeconds, 91);
         expect(
-          (await restarted.cacheService.get<List<Channel>>('liveStreams'))
-              ?.data
-              .single
-              .name,
+          (await restarted.cacheService.get<List<Channel>>(
+            'liveStreams',
+          ))?.data.single.name,
           'BBC One',
         );
       },
@@ -1378,8 +1390,9 @@ void main() {
           ),
           isTrue,
         );
-        final stateBefore = await PersistentJsonStore(file: stateFile)
-            .snapshot();
+        final stateBefore = await PersistentJsonStore(
+          file: stateFile,
+        ).snapshot();
         expect(
           stateBefore.keys.any((key) => key.startsWith('m3ue_cache_')),
           isTrue,
@@ -1401,10 +1414,12 @@ void main() {
         expect(migrated.sourceType, AppSourceType.xtream);
         expect((await _liveChannels(migrated)).single.name, 'BBC One');
 
-        final stateAfter = await PersistentJsonStore(file: stateFile)
-            .snapshot();
-        final cacheAfter = await PersistentJsonStore(file: cacheFile)
-            .snapshot();
+        final stateAfter = await PersistentJsonStore(
+          file: stateFile,
+        ).snapshot();
+        final cacheAfter = await PersistentJsonStore(
+          file: cacheFile,
+        ).snapshot();
         expect(
           stateAfter.keys.any((key) => key.startsWith('m3ue_cache_')),
           isFalse,
@@ -1416,74 +1431,78 @@ void main() {
       },
     );
 
-    test('boot sweeps cache keys still left in app_state.json after a '
-        'half-finished earlier migration', () async {
-      final directory = await io.Directory.systemTemp.createTemp(
-        'm3u-tv-split-leftover-',
-      );
-      addTearDown(() => _deleteDirectoryRetrying(directory));
-      final stateFile = io.File('${directory.path}/app_state.json');
-      final cacheFile = io.File('${directory.path}/cache.json');
+    test(
+      'boot sweeps cache keys still left in app_state.json after a '
+      'half-finished earlier migration',
+      () async {
+        final directory = await io.Directory.systemTemp.createTemp(
+          'm3u-tv-split-leftover-',
+        );
+        addTearDown(() => _deleteDirectoryRetrying(directory));
+        final stateFile = io.File('${directory.path}/app_state.json');
+        final cacheFile = io.File('${directory.path}/cache.json');
 
-      final legacy = AppStateController(
-        persistentStore: PersistentJsonStore(file: stateFile),
-        xtreamService: XtreamService(
-          transport: _FakeXtreamTransport.success().call,
-        ),
-      );
-      expect(
-        await legacy.connectXtream(
-          const UserCredentials(
-            server: 'https://fixture.example',
-            username: 'fixture-user',
-            password: 'fixture-password',
+        final legacy = AppStateController(
+          persistentStore: PersistentJsonStore(file: stateFile),
+          xtreamService: XtreamService(
+            transport: _FakeXtreamTransport.success().call,
           ),
-        ),
-        isTrue,
-      );
+        );
+        expect(
+          await legacy.connectXtream(
+            const UserCredentials(
+              server: 'https://fixture.example',
+              username: 'fixture-user',
+              password: 'fixture-password',
+            ),
+          ),
+          isTrue,
+        );
 
-      // Simulate a crash between adoptKeysFrom's two writes: cache.json
-      // already has the keys, but app_state.json was never cleared.
-      final stateSnapshot = await PersistentJsonStore(file: stateFile)
-          .snapshot();
-      final seededCache = PersistentJsonStore(file: cacheFile);
-      for (final entry in stateSnapshot.entries) {
-        if (entry.key.startsWith('m3ue_cache_')) {
-          await seededCache.write(entry.key, entry.value);
+        // Simulate a crash between adoptKeysFrom's two writes: cache.json
+        // already has the keys, but app_state.json was never cleared.
+        final stateSnapshot = await PersistentJsonStore(
+          file: stateFile,
+        ).snapshot();
+        final seededCache = PersistentJsonStore(file: cacheFile);
+        for (final entry in stateSnapshot.entries) {
+          if (entry.key.startsWith('m3ue_cache_')) {
+            await seededCache.write(entry.key, entry.value);
+          }
         }
-      }
-      expect(
-        (await PersistentJsonStore(
-          file: stateFile,
-        ).snapshot()).keys.any((key) => key.startsWith('m3ue_cache_')),
-        isTrue,
-      );
+        expect(
+          (await PersistentJsonStore(file: stateFile).snapshot()).keys.any(
+            (key) => key.startsWith('m3ue_cache_'),
+          ),
+          isTrue,
+        );
 
-      final migrated = AppStateController(
-        persistentStore: PersistentJsonStore(file: stateFile),
-        cacheStore: PersistentJsonStore(file: cacheFile),
-        xtreamService: XtreamService(
-          transport: _FakeXtreamTransport.success().call,
-        ),
-      );
-      await migrated.boot();
-      await _waitForXtreamRefresh(migrated);
+        final migrated = AppStateController(
+          persistentStore: PersistentJsonStore(file: stateFile),
+          cacheStore: PersistentJsonStore(file: cacheFile),
+          xtreamService: XtreamService(
+            transport: _FakeXtreamTransport.success().call,
+          ),
+        );
+        await migrated.boot();
+        await _waitForXtreamRefresh(migrated);
 
-      expect(migrated.sourceType, AppSourceType.xtream);
-      expect((await _liveChannels(migrated)).single.name, 'BBC One');
-      expect(
-        (await PersistentJsonStore(
-          file: stateFile,
-        ).snapshot()).keys.any((key) => key.startsWith('m3ue_cache_')),
-        isFalse,
-      );
-      expect(
-        (await PersistentJsonStore(
-          file: cacheFile,
-        ).snapshot()).keys.any((key) => key.startsWith('m3ue_cache_')),
-        isTrue,
-      );
-    });
+        expect(migrated.sourceType, AppSourceType.xtream);
+        expect((await _liveChannels(migrated)).single.name, 'BBC One');
+        expect(
+          (await PersistentJsonStore(file: stateFile).snapshot()).keys.any(
+            (key) => key.startsWith('m3ue_cache_'),
+          ),
+          isFalse,
+        );
+        expect(
+          (await PersistentJsonStore(file: cacheFile).snapshot()).keys.any(
+            (key) => key.startsWith('m3ue_cache_'),
+          ),
+          isTrue,
+        );
+      },
+    );
 
     test('newer EPG range wins when an older request completes last', () async {
       final oldRange = Completer<Object?>();
@@ -1784,7 +1803,9 @@ void main() {
       }
 
       controller.epgService.addListener(onEpgChanged);
-      addTearDown(() => controller.epgService.removeListener(onEpgChanged));
+      addTearDown(
+        () => controller.epgService.removeListener(onEpgChanged),
+      );
       final date = DateTime.utc(2026, 7, 30);
       controller.ensureEpgForChannels(
         await _liveChannels(controller),
@@ -1794,7 +1815,9 @@ void main() {
       await firstRangePublished.future.timeout(const Duration(seconds: 5));
       now = now.add(const Duration(minutes: 1));
       expect(
-        controller.epgService.shouldFetchData('bbc.one:2026-07-30:2026-07-30'),
+        controller.epgService.shouldFetchData(
+          'bbc.one:2026-07-30:2026-07-30',
+        ),
         isTrue,
       );
 
@@ -2165,7 +2188,10 @@ void main() {
       expect(swept, isTrue, reason: 'background sweep never covered the tail');
 
       final tailChannel = (await _liveChannels(controller))[200];
-      expect(controller.epgService.hasFreshDataForChannel(tailChannel), isTrue);
+      expect(
+        controller.epgService.hasFreshDataForChannel(tailChannel),
+        isTrue,
+      );
     });
 
     group('live lineup in the catalog', () {
@@ -2518,8 +2544,10 @@ void main() {
     test(
       'populates dvrStorageInfo from a server that supports get_dvr_storage',
       () async {
-        final fixture = withDvrFeature(_FakeXtreamTransport.success())
-            .withResponse('get_dvr_storage', <String, Object?>{
+        final fixture =
+            withDvrFeature(
+              _FakeXtreamTransport.success(),
+            ).withResponse('get_dvr_storage', <String, Object?>{
               'used_bytes': 2147483648,
               'quota_bytes': 4294967296,
               'percent_used': 50.0,
@@ -2542,22 +2570,25 @@ void main() {
       },
     );
 
-    test('clears dvrStorageInfo when an older server has no get_dvr_storage action', () async {
-      // No `get_dvr_storage` stub, so the fixture throws StateError for it
-      // — mirroring an older m3u-editor server that 404s the action.
-      final fixture = withDvrFeature(_FakeXtreamTransport.success());
-      final controller = _controller(
-        storage: InMemorySecureStorage(),
-        transport: fixture.call,
-      );
+    test(
+      'clears dvrStorageInfo when an older server has no get_dvr_storage action',
+      () async {
+        // No `get_dvr_storage` stub, so the fixture throws StateError for it
+        // — mirroring an older m3u-editor server that 404s the action.
+        final fixture = withDvrFeature(_FakeXtreamTransport.success());
+        final controller = _controller(
+          storage: InMemorySecureStorage(),
+          transport: fixture.call,
+        );
 
-      expect(await controller.connectXtream(credentials), isTrue);
-      expect(controller.hasDvrFeature, isTrue);
+        expect(await controller.connectXtream(credentials), isTrue);
+        expect(controller.hasDvrFeature, isTrue);
 
-      await controller.refreshDvrStorage();
+        await controller.refreshDvrStorage();
 
-      expect(controller.dvrStorageInfo, isNull);
-    });
+        expect(controller.dvrStorageInfo, isNull);
+      },
+    );
 
     test(
       'does not call get_dvr_storage when the dvr feature is not advertised',
@@ -2781,7 +2812,9 @@ class _TestAppState extends State<_TestApp> {
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-      overrides: [overrideAppState(widget.controller)],
+      overrides: [
+        overrideAppState(widget.controller),
+      ],
       child: MaterialApp.router(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         theme: ThemeData.dark(useMaterial3: true),

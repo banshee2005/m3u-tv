@@ -51,7 +51,10 @@ void main() {
     controller.updateProgressEntry(
       _p(0, type: ContentType.aiostreams, aioItemId: 'tt111', position: 999),
     );
-    expect(controller.progressList.map((p) => p.aioItemId), ['tt111', 'tt222']);
+    expect(
+      controller.progressList.map((p) => p.aioItemId),
+      ['tt111', 'tt222'],
+    );
     expect(controller.progressList.length, 2);
   });
 

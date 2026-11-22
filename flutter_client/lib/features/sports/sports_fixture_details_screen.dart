@@ -493,7 +493,10 @@ class _SportsFixtureDetailsScreenState
     );
   }
 
-  List<Widget> _infoRows(AppLocalizations l10n, SportsFixtureDetails? details) {
+  List<Widget> _infoRows(
+    AppLocalizations l10n,
+    SportsFixtureDetails? details,
+  ) {
     final locale = Localizations.localeOf(context).toLanguageTag();
     final venue = [
       details?.venue,
@@ -506,9 +509,9 @@ class _SportsFixtureDetailsScreenState
     return [
       _InfoRow(
         label: l10n.sportsDetailsStart,
-        value: DateFormat.yMMMEd(locale)
-            .add_jm()
-            .format(_fixture.start.toLocal()),
+        value: DateFormat.yMMMEd(
+          locale,
+        ).add_jm().format(_fixture.start.toLocal()),
       ),
       if (venue.isNotEmpty)
         _InfoRow(label: l10n.sportsDetailsVenue, value: venue),
@@ -980,8 +983,9 @@ class _MatchupCenter extends StatelessWidget {
     );
     if (fixture.state == SportsFixtureState.scheduled) {
       return headline(
-        DateFormat.jm(Localizations.localeOf(context).toLanguageTag())
-            .format(fixture.start.toLocal()),
+        DateFormat.jm(
+          Localizations.localeOf(context).toLanguageTag(),
+        ).format(fixture.start.toLocal()),
       );
     }
     final firstScore = sides.competitor(sides.first)?.score;
@@ -1549,8 +1553,9 @@ class _ShareBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final track = Theme.of(context).colorScheme.onSurface
-        .withValues(alpha: 0.1);
+    final track = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.1);
     Widget part(double share, Color color) => Expanded(
       flex: (share * 1000).round(),
       child: ColoredBox(color: color, child: const SizedBox(height: 6)),

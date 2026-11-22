@@ -11,6 +11,6 @@ String generatePkceVerifier() {
 }
 
 /// The S256 code challenge for [verifier].
-String pkceChallenge(String verifier) =>
-    base64UrlEncode(sha256.convert(ascii.encode(verifier)).bytes)
-        .replaceAll('=', '');
+String pkceChallenge(String verifier) => base64UrlEncode(
+  sha256.convert(ascii.encode(verifier)).bytes,
+).replaceAll('=', '');

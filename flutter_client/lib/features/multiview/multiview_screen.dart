@@ -340,9 +340,9 @@ class _MultiviewScreenState extends ConsumerState<MultiviewScreen> {
                   _MenuOption(
                     icon: Icons.view_sidebar,
                     label: l10n.multiviewMakeFeatured,
-                    onTap: () =>
-                        Navigator.of(dialogContext)
-                            .pop(_TileMenuAction.feature),
+                    onTap: () => Navigator.of(
+                      dialogContext,
+                    ).pop(_TileMenuAction.feature),
                   ),
                 if (count == 2 && _layoutMode != _LayoutMode.pip)
                   _MenuOption(
@@ -361,9 +361,9 @@ class _MultiviewScreenState extends ConsumerState<MultiviewScreen> {
                 _MenuOption(
                   icon: Icons.fullscreen,
                   label: l10n.multiviewOpenFullscreen,
-                  onTap: () =>
-                      Navigator.of(dialogContext)
-                          .pop(_TileMenuAction.fullscreen),
+                  onTap: () => Navigator.of(
+                    dialogContext,
+                  ).pop(_TileMenuAction.fullscreen),
                 ),
                 _MenuOption(
                   icon: Icons.close,

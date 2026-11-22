@@ -231,7 +231,9 @@ void main() {
 
     testWidgets(
       'TheIntroDB toggle defaults on and turns off from Integrations',
-      (tester) async {
+      (
+        tester,
+      ) async {
         await pumpSettingsScreen(tester);
         final l = await AppLocalizations.delegate.load(const Locale('en'));
 

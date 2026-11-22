@@ -105,24 +105,27 @@ void main() {
     });
 
     test('no subtitles key is an empty result', () async {
-      final results = await service((_) async => http.Response('{}', 200))
-          .search(addonUrl: addon, imdbId: 'tt1');
+      final results = await service(
+        (_) async => http.Response('{}', 200),
+      ).search(addonUrl: addon, imdbId: 'tt1');
 
       expect(results, isEmpty);
     });
 
     test('a server error throws', () async {
       expect(
-        service((_) async => http.Response('', 500))
-            .search(addonUrl: addon, imdbId: 'tt1'),
+        service(
+          (_) async => http.Response('', 500),
+        ).search(addonUrl: addon, imdbId: 'tt1'),
         throwsA(isA<OnlineSubtitleException>()),
       );
     });
 
     test('a network failure throws', () async {
       expect(
-        service((_) async => throw const SocketException('offline'))
-            .search(addonUrl: addon, imdbId: 'tt1'),
+        service(
+          (_) async => throw const SocketException('offline'),
+        ).search(addonUrl: addon, imdbId: 'tt1'),
         throwsA(isA<OnlineSubtitleException>()),
       );
     });
@@ -188,7 +191,9 @@ void main() {
     test('clears out old downloads', () async {
       final old = File('${temp.path}/old.srt')
         ..writeAsStringSync('old')
-        ..setLastModifiedSync(DateTime.now().subtract(const Duration(days: 2)));
+        ..setLastModifiedSync(
+          DateTime.now().subtract(const Duration(days: 2)),
+        );
       final recent = File('${temp.path}/recent.srt')
         ..writeAsStringSync('recent');
 

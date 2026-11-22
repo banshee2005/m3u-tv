@@ -300,8 +300,9 @@ class AIOStreamsApiService {
     if (search != null && search.isNotEmpty) params['search'] = search;
     if (genre != null && genre.isNotEmpty) params['genre'] = genre;
 
-    final uri = Uri.parse('$_base/$integrationId/catalog/$type/$catalogId.json')
-        .replace(queryParameters: params.isEmpty ? null : params);
+    final uri = Uri.parse(
+      '$_base/$integrationId/catalog/$type/$catalogId.json',
+    ).replace(queryParameters: params.isEmpty ? null : params);
 
     final json = await _get(uri);
     if (json == null) return cached?.data ?? const [];

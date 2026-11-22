@@ -148,12 +148,13 @@ void main() {
       addTearDown(() => dir.delete(recursive: true));
       final file = File('${dir.path}/s.json');
 
-      await ViewSettingsService(store: PersistentJsonStore(file: file))
-          .applyClientConfig(
-            _config({
-              'default_start_page': {'mode': 'enforced', 'value': 'liveTv'},
-            }),
-          );
+      await ViewSettingsService(
+        store: PersistentJsonStore(file: file),
+      ).applyClientConfig(
+        _config({
+          'default_start_page': {'mode': 'enforced', 'value': 'liveTv'},
+        }),
+      );
 
       final restored = ViewSettingsService(
         store: PersistentJsonStore(file: file),

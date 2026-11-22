@@ -504,7 +504,11 @@ class SimklService extends ChangeNotifier implements WatchHistoryService {
     final token = _accessToken;
     if (token == null) return null;
     return _send(
-      SimklRequest(path: '/scrobble/$action', json: body, accessToken: token),
+      SimklRequest(
+        path: '/scrobble/$action',
+        json: body,
+        accessToken: token,
+      ),
     );
   }
 

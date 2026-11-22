@@ -192,36 +192,37 @@ void main() {
     expect(find.textContaining('S1E1 Title'), findsNothing);
   });
 
-  testWidgets('scrolls a far-right current season fully into view on open', (
-    tester,
-  ) async {
-    final info = SeriesInfo(
-      series: const Series(id: 7, name: 'Fixture Show'),
-      seasons: [
-        for (var s = 1; s <= 8; s++) Season(number: s, name: 'Season $s'),
-      ],
-      episodesBySeason: {
-        for (var s = 1; s <= 8; s++) s: [_ep(s, 1)],
-      },
-    );
+  testWidgets(
+    'scrolls a far-right current season fully into view on open',
+    (tester) async {
+      final info = SeriesInfo(
+        series: const Series(id: 7, name: 'Fixture Show'),
+        seasons: [
+          for (var s = 1; s <= 8; s++) Season(number: s, name: 'Season $s'),
+        ],
+        episodesBySeason: {
+          for (var s = 1; s <= 8; s++) s: [_ep(s, 1)],
+        },
+      );
 
-    await _pumpPicker(
-      tester,
-      info: info,
-      currentSeasonNumber: 8,
-      currentEpisodeId: '801',
-      onSelect: (_) {},
-    );
+      await _pumpPicker(
+        tester,
+        info: info,
+        currentSeasonNumber: 8,
+        currentEpisodeId: '801',
+        onSelect: (_) {},
+      );
 
-    final screenWidth =
-        tester.view.physicalSize.width / tester.view.devicePixelRatio;
-    final chip = find.text('Season 8');
-    expect(chip, findsOneWidget);
-    final topLeft = tester.getTopLeft(chip);
-    final bottomRight = tester.getBottomRight(chip);
-    expect(topLeft.dx, greaterThanOrEqualTo(0));
-    expect(bottomRight.dx, lessThanOrEqualTo(screenWidth));
-  });
+      final screenWidth =
+          tester.view.physicalSize.width / tester.view.devicePixelRatio;
+      final chip = find.text('Season 8');
+      expect(chip, findsOneWidget);
+      final topLeft = tester.getTopLeft(chip);
+      final bottomRight = tester.getBottomRight(chip);
+      expect(topLeft.dx, greaterThanOrEqualTo(0));
+      expect(bottomRight.dx, lessThanOrEqualTo(screenWidth));
+    },
+  );
 
   testWidgets(
     'scrolls to and focuses the current episode deep in a long season',

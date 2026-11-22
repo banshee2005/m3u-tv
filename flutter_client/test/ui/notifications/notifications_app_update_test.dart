@@ -32,7 +32,9 @@ Widget _screen(AppUpdateNotice? notice, {Future<void> Function()? onRead}) =>
     );
 
 void main() {
-  testWidgets('pins an unread app update above notifications', (tester) async {
+  testWidgets('pins an unread app update above notifications', (
+    tester,
+  ) async {
     var markedRead = false;
     await tester.pumpWidget(
       _screen(

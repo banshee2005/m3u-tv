@@ -88,7 +88,10 @@ void main() {
     expect(accepted, isFalse);
     expect(
       await PersistentJsonStore(file: stateFile).snapshot(),
-      <String, Object?>{'owner': 'account-a', 'account-a-notification': 'read'},
+      <String, Object?>{
+        'owner': 'account-a',
+        'account-a-notification': 'read',
+      },
     );
   });
 
@@ -156,7 +159,9 @@ void main() {
   });
 
   test('rejected writeIf never publishes candidate bytes', () async {
-    final directory = await Directory.systemTemp.createTemp('m3u-tv-write-if-');
+    final directory = await Directory.systemTemp.createTemp(
+      'm3u-tv-write-if-',
+    );
     addTearDown(() => directory.delete(recursive: true));
     final stateFile = File('${directory.path}/app_state.json');
     final stagingFile = File('${stateFile.path}.tmp');
@@ -244,10 +249,14 @@ void main() {
     final stateFile = File('${directory.path}/app_state.json');
     final stagingFile = File('${stateFile.path}.tmp');
     await stateFile.writeAsString(
-      jsonEncode(<String, Object?>{'owner': 'source-a'}),
+      jsonEncode(<String, Object?>{
+        'owner': 'source-a',
+      }),
     );
     await stagingFile.writeAsString(
-      jsonEncode(<String, Object?>{'owner': 'source-b'}),
+      jsonEncode(<String, Object?>{
+        'owner': 'source-b',
+      }),
     );
 
     final restarted = PersistentJsonStore(file: stateFile);

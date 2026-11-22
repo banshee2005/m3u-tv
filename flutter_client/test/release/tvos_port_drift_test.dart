@@ -33,7 +33,9 @@ void main() {
   final portDirs = packagesDir
       .listSync()
       .whereType<Directory>()
-      .where((dir) => File('${dir.path}/PORTING_REPORT.md').existsSync())
+      .where(
+        (dir) => File('${dir.path}/PORTING_REPORT.md').existsSync(),
+      )
       .toList();
 
   test('at least one ported tvOS package is present to check', () {

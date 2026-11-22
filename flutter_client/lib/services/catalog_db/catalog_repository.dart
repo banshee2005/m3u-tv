@@ -162,7 +162,9 @@ class CatalogRepository implements EpgProgrammeStore {
             .get();
     return rows
         .map((r) => _decodeRow(kind, r.json) as T)
-        .toList(growable: false);
+        .toList(
+          growable: false,
+        );
   }
 
   /// Per-category membership counts among the active-source rows of [kind],
@@ -175,7 +177,9 @@ class CatalogRepository implements EpgProgrammeStore {
     required List<String> categoryIds,
   }) async {
     final counts = await Future.wait(
-      categoryIds.map((id) => countActiveItems(kind: kind, categoryId: id)),
+      categoryIds.map(
+        (id) => countActiveItems(kind: kind, categoryId: id),
+      ),
     );
     return {
       for (var i = 0; i < categoryIds.length; i++) categoryIds[i]: counts[i],
@@ -381,7 +385,9 @@ class CatalogRepository implements EpgProgrammeStore {
     required int limit,
   }) async {
     final query = _db.select(_db.catalogItems)
-      ..where((t) => _itemFilter(t, sourceKey, kind, categoryId, search, ids))
+      ..where(
+        (t) => _itemFilter(t, sourceKey, kind, categoryId, search, ids),
+      )
       ..orderBy(_orderingWithFavorites(sort, favoritesFirst))
       ..limit(limit, offset: offset);
     final rows = await query.get();
@@ -404,7 +410,9 @@ class CatalogRepository implements EpgProgrammeStore {
     final table = _db.catalogItems;
     final query = _db.selectOnly(table)
       ..addColumns([table.streamId])
-      ..where(_itemFilter(table, shownSource, kind, categoryId, search, ids))
+      ..where(
+        _itemFilter(table, shownSource, kind, categoryId, search, ids),
+      )
       ..orderBy([
         for (final term in _orderingWithFavorites(sort, favoritesFirst))
           term(table),
@@ -447,7 +455,10 @@ class CatalogRepository implements EpgProgrammeStore {
         tiebreaker,
       ],
       CatalogSort.yearAsc => [
-        (t) => OrderingTerm(expression: t.year, nulls: NullsOrder.last),
+        (t) => OrderingTerm(
+          expression: t.year,
+          nulls: NullsOrder.last,
+        ),
         tiebreaker,
       ],
       CatalogSort.recentDesc => [
@@ -455,8 +466,10 @@ class CatalogRepository implements EpgProgrammeStore {
         tiebreaker,
       ],
       CatalogSort.channelNumber => [
-        (t) =>
-            OrderingTerm(expression: t.channelNumber, nulls: NullsOrder.last),
+        (t) => OrderingTerm(
+          expression: t.channelNumber,
+          nulls: NullsOrder.last,
+        ),
         (t) => OrderingTerm(expression: t.nameSortKey),
         tiebreaker,
       ],
@@ -465,7 +478,10 @@ class CatalogRepository implements EpgProgrammeStore {
         tiebreaker,
       ],
       CatalogSort.nameNaturalDesc => [
-        (t) => OrderingTerm(expression: t.nameSortKey, mode: OrderingMode.desc),
+        (t) => OrderingTerm(
+          expression: t.nameSortKey,
+          mode: OrderingMode.desc,
+        ),
         tiebreaker,
       ],
     };
@@ -512,7 +528,10 @@ class CatalogRepository implements EpgProgrammeStore {
   /// whose multi-category JSON array contains it. The `"id"` form keeps the
   /// match token-exact inside the JSON string.
   Expression<bool> _categoryPredicate($CatalogItemsTable t, String categoryId) {
-    final inList = _like(t.categoryIdsJson, '%"${_escapeLike(categoryId)}"%');
+    final inList = _like(
+      t.categoryIdsJson,
+      '%"${_escapeLike(categoryId)}"%',
+    );
     return t.categoryId.equals(categoryId) | inList;
   }
 
@@ -714,7 +733,9 @@ class CatalogRepository implements EpgProgrammeStore {
               ..where(
                 (t) =>
                     t.sourceKey.equals(source) &
-                    t.endMs.isBiggerOrEqualValue(cutoff.millisecondsSinceEpoch),
+                    t.endMs.isBiggerOrEqualValue(
+                      cutoff.millisecondsSinceEpoch,
+                    ),
               )
               ..orderBy([(t) => OrderingTerm(expression: t.startMs)]))
             .get();
@@ -739,9 +760,10 @@ class CatalogRepository implements EpgProgrammeStore {
     for (final op in ops) {
       rows += switch (op) {
         EpgReplaceChannels(:final byChannel) ||
-        EpgMergeIntoChannels(
-          :final byChannel,
-        ) => byChannel.values.fold(0, (n, list) => n + list.length),
+        EpgMergeIntoChannels(:final byChannel) => byChannel.values.fold(
+          0,
+          (n, list) => n + list.length,
+        ),
         EpgPruneBefore() => 0,
       };
     }
@@ -995,7 +1017,10 @@ class CatalogRepository implements EpgProgrammeStore {
         .then((keys) => keys.toSet());
     return {
       ...await distinct(_db.catalogItems, _db.catalogItems.sourceKey),
-      ...await distinct(_db.catalogCategories, _db.catalogCategories.sourceKey),
+      ...await distinct(
+        _db.catalogCategories,
+        _db.catalogCategories.sourceKey,
+      ),
       ...await distinct(_db.epgProgrammes, _db.epgProgrammes.sourceKey),
     };
   }

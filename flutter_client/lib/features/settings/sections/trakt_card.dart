@@ -34,7 +34,10 @@ class TraktCard extends StatelessWidget {
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(l.traktNotConfigured, style: theme.textTheme.bodyMedium),
+              Text(
+                l.traktNotConfigured,
+                style: theme.textTheme.bodyMedium,
+              ),
               const SizedBox(height: 8),
               Text(
                 l.traktNotConfiguredHint,
@@ -87,7 +90,10 @@ class _TraktDisconnected extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l.traktConnectPrompt, style: theme.textTheme.bodyMedium),
+        Text(
+          l.traktConnectPrompt,
+          style: theme.textTheme.bodyMedium,
+        ),
         const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,

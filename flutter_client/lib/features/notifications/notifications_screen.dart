@@ -441,7 +441,10 @@ class _NotificationTile extends StatelessWidget {
                 Text(item.body!),
                 const SizedBox(height: 4),
               ],
-              Text('$receivedStr$readStr', style: dimStyle),
+              Text(
+                '$receivedStr$readStr',
+                style: dimStyle,
+              ),
             ],
           ),
           trailing: notification.isRead

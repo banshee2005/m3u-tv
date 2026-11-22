@@ -10,10 +10,10 @@ import 'package:m3u_tv/services/viewer_service.dart';
 import 'package:m3u_tv/services/xtream_service.dart';
 
 void main() {
-  group(
-    'AppStateController seeds the server from local progress when empty',
-    () {
-      test('pushes local-only progress via update_progress when the server has none for this viewer', () async {
+  group('AppStateController seeds the server from local progress when empty', () {
+    test(
+      'pushes local-only progress via update_progress when the server has none for this viewer',
+      () async {
         final transport = _FakeXtreamTransport();
         final sharedMemory = <String, Object?>{};
         final controller = _controller(
@@ -59,10 +59,16 @@ void main() {
         expect(request.body['stream_id'], '555');
         expect(request.body['position_seconds'], '1234');
 
-        expect(controller.progressList.any((p) => p.streamId == 555), isTrue);
-      });
+        expect(
+          controller.progressList.any((p) => p.streamId == 555),
+          isTrue,
+        );
+      },
+    );
 
-      test('also seeds local-only AIOStreams progress (not just Xtream vod/live/episode)', () async {
+    test(
+      'also seeds local-only AIOStreams progress (not just Xtream vod/live/episode)',
+      () async {
         final transport = _FakeXtreamTransport();
         final sharedMemory = <String, Object?>{};
         final controller = _controller(
@@ -108,9 +114,12 @@ void main() {
         expect(request.body['aio_item_id'], 'tt0111161');
         expect(request.body['aio_integration_id'], '7');
         expect(request.body['position_seconds'], '300');
-      });
+      },
+    );
 
-      test('does not push anything once the server already has progress for this viewer', () async {
+    test(
+      'does not push anything once the server already has progress for this viewer',
+      () async {
         final transport = _FakeXtreamTransport()..seedRemoteProgress = true;
         final controller = _controller(transport: transport);
         addTearDown(controller.dispose);
@@ -146,9 +155,9 @@ void main() {
           transport.requests.where((r) => r.action == 'update_progress'),
           isEmpty,
         );
-      });
-    },
-  );
+      },
+    );
+  });
 }
 
 AppStateController _controller({

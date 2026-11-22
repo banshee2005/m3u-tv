@@ -107,9 +107,10 @@ void main() {
       await staleSubmit;
 
       expect(transport.submitCredentials?.username, _accountA.username);
-      expect(controller.mediaRequests.map((request) => request.title), <String>[
-        'Account B request',
-      ]);
+      expect(
+        controller.mediaRequests.map((request) => request.title),
+        <String>['Account B request'],
+      );
     },
   );
 

@@ -379,7 +379,10 @@ class CacheService {
         categories: const <Category>[],
       );
     } else {
-      await repo.replaceProgrammes(const <EpgProgram>[], sourceKey: sourceKey);
+      await repo.replaceProgrammes(
+        const <EpgProgram>[],
+        sourceKey: sourceKey,
+      );
     }
     await repo.kvDelete(_tsKey(key, sourceKey));
   }

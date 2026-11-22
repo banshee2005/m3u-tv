@@ -146,7 +146,9 @@ class ReleaseNotesService {
     try {
       final file = await _cacheFile();
       if (!file.existsSync()) return null;
-      final decoded = await decodeJsonOffMainIsolate(await file.readAsString());
+      final decoded = await decodeJsonOffMainIsolate(
+        await file.readAsString(),
+      );
       if (decoded is! Map<String, dynamic>) return null;
       final fetchedAt = DateTime.tryParse(
         decoded['fetched_at'] as String? ?? '',

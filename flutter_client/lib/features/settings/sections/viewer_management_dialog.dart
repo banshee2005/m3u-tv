@@ -109,8 +109,9 @@ class _ViewerManagementDialogState extends State<ViewerManagementDialog> {
                     controller: _nameController,
                     autofocus: true,
                     decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)
-                          .settingsViewerNameLabel,
+                      labelText: AppLocalizations.of(
+                        context,
+                      ).settingsViewerNameLabel,
                       errorText: _createError,
                       border: const OutlineInputBorder(),
                       contentPadding: EdgeInsets.symmetric(

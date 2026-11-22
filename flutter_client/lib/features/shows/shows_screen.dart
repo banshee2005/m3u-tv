@@ -221,8 +221,9 @@ class _Prompt extends StatelessWidget {
     return Center(
       child: Text(
         l10n.showsSearchHint,
-        style: Theme.of(context).textTheme.bodyLarge
-            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
       ),
     );
   }
@@ -265,7 +266,10 @@ class _ShowCard extends StatelessWidget {
                 color: theme.colorScheme.primary.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.tv, color: theme.colorScheme.primary),
+              child: Icon(
+                Icons.tv,
+                color: theme.colorScheme.primary,
+              ),
             ),
             const SizedBox(width: MediaBrowsingMetrics.contentPadding),
             Expanded(

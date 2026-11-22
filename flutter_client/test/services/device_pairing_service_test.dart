@@ -4,7 +4,9 @@ import 'package:m3u_tv/services/device_pairing_service.dart';
 void main() {
   group('DevicePairingService', () {
     test('start requests a code and enters pending status', () async {
-      final transport = _FakeTransport([_codeResponse(interval: 3600)]);
+      final transport = _FakeTransport([
+        _codeResponse(interval: 3600),
+      ]);
       final service = DevicePairingService(transport: transport.call);
       addTearDown(service.dispose);
 
@@ -68,10 +70,10 @@ void main() {
         'Kids',
         'Living Room',
       ]);
-      expect(service.pairedPlaylists.map((p) => p.credentials.username), [
-        'kids',
-        'living',
-      ]);
+      expect(
+        service.pairedPlaylists.map((p) => p.credentials.username),
+        ['kids', 'living'],
+      );
       expect(
         service.pairedPlaylists.last.credentials.server,
         'http://example.com',
@@ -152,7 +154,9 @@ void main() {
     });
 
     test('cancel resets to idle and stops further polling', () async {
-      final transport = _FakeTransport([_codeResponse(interval: 3600)]);
+      final transport = _FakeTransport([
+        _codeResponse(interval: 3600),
+      ]);
       final service = DevicePairingService(transport: transport.call);
       addTearDown(service.dispose);
 

@@ -9,18 +9,20 @@ import '../fakes/fake_m3u_editor_server.dart';
 void main() {
   group('m3u-editor transcoding contract models', () {
     test('encodes the source-of-truth transcode modes', () {
-      expect(TranscodeMode.values.map((mode) => mode.value), <String>[
-        'direct',
-        'server',
-        'local',
-      ]);
+      expect(
+        TranscodeMode.values.map((mode) => mode.value),
+        <String>['direct', 'server', 'local'],
+      );
     });
 
     test('serializes stream requests without UI coupling', () {
       const request = StreamRequest(
         url: 'https://provider.example/live/news.ts',
         mode: TranscodeMode.local,
-        metadata: {'playlist_uuid': 'playlist-1', 'channel_id': 42},
+        metadata: {
+          'playlist_uuid': 'playlist-1',
+          'channel_id': 42,
+        },
         userAgent: 'm3u-tv/flutter-contract-test',
         headers: {'Referer': 'https://provider.example'},
         profile: 'h264-aac-720p',

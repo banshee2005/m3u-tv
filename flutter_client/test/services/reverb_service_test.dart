@@ -41,44 +41,47 @@ void main() {
     password: 'pass',
   );
 
-  test('late authentication from an obsolete connection cannot write to the current socket', () async {
-    final auth = _ControlledAuthService();
-    final sockets = <_ControlledWebSocket>[];
-    final service = ReverbService(
-      notificationApi: auth,
-      channelFactory: (_) {
-        final socket = _ControlledWebSocket();
-        sockets.add(socket);
-        return socket;
-      },
-    );
-    addTearDown(service.disconnect);
+  test(
+    'late authentication from an obsolete connection cannot write to the current socket',
+    () async {
+      final auth = _ControlledAuthService();
+      final sockets = <_ControlledWebSocket>[];
+      final service = ReverbService(
+        notificationApi: auth,
+        channelFactory: (_) {
+          final socket = _ControlledWebSocket();
+          sockets.add(socket);
+          return socket;
+        },
+      );
+      addTearDown(service.disconnect);
 
-    await service.connect(
-      session: _session('private-source-a'),
-      credentials: _credentials('source-a'),
-      onNotification: (_) {},
-    );
-    sockets.single.addConnectionEstablished('socket-a');
-    await auth.sourceAStarted.future;
+      await service.connect(
+        session: _session('private-source-a'),
+        credentials: _credentials('source-a'),
+        onNotification: (_) {},
+      );
+      sockets.single.addConnectionEstablished('socket-a');
+      await auth.sourceAStarted.future;
 
-    await service.connect(
-      session: _session('private-source-b'),
-      credentials: _credentials('source-b'),
-      onNotification: (_) {},
-    );
-    sockets.last.addConnectionEstablished('socket-b');
-    await auth.sourceBCompleted.future;
-    auth.releaseSourceA.complete();
-    await auth.sourceACompleted.future;
-    await Future<void>.delayed(Duration.zero);
+      await service.connect(
+        session: _session('private-source-b'),
+        credentials: _credentials('source-b'),
+        onNotification: (_) {},
+      );
+      sockets.last.addConnectionEstablished('socket-b');
+      await auth.sourceBCompleted.future;
+      auth.releaseSourceA.complete();
+      await auth.sourceACompleted.future;
+      await Future<void>.delayed(Duration.zero);
 
-    expect(sockets, hasLength(2));
-    expect(sockets.first.sent, isEmpty);
-    expect(sockets.last.sent.map(_subscriptionChannel), <String>[
-      'private-source-b',
-    ]);
-  });
+      expect(sockets, hasLength(2));
+      expect(sockets.first.sent, isEmpty);
+      expect(sockets.last.sent.map(_subscriptionChannel), <String>[
+        'private-source-b',
+      ]);
+    },
+  );
 
   test(
     'late authentication failure cannot disconnect the current socket',
@@ -125,134 +128,146 @@ void main() {
     },
   );
 
-  test('healthy idle connection survives multiple activity cycles without reconnecting', () {
-    fakeAsync((async) {
-      final channels = <_FakeWebSocketChannel>[];
-      final service = ReverbService(
-        notificationApi: _FakeNotificationApi(),
-        channelFactory: (_) {
-          final channel = _FakeWebSocketChannel();
-          channels.add(channel);
-          return channel;
-        },
-      );
+  test(
+    'healthy idle connection survives multiple activity cycles without reconnecting',
+    () {
+      fakeAsync((async) {
+        final channels = <_FakeWebSocketChannel>[];
+        final service = ReverbService(
+          notificationApi: _FakeNotificationApi(),
+          channelFactory: (_) {
+            final channel = _FakeWebSocketChannel();
+            channels.add(channel);
+            return channel;
+          },
+        );
 
-      unawaited(
-        service.connect(
-          session: session,
-          credentials: credentials,
-          onNotification: (_) {},
-        ),
-      );
-      async.flushMicrotasks();
-      expect(channels, hasLength(1));
-
-      channels.single.emit(
-        jsonEncode({
-          'event': 'pusher:connection_established',
-          'data': jsonEncode({'socket_id': '123.456', 'activity_timeout': 30}),
-        }),
-      );
-      async.flushMicrotasks();
-
-      channels.single.emit(
-        jsonEncode({
-          'event': 'pusher_internal:subscription_succeeded',
-          'data': '{}',
-        }),
-      );
-      async.flushMicrotasks();
-
-      // Simulate the server's own idle ping arriving every 25s (within the
-      // 30s activity_timeout) for several cycles — the connection is
-      // healthy the whole time and must never be torn down.
-      for (var i = 0; i < 3; i++) {
-        async.elapse(const Duration(seconds: 25));
-        channels.single.emit(
-          jsonEncode({'event': 'pusher:ping', 'data': '{}'}),
+        unawaited(
+          service.connect(
+            session: session,
+            credentials: credentials,
+            onNotification: (_) {},
+          ),
         );
         async.flushMicrotasks();
-      }
+        expect(channels, hasLength(1));
 
-      expect(
-        channels,
-        hasLength(1),
-        reason:
-            'no reconnect should have happened while the socket '
-            'kept receiving activity within each window',
-      );
-      expect(
-        channels.single.sent,
-        everyElement(isNot(contains('"pusher:ping"'))),
-        reason:
-            'the client should not need to self-ping when the server '
-            'is already sending activity',
-      );
-    });
-  });
+        channels.single.emit(
+          jsonEncode({
+            'event': 'pusher:connection_established',
+            'data': jsonEncode({
+              'socket_id': '123.456',
+              'activity_timeout': 30,
+            }),
+          }),
+        );
+        async.flushMicrotasks();
 
-  test('force-reconnects when the connection goes silent past the pong grace period', () {
-    fakeAsync((async) {
-      final channels = <_FakeWebSocketChannel>[];
-      final service = ReverbService(
-        notificationApi: _FakeNotificationApi(),
-        channelFactory: (_) {
-          final channel = _FakeWebSocketChannel();
-          channels.add(channel);
-          return channel;
-        },
-      );
+        channels.single.emit(
+          jsonEncode({
+            'event': 'pusher_internal:subscription_succeeded',
+            'data': '{}',
+          }),
+        );
+        async.flushMicrotasks();
 
-      unawaited(
-        service.connect(
-          session: session,
-          credentials: credentials,
-          onNotification: (_) {},
-        ),
-      );
-      async.flushMicrotasks();
+        // Simulate the server's own idle ping arriving every 25s (within the
+        // 30s activity_timeout) for several cycles — the connection is
+        // healthy the whole time and must never be torn down.
+        for (var i = 0; i < 3; i++) {
+          async.elapse(const Duration(seconds: 25));
+          channels.single.emit(
+            jsonEncode({'event': 'pusher:ping', 'data': '{}'}),
+          );
+          async.flushMicrotasks();
+        }
 
-      channels.single.emit(
-        jsonEncode({
-          'event': 'pusher:connection_established',
-          'data': jsonEncode({'socket_id': '123.456', 'activity_timeout': 30}),
-        }),
-      );
-      async.flushMicrotasks();
+        expect(
+          channels,
+          hasLength(1),
+          reason:
+              'no reconnect should have happened while the socket '
+              'kept receiving activity within each window',
+        );
+        expect(
+          channels.single.sent,
+          everyElement(isNot(contains('"pusher:ping"'))),
+          reason:
+              'the client should not need to self-ping when the server '
+              'is already sending activity',
+        );
+      });
+    },
+  );
 
-      channels.single.emit(
-        jsonEncode({
-          'event': 'pusher_internal:subscription_succeeded',
-          'data': '{}',
-        }),
-      );
-      // Total silence: nothing arrives at all — not the server's ping,
-      // not our own reply. After activity_timeout (30s) the client
-      // proactively pings; after a further 15s grace with no reply, the
-      // connection is presumed dead and a reconnect is forced.
-      async
-        ..flushMicrotasks()
-        ..elapse(const Duration(seconds: 30));
-      expect(
-        channels.single.sent,
-        contains(
-          jsonEncode({'event': 'pusher:ping', 'data': <String, Object?>{}}),
-        ),
-        reason: 'client should self-ping after activity_timeout of silence',
-      );
+  test(
+    'force-reconnects when the connection goes silent past the pong grace period',
+    () {
+      fakeAsync((async) {
+        final channels = <_FakeWebSocketChannel>[];
+        final service = ReverbService(
+          notificationApi: _FakeNotificationApi(),
+          channelFactory: (_) {
+            final channel = _FakeWebSocketChannel();
+            channels.add(channel);
+            return channel;
+          },
+        );
 
-      // 15s pong grace, then _scheduleReconnect's own backoff timer (2s).
-      async
-        ..elapse(const Duration(seconds: 17))
-        ..flushMicrotasks();
+        unawaited(
+          service.connect(
+            session: session,
+            credentials: credentials,
+            onNotification: (_) {},
+          ),
+        );
+        async.flushMicrotasks();
 
-      expect(
-        channels,
-        hasLength(2),
-        reason: 'a zombie connection must be abandoned and replaced',
-      );
-    });
-  });
+        channels.single.emit(
+          jsonEncode({
+            'event': 'pusher:connection_established',
+            'data': jsonEncode({
+              'socket_id': '123.456',
+              'activity_timeout': 30,
+            }),
+          }),
+        );
+        async.flushMicrotasks();
+
+        channels.single.emit(
+          jsonEncode({
+            'event': 'pusher_internal:subscription_succeeded',
+            'data': '{}',
+          }),
+        );
+        // Total silence: nothing arrives at all — not the server's ping,
+        // not our own reply. After activity_timeout (30s) the client
+        // proactively pings; after a further 15s grace with no reply, the
+        // connection is presumed dead and a reconnect is forced.
+        async
+          ..flushMicrotasks()
+          ..elapse(const Duration(seconds: 30));
+        expect(
+          channels.single.sent,
+          contains(
+            jsonEncode({'event': 'pusher:ping', 'data': <String, Object?>{}}),
+          ),
+          reason: 'client should self-ping after activity_timeout of silence',
+        );
+
+        // 15s pong grace, then _scheduleReconnect's own backoff timer (2s).
+        async
+          ..elapse(const Duration(seconds: 17))
+          ..flushMicrotasks();
+
+        expect(
+          channels,
+          hasLength(2),
+          reason: 'a zombie connection must be abandoned and replaced',
+        );
+      });
+    },
+  );
 
   test('device.deregister invokes the callback with the device id', () async {
     final sockets = <_ControlledWebSocket>[];

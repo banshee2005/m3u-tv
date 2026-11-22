@@ -86,7 +86,9 @@ class ContentActions extends InheritedWidget {
   /// `AppStateController.scheduleDvrAirings`. Null means the selection-mode
   /// entry affordance is hidden on the route (same null-hides-affordance
   /// convention as [onScheduleEpisode]).
-  final Future<List<DvrAiringScheduleResult>> Function(List<EpgShowEpisode>)?
+  final Future<List<DvrAiringScheduleResult>> Function(
+    List<EpgShowEpisode>,
+  )?
   onScheduleEpisodes;
 
   /// Marks a single series episode watched or unwatched for the active viewer.
@@ -211,7 +213,9 @@ class AppShellActions {
   final Future<void> Function(DvrSeriesRule rule)? onDeleteSeriesRule;
   final Future<DvrRecording?> Function(EpgShowEpisode episode)?
   onScheduleEpisode;
-  final Future<List<DvrAiringScheduleResult>> Function(List<EpgShowEpisode>)?
+  final Future<List<DvrAiringScheduleResult>> Function(
+    List<EpgShowEpisode>,
+  )?
   onScheduleEpisodes;
 
   XtreamService get xtreamService => appState.xtreamService;

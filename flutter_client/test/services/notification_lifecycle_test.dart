@@ -478,7 +478,9 @@ void main() {
           presented.add,
         );
         final activationSubscription = controller.notificationActivations
-            .listen(destinations.add);
+            .listen(
+              destinations.add,
+            );
         addTearDown(presentationSubscription.cancel);
         addTearDown(activationSubscription.cancel);
 
@@ -499,7 +501,10 @@ void main() {
     }
 
     test('requester-scoped REST fixture isolates two credentials', () async {
-      final requesterItem = _item(id: _notificationId, channel: 'requests');
+      final requesterItem = _item(
+        id: _notificationId,
+        channel: 'requests',
+      );
       final requesterApi = _FakeTvNotificationService(<TvNotificationItem>[
         requesterItem,
       ]);

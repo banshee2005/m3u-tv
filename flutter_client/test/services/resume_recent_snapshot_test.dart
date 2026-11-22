@@ -94,7 +94,10 @@ void main() {
 
         await service.saveRecent('a', [_episode('a', 2)]);
 
-        expect((await service.all('a')).map((p) => p.streamId).toSet(), {1, 2});
+        expect(
+          (await service.all('a')).map((p) => p.streamId).toSet(),
+          {1, 2},
+        );
       });
 
       test('remove drops a single resume entry', () async {

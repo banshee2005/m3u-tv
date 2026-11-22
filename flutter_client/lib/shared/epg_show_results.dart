@@ -117,8 +117,9 @@ ShowResultEntries buildShowResultEntries(
           isOnNow: false,
         );
       }).toList()..sort(
-        (a, b) =>
-            a.episodes.first.startTime.compareTo(b.episodes.first.startTime),
+        (a, b) => a.episodes.first.startTime.compareTo(
+          b.episodes.first.startTime,
+        ),
       );
 
   return (
@@ -276,8 +277,9 @@ class ShowResultRow extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: Theme.of(context).textTheme.labelSmall
-                          ?.copyWith(color: colorScheme.onSurfaceVariant),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

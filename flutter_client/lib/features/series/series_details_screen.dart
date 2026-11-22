@@ -29,16 +29,17 @@ const int _kResumePromptMinSeconds = 30;
 /// Marks one series episode watched / unwatched for the active viewer.
 /// Structurally matches `ContentActions.onMarkEpisodeWatched`. Resolves to
 /// whether the server write succeeded (local state updates regardless).
-typedef MarkEpisodeWatched = Future<bool> Function({
-  required int streamId,
-  required int seriesId,
-  required int seasonNumber,
-  required int episodeNumber,
-  int? durationSeconds,
-  String? seriesName,
-  String? episodeTitle,
-  required bool watched,
-});
+typedef MarkEpisodeWatched =
+    Future<bool> Function({
+      required int streamId,
+      required int seriesId,
+      required int seasonNumber,
+      required int episodeNumber,
+      int? durationSeconds,
+      String? seriesName,
+      String? episodeTitle,
+      required bool watched,
+    });
 
 class SeriesDetailsScreen extends StatefulWidget {
   const SeriesDetailsScreen({
@@ -211,8 +212,9 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                AppLocalizations.of(context)
-                    .seriesEpisodesLoadFailed('${snapshot.error}'),
+                AppLocalizations.of(
+                  context,
+                ).seriesEpisodesLoadFailed('${snapshot.error}'),
               ),
             );
           }
@@ -277,7 +279,9 @@ class _SeriesDetailsScreenState extends State<SeriesDetailsScreen> {
     final streamId = int.tryParse(episode.id);
     final progress = streamId == null
         ? null
-        : _effectiveProgress.firstWhereOrNull((p) => p.streamId == streamId);
+        : _effectiveProgress.firstWhereOrNull(
+            (p) => p.streamId == streamId,
+          );
     if (progress == null ||
         progress.completed ||
         progress.positionSeconds < _kResumePromptMinSeconds) {

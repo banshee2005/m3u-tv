@@ -44,14 +44,18 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('renders episode subtitle when present, hiding the show title', (
-    tester,
-  ) async {
-    await pumpScreen(tester, testShow([episode(subtitle: 'Episode 1: Pilot')]));
+  testWidgets(
+    'renders episode subtitle when present, hiding the show title',
+    (tester) async {
+      await pumpScreen(
+        tester,
+        testShow([episode(subtitle: 'Episode 1: Pilot')]),
+      );
 
-    expect(find.text('Episode 1: Pilot'), findsOneWidget);
-    expect(find.text('Show Title'), findsNothing);
-  });
+      expect(find.text('Episode 1: Pilot'), findsOneWidget);
+      expect(find.text('Show Title'), findsNothing);
+    },
+  );
 
   testWidgets('falls back to show title when subtitle is null', (tester) async {
     await pumpScreen(tester, testShow([episode()]));

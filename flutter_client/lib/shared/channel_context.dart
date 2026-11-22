@@ -26,17 +26,20 @@ class LiveChannelQuery {
   final CatalogSort sort;
   final Set<int> favoritesFirst;
 
-  Future<List<Channel>> page(CatalogRepository repo, int offset, int limit) =>
-      repo.pageActiveItems<Channel>(
-        kind: kCatalogKindLive,
-        categoryId: categoryId,
-        search: search,
-        ids: ids,
-        sort: sort,
-        favoritesFirst: favoritesFirst,
-        offset: offset,
-        limit: limit,
-      );
+  Future<List<Channel>> page(
+    CatalogRepository repo,
+    int offset,
+    int limit,
+  ) => repo.pageActiveItems<Channel>(
+    kind: kCatalogKindLive,
+    categoryId: categoryId,
+    search: search,
+    ids: ids,
+    sort: sort,
+    favoritesFirst: favoritesFirst,
+    offset: offset,
+    limit: limit,
+  );
 
   /// Every matching channel id, in [page] order.
   Future<List<int>> idsInOrder(CatalogRepository repo) => repo.activeIdsInOrder(
@@ -55,8 +58,12 @@ class LiveChannelQuery {
     ids: ids,
   );
 
-  Future<int> maxCatchupDays(CatalogRepository repo) => repo
-      .maxActiveCatchupDays(categoryId: categoryId, search: search, ids: ids);
+  Future<int> maxCatchupDays(CatalogRepository repo) =>
+      repo.maxActiveCatchupDays(
+        categoryId: categoryId,
+        search: search,
+        ids: ids,
+      );
 }
 
 /// The channels the player's channel up/down moves through: the slice the

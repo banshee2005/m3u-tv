@@ -110,24 +110,30 @@ void main() {
       expect(removed, <String>['tt0111161']);
     });
 
-    test('applyRemote stores full metadata for a remote add without invoking onAdded', () async {
-      final service = AIOStreamsFavoritesService();
-      final added = <String>[];
-      service.onAdded = (i) => added.add(i.id);
+    test(
+      'applyRemote stores full metadata for a remote add without invoking onAdded',
+      () async {
+        final service = AIOStreamsFavoritesService();
+        final added = <String>[];
+        service.onAdded = (i) => added.add(i.id);
 
-      await service.applyRemote(item.id, favorited: true, item: item);
+        await service.applyRemote(item.id, favorited: true, item: item);
 
-      final all = await service.all();
-      expect(all, hasLength(1));
-      expect(all.single.name, 'The Shawshank Redemption');
-      expect(added, isEmpty);
-    });
+        final all = await service.all();
+        expect(all, hasLength(1));
+        expect(all.single.name, 'The Shawshank Redemption');
+        expect(added, isEmpty);
+      },
+    );
 
-    test('applyRemote drops a remote add with no metadata rather than storing a bare id', () async {
-      final service = AIOStreamsFavoritesService();
-      await service.applyRemote(item.id, favorited: true);
-      expect(await service.all(), isEmpty);
-    });
+    test(
+      'applyRemote drops a remote add with no metadata rather than storing a bare id',
+      () async {
+        final service = AIOStreamsFavoritesService();
+        await service.applyRemote(item.id, favorited: true);
+        expect(await service.all(), isEmpty);
+      },
+    );
 
     test(
       'replaceAll overwrites the full local set without invoking callbacks',
@@ -235,10 +241,10 @@ void main() {
       write.release.complete();
       await add;
 
-      expect((await service.all()).map((favorite) => favorite.id), <String>[
-        item.id,
-        prior.id,
-      ]);
+      expect(
+        (await service.all()).map((favorite) => favorite.id),
+        <String>[item.id, prior.id],
+      );
       expect(await service.isFavorite(item.id), isTrue);
       expect(
         _storedFor(await store.snapshot(), 'aio_favorites'),
@@ -340,7 +346,10 @@ void main() {
         await write.started.future;
         expect(await service.isFavorite(item.id), isFalse);
         write.release.complete();
-        expect(await added.timeout(const Duration(seconds: 1)), isTrue);
+        expect(
+          await added.timeout(const Duration(seconds: 1)),
+          isTrue,
+        );
         expect(await service.isFavorite(item.id), isTrue);
 
         expect(
@@ -550,47 +559,51 @@ void main() {
       expect(notifications, 0);
     });
 
-    test('local add survives a pending conditional replacement', () async {
-      const remote = AIOStreamsFavoriteItem(
-        id: 'tt9999999',
-        type: 'series',
-        name: 'Remote Show',
-        integrationId: 3,
-      );
-      final store = _ControlledFavoritesStore();
-      final service = AIOStreamsFavoritesService(store: store);
-      await service.all();
+    test(
+      'local add survives a pending conditional replacement',
+      () async {
+        const remote = AIOStreamsFavoriteItem(
+          id: 'tt9999999',
+          type: 'series',
+          name: 'Remote Show',
+          integrationId: 3,
+        );
+        final store = _ControlledFavoritesStore();
+        final service = AIOStreamsFavoritesService(store: store);
+        await service.all();
 
-      final replacement = service.replaceAll(const <AIOStreamsFavoriteItem>[
-        remote,
-      ], shouldCommit: () => true);
-      await store.conditionalWriteStarted.future;
+        final replacement = service.replaceAll(
+          const <AIOStreamsFavoriteItem>[remote],
+          shouldCommit: () => true,
+        );
+        await store.conditionalWriteStarted.future;
 
-      final localAdd = service.add(item);
-      await pumpEventQueue();
-      store.releaseConditionalWrite.complete();
-      await replacement;
-      await localAdd;
+        final localAdd = service.add(item);
+        await pumpEventQueue();
+        store.releaseConditionalWrite.complete();
+        await replacement;
+        await localAdd;
 
-      final visibleIds = (await service.all())
-          .map((favorite) => favorite.id)
-          .toSet();
-      final persisted = await store.snapshot();
-      final persistedIds =
-          (_storedFor(persisted, 'aio_favorites')! as Map<Object?, Object?>)
-              .keys
-              .toSet();
-      expect(
-        <String, Set<Object?>>{
-          'visible': visibleIds,
-          'persisted': persistedIds,
-        },
-        <String, Set<Object?>>{
-          'visible': <String>{remote.id, item.id},
-          'persisted': <String>{remote.id, item.id},
-        },
-      );
-    });
+        final visibleIds = (await service.all())
+            .map((favorite) => favorite.id)
+            .toSet();
+        final persisted = await store.snapshot();
+        final persistedIds =
+            (_storedFor(persisted, 'aio_favorites')! as Map<Object?, Object?>)
+                .keys
+                .toSet();
+        expect(
+          <String, Set<Object?>>{
+            'visible': visibleIds,
+            'persisted': persistedIds,
+          },
+          <String, Set<Object?>>{
+            'visible': <String>{remote.id, item.id},
+            'persisted': <String>{remote.id, item.id},
+          },
+        );
+      },
+    );
   });
 
   group('AppStateController favorites server sync', () {
@@ -658,48 +671,51 @@ void main() {
       },
     );
 
-    test('connecting a second source does not upload favorites cached from the first source', () async {
-      final memory = <String, Object?>{};
-      final transport = _FakeXtreamTransport();
-      final controller = _controller(memory: memory, transport: transport);
-      addTearDown(controller.dispose);
-      await controller.favoritesService.add(101);
+    test(
+      'connecting a second source does not upload favorites cached from the first source',
+      () async {
+        final memory = <String, Object?>{};
+        final transport = _FakeXtreamTransport();
+        final controller = _controller(memory: memory, transport: transport);
+        addTearDown(controller.dispose);
+        await controller.favoritesService.add(101);
 
-      expect(
-        await controller.connectXtream(
-          const UserCredentials(
-            server: 'https://source-a.example',
-            username: 'source-a',
-            password: 'source-a-password',
+        expect(
+          await controller.connectXtream(
+            const UserCredentials(
+              server: 'https://source-a.example',
+              username: 'source-a',
+              password: 'source-a-password',
+            ),
           ),
-        ),
-        isTrue,
-      );
-      await pumpEventQueue();
-      expect(
-        transport.requests.where((r) => r.action == 'sync_favorites'),
-        hasLength(1),
-      );
-      transport.requests.clear();
+          isTrue,
+        );
+        await pumpEventQueue();
+        expect(
+          transport.requests.where((r) => r.action == 'sync_favorites'),
+          hasLength(1),
+        );
+        transport.requests.clear();
 
-      expect(
-        await controller.connectXtream(
-          const UserCredentials(
-            server: 'https://source-b.example',
-            username: 'source-b',
-            password: 'source-b-password',
+        expect(
+          await controller.connectXtream(
+            const UserCredentials(
+              server: 'https://source-b.example',
+              username: 'source-b',
+              password: 'source-b-password',
+            ),
           ),
-        ),
-        isTrue,
-      );
-      await pumpEventQueue();
+          isTrue,
+        );
+        await pumpEventQueue();
 
-      expect(
-        transport.requests.where((r) => r.action == 'sync_favorites'),
-        isEmpty,
-      );
-      expect(await controller.favoritesService.all(), isEmpty);
-    });
+        expect(
+          transport.requests.where((r) => r.action == 'sync_favorites'),
+          isEmpty,
+        );
+        expect(await controller.favoritesService.all(), isEmpty);
+      },
+    );
 
     test(
       'publishing a second source never exposes the first source favorites',
@@ -1030,7 +1046,10 @@ void main() {
           expect(controller.activeViewer, viewerB);
           expect(await service.all(), isNot(contains(staleId)));
           expect(
-            _persistedNumericFavoriteIds(await store.snapshot(), contentType),
+            _persistedNumericFavoriteIds(
+              await store.snapshot(),
+              contentType,
+            ),
             isNot(contains(staleId)),
           );
           expect(notifications, 0);
@@ -1133,7 +1152,10 @@ void main() {
 
           expect(await service.all(), containsAll(<int>[localId, remoteId]));
           expect(
-            _persistedNumericFavoriteIds(await store.snapshot(), contentType),
+            _persistedNumericFavoriteIds(
+              await store.snapshot(),
+              contentType,
+            ),
             containsAll(<int>[localId, remoteId]),
           );
           expect(notifications, 2);
@@ -1202,7 +1224,10 @@ void main() {
       expect(request.body['aio_integration_id'], '7');
       expect(notifications, 1);
       expect(await _favoriteIds(aioFavorites), <String>[item.id]);
-      expect(_persistedFavoriteIds(await store.snapshot()), <String>{item.id});
+      expect(
+        _persistedFavoriteIds(await store.snapshot()),
+        <String>{item.id},
+      );
     });
 
     for (final remove in <bool>[false, true]) {
@@ -1282,7 +1307,10 @@ void main() {
             (await aioFavorites.all()).map((favorite) => favorite.id).toSet(),
             committedIds,
           );
-          expect(_persistedFavoriteIds(await store.snapshot()), committedIds);
+          expect(
+            _persistedFavoriteIds(await store.snapshot()),
+            committedIds,
+          );
 
           transport.releaseBlockedFavorites.complete();
           await pumpEventQueue();

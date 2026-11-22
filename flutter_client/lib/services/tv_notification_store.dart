@@ -288,8 +288,11 @@ class TvNotificationStore {
     final newItems = serverUnread
         .where((item) => !existingIds.contains(item.id))
         .map(
-          (item) =>
-              StoredTvNotification(item: item, receivedAt: now, isRead: false),
+          (item) => StoredTvNotification(
+            item: item,
+            receivedAt: now,
+            isRead: false,
+          ),
         )
         .toList(growable: false);
 
@@ -306,54 +309,58 @@ class TvNotificationStore {
 
   /// Adds a newly received notification as unread. No-op if its id is
   /// already stored (e.g. delivered via both the unread-fetch and Reverb push).
-  Future<bool> add(TvNotificationItem item, {bool Function()? shouldCommit}) =>
-      _mutate(() async {
-        final owner = _ownerKey;
-        if (owner == null) return false;
-        bool ownsMutation() => _ownsMutation(owner, shouldCommit);
-        if (!ownsMutation()) return false;
-        final existing = await _allFor(owner);
-        if (!ownsMutation()) return false;
-        if (existing.any((n) => n.item.id == item.id)) return false;
-        final updated = [
-          StoredTvNotification(
-            item: item,
-            receivedAt: DateTime.now(),
-            isRead: false,
-          ),
-          ...existing,
-        ];
-        return _write(
-          owner,
-          updated.take(_maxStored).toList(growable: false),
-          shouldCommit: ownsMutation,
-        );
-      });
+  Future<bool> add(
+    TvNotificationItem item, {
+    bool Function()? shouldCommit,
+  }) => _mutate(() async {
+    final owner = _ownerKey;
+    if (owner == null) return false;
+    bool ownsMutation() => _ownsMutation(owner, shouldCommit);
+    if (!ownsMutation()) return false;
+    final existing = await _allFor(owner);
+    if (!ownsMutation()) return false;
+    if (existing.any((n) => n.item.id == item.id)) return false;
+    final updated = [
+      StoredTvNotification(
+        item: item,
+        receivedAt: DateTime.now(),
+        isRead: false,
+      ),
+      ...existing,
+    ];
+    return _write(
+      owner,
+      updated.take(_maxStored).toList(growable: false),
+      shouldCommit: ownsMutation,
+    );
+  });
 
   Future<void> markRead(String id) => _markRead(id);
 
   Future<void> markReadIf(String id, bool Function() shouldCommit) =>
       _markRead(id, shouldCommit: shouldCommit);
 
-  Future<void> _markRead(String id, {bool Function()? shouldCommit}) =>
-      _mutate(() async {
-        final owner = _ownerKey;
-        if (owner == null) return;
-        bool ownsMutation() => _ownsMutation(owner, shouldCommit);
-        if (!ownsMutation()) return;
-        final existing = await _allFor(owner);
-        if (!ownsMutation()) return;
-        var changed = false;
-        final now = DateTime.now();
-        final updated = existing
-            .map((n) {
-              if (n.item.id != id || n.isRead) return n;
-              changed = true;
-              return n.copyWith(isRead: true, readAt: now);
-            })
-            .toList(growable: false);
-        if (changed) await _write(owner, updated, shouldCommit: ownsMutation);
-      });
+  Future<void> _markRead(
+    String id, {
+    bool Function()? shouldCommit,
+  }) => _mutate(() async {
+    final owner = _ownerKey;
+    if (owner == null) return;
+    bool ownsMutation() => _ownsMutation(owner, shouldCommit);
+    if (!ownsMutation()) return;
+    final existing = await _allFor(owner);
+    if (!ownsMutation()) return;
+    var changed = false;
+    final now = DateTime.now();
+    final updated = existing
+        .map((n) {
+          if (n.item.id != id || n.isRead) return n;
+          changed = true;
+          return n.copyWith(isRead: true, readAt: now);
+        })
+        .toList(growable: false);
+    if (changed) await _write(owner, updated, shouldCommit: ownsMutation);
+  });
 
   Future<void> markAllRead() => _markAllRead();
 

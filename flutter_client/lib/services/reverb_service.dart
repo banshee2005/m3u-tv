@@ -147,7 +147,10 @@ class ReverbService {
   /// how long they may go without a message before they're expected to ping.
   /// If nothing at all arrives within that window — not even the server's own
   /// keep-alive — [_sendPing] probes the connection explicitly.
-  void _resetIdleTimer(int connectionGeneration, WebSocketChannel socket) {
+  void _resetIdleTimer(
+    int connectionGeneration,
+    WebSocketChannel socket,
+  ) {
     if (_connectionGeneration.isStale(connectionGeneration) ||
         !identical(_ws, socket)) {
       return;

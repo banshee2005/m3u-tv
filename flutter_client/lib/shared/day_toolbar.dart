@@ -7,7 +7,11 @@ import 'package:m3u_tv/shared/image_quality_scope.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// "Today" / "Tomorrow" / "Yesterday", else the localized weekday name.
-String epgRelativeDayLabel(BuildContext context, DateTime day, DateTime today) {
+String epgRelativeDayLabel(
+  BuildContext context,
+  DateTime day,
+  DateTime today,
+) {
   final l10n = AppLocalizations.of(context);
   final a = DateTime(day.year, day.month, day.day);
   final b = DateTime(today.year, today.month, today.day);

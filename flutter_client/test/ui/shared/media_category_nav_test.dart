@@ -176,7 +176,10 @@ void main() {
       expect(find.text('1'), findsOneWidget);
 
       final actionTile = tester.widget<ListTile>(
-        find.ancestor(of: find.text('Action'), matching: find.byType(ListTile)),
+        find.ancestor(
+          of: find.text('Action'),
+          matching: find.byType(ListTile),
+        ),
       );
       expect(actionTile.selected, isTrue);
     });

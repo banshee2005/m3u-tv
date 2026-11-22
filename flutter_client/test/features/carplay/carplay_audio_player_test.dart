@@ -99,7 +99,9 @@ void main() {
     await stop(tester);
   });
 
-  testWidgets('Play while tuning neither restarts nor resumes', (tester) async {
+  testWidgets('Play while tuning neither restarts nor resumes', (
+    tester,
+  ) async {
     await start(tester, news);
     await emit(tester, PlaybackStatus.buffering);
 

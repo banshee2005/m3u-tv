@@ -66,54 +66,59 @@ void main() {
       },
     );
 
-    test('unsupported direct backend falls back to server transcode without UI changes', () async {
-      final directBackend = _FakePlayerAdapter(
-        capabilities: PlaybackCapabilities.androidExoPlayer,
-        unsupportedVideoCodecs: <String>{'hevc'},
-      );
-      final serverTranscodeBackend = _FakePlayerAdapter(
-        capabilities: PlaybackCapabilities.serverTranscode,
-      );
-      final adapter = FallbackPlayerAdapter(
-        primary: directBackend,
-        fallback: serverTranscodeBackend,
-      );
-      final ui = _PlaybackUiHarness(adapter);
+    test(
+      'unsupported direct backend falls back to server transcode without UI changes',
+      () async {
+        final directBackend = _FakePlayerAdapter(
+          capabilities: PlaybackCapabilities.androidExoPlayer,
+          unsupportedVideoCodecs: <String>{'hevc'},
+        );
+        final serverTranscodeBackend = _FakePlayerAdapter(
+          capabilities: PlaybackCapabilities.serverTranscode,
+        );
+        final adapter = FallbackPlayerAdapter(
+          primary: directBackend,
+          fallback: serverTranscodeBackend,
+        );
+        final ui = _PlaybackUiHarness(adapter);
 
-      await ui.open(
-        const PlaybackSource(
-          uri: 'https://provider.example/live/news-hevc.ts',
-          title: 'News HEVC',
-          isLive: true,
-          videoCodec: 'hevc',
-          audioCodec: 'aac',
-        ),
-      );
-      await ui.play();
-      await ui.pause();
-      await ui.stop();
-      await pumpEventQueue();
+        await ui.open(
+          const PlaybackSource(
+            uri: 'https://provider.example/live/news-hevc.ts',
+            title: 'News HEVC',
+            isLive: true,
+            videoCodec: 'hevc',
+            audioCodec: 'aac',
+          ),
+        );
+        await ui.play();
+        await ui.pause();
+        await ui.stop();
+        await pumpEventQueue();
 
-      expect(directBackend.commands, <String>[
-        'load:https://provider.example/live/news-hevc.ts',
-      ]);
-      expect(serverTranscodeBackend.commands, <String>[
-        'load:https://provider.example/live/news-hevc.ts',
-        'play',
-        'pause',
-        'stop',
-      ]);
-      expect(ui.backend, PlaybackBackend.serverTranscode);
-      expect(ui.status, PlaybackStatus.stopped);
+        expect(directBackend.commands, <String>[
+          'load:https://provider.example/live/news-hevc.ts',
+        ]);
+        expect(serverTranscodeBackend.commands, <String>[
+          'load:https://provider.example/live/news-hevc.ts',
+          'play',
+          'pause',
+          'stop',
+        ]);
+        expect(ui.backend, PlaybackBackend.serverTranscode);
+        expect(ui.status, PlaybackStatus.stopped);
 
-      await ui.dispose();
-    });
+        await ui.dispose();
+      },
+    );
   });
 
   group('PlaybackCapabilities matrix', () {
     test('declares explicit backend rows for every planned platform path', () {
       expect(
-        PlaybackCapabilities.matrix.map((capabilities) => capabilities.backend),
+        PlaybackCapabilities.matrix.map(
+          (capabilities) => capabilities.backend,
+        ),
         containsAll(<PlaybackBackend>[
           PlaybackBackend.androidExoPlayer,
           PlaybackBackend.androidMpv,

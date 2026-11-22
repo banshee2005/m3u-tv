@@ -550,7 +550,12 @@ void main() {
     });
 
     testWidgets('AIOStreams and Requests rows are opt-in', (tester) async {
-      await pumpHome(tester, full, hasAioStreams: true, hasRequests: true);
+      await pumpHome(
+        tester,
+        full,
+        hasAioStreams: true,
+        hasRequests: true,
+      );
       await _settle(tester);
 
       expect(find.text('Browse your AIOStreams catalogs'), findsNothing);
@@ -576,7 +581,10 @@ void main() {
       );
       await _settle(tester);
 
-      expect(find.text('Browse your AIOStreams catalogs'), findsOneWidget);
+      expect(
+        find.text('Browse your AIOStreams catalogs'),
+        findsOneWidget,
+      );
       expect(
         find.text('Search for and request movies and shows'),
         findsOneWidget,
@@ -796,9 +804,9 @@ void main() {
 
     const next = _Catalog(movies: _otherMovies);
     await tester.runAsync(() => _fill(repo, next));
-    ProviderScope.containerOf(tester.element(find.byType(HomeScreen)))
-        .read(shown.notifier)
-        .state = (
+    ProviderScope.containerOf(
+      tester.element(find.byType(HomeScreen)),
+    ).read(shown.notifier).state = (
       'second',
       next,
     );
@@ -831,9 +839,9 @@ void main() {
         items: _movies,
       ),
     );
-    ProviderScope.containerOf(tester.element(find.byType(HomeScreen)))
-        .read(dvrRevision.notifier)
-        .state++;
+    ProviderScope.containerOf(
+      tester.element(find.byType(HomeScreen)),
+    ).read(dvrRevision.notifier).state++;
     await _settle(tester);
 
     expect(find.text('Elephants Dream'), findsNothing);
@@ -855,7 +863,9 @@ void main() {
     // The next playlist has its own channel 1, no favorites, and they are
     // slow to read.
     const next = _Catalog(
-      channels: [Channel(id: 1, name: 'Sports One', streamUrl: 'http://x/s1')],
+      channels: [
+        Channel(id: 1, name: 'Sports One', streamUrl: 'http://x/s1'),
+      ],
     );
     final gate = Completer<void>();
     favorites
@@ -863,9 +873,9 @@ void main() {
       ..gate = gate
       ..notifyPlaylistChanged();
     await tester.runAsync(() => _fill(repo, next));
-    ProviderScope.containerOf(tester.element(find.byType(HomeScreen)))
-        .read(shown.notifier)
-        .state = (
+    ProviderScope.containerOf(
+      tester.element(find.byType(HomeScreen)),
+    ).read(shown.notifier).state = (
       'second',
       next,
     );

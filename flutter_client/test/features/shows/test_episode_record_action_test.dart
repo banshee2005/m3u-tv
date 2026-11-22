@@ -103,25 +103,30 @@ void main() {
     },
   );
 
-  testWidgets('record icon is absent when onScheduleEpisode is not wired', (
-    tester,
-  ) async {
-    await pumpScreen(tester, show: testShow(episodes: [futureEpisode]));
+  testWidgets(
+    'record icon is absent when onScheduleEpisode is not wired',
+    (tester) async {
+      await pumpScreen(
+        tester,
+        show: testShow(episodes: [futureEpisode]),
+      );
 
-    expect(recordIcon(tester), findsNothing);
-  });
+      expect(recordIcon(tester), findsNothing);
+    },
+  );
 
-  testWidgets('record icon is absent for an airing that has already ended', (
-    tester,
-  ) async {
-    await pumpScreen(
-      tester,
-      show: testShow(episodes: [pastEpisode]),
-      onScheduleEpisode: (episode) async => null,
-    );
+  testWidgets(
+    'record icon is absent for an airing that has already ended',
+    (tester) async {
+      await pumpScreen(
+        tester,
+        show: testShow(episodes: [pastEpisode]),
+        onScheduleEpisode: (episode) async => null,
+      );
 
-    expect(recordIcon(tester), findsNothing);
-  });
+      expect(recordIcon(tester), findsNothing);
+    },
+  );
 
   testWidgets(
     'double-tap guard: a second tap while scheduling is in flight is a no-op',
@@ -153,27 +158,28 @@ void main() {
     },
   );
 
-  testWidgets('schedule failure surfaces the appRecordingFailed SnackBar', (
-    tester,
-  ) async {
-    await pumpScreen(
-      tester,
-      show: testShow(episodes: [futureEpisode]),
-      onScheduleEpisode: (episode) async {
-        throw StateError('server rejected');
-      },
-    );
+  testWidgets(
+    'schedule failure surfaces the appRecordingFailed SnackBar',
+    (tester) async {
+      await pumpScreen(
+        tester,
+        show: testShow(episodes: [futureEpisode]),
+        onScheduleEpisode: (episode) async {
+          throw StateError('server rejected');
+        },
+      );
 
-    await tester.tap(recordIcon(tester));
-    await tester.pumpAndSettle();
+      await tester.tap(recordIcon(tester));
+      await tester.pumpAndSettle();
 
-    final l10n = AppLocalizations.of(
-      tester.element(find.byType(ShowDetailScreen)),
-    );
-    expect(
-      find.text(l10n.appRecordingFailed('Bad state: server rejected')),
-      findsOneWidget,
-      reason: 'failure SnackBar must surface the thrown error',
-    );
-  });
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(ShowDetailScreen)),
+      );
+      expect(
+        find.text(l10n.appRecordingFailed('Bad state: server rejected')),
+        findsOneWidget,
+        reason: 'failure SnackBar must surface the thrown error',
+      );
+    },
+  );
 }

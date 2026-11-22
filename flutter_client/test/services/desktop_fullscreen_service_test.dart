@@ -168,7 +168,9 @@ void main() {
     expect(window.requests, isEmpty);
   });
 
-  testWidgets('resyncs from the window when no event arrives', (tester) async {
+  testWidgets('resyncs from the window when no event arrives', (
+    tester,
+  ) async {
     await pumpPage(tester);
 
     await tester.sendKeyEvent(LogicalKeyboardKey.f11);

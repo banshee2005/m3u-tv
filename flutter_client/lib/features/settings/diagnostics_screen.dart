@@ -237,7 +237,9 @@ class _DiagnosticsScreenState extends State<DiagnosticsScreen> {
                   DecoratedSliver(
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(kSettingsGroupRadius),
+                      borderRadius: BorderRadius.circular(
+                        kSettingsGroupRadius,
+                      ),
                     ),
                     sliver: SliverPadding(
                       padding: const EdgeInsets.all(16),
